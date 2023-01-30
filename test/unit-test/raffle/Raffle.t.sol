@@ -2,7 +2,7 @@
 pragma solidity 0.8.17;
 
 import {Test} from "forge-std/Test.sol";
-import {console2} from "forge-std/console2.sol";
+
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
@@ -13,9 +13,7 @@ import {Raffle} from "@raffle/Raffle.sol";
 import {RaffleDataTypes} from "@raffle/RaffleDataTypes.sol";
 import {Errors} from "@libraries/helpers/Errors.sol";
 
-import {Utils} from "@test/utils/Utils.sol";
 import {SetupUsers} from "@test/utils/SetupUsers.sol";
-
 
 contract RaffleTest is Test, SetupUsers {
 
