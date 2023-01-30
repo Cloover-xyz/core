@@ -65,6 +65,12 @@ contract Raffle is IRaffle, RaffleStorage, Initializable {
         emit TicketPurchased(msg.sender, ticketsPurchased);
     }
 
+    function claimPrice() external override raffleEnded(){
+        if(msg.sender != _ticketOwner[_globalData.winningTicketNumber]) revert Errors.MSG_SENDER_NOT_WINNER();
+        _globalData.nftContract.safeTransferFrom(address(this), msg.sender,_globalData.nftId);
+        emit WinnerClaimedPrice(address(this), address(_globalData.nftContract), _globalData.nftId);
+    }
+
 
     function totalSupply() public view returns(uint256) {
         return _globalData.ticketSupply;

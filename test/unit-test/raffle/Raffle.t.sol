@@ -171,4 +171,52 @@ contract RaffleTest is Test, SetupUsers {
         vm.expectRevert(Errors.TIME_EXCEEDED.selector);
         raffle.purchaseTicket(1);
    }
+
+   function test_UserCanClaimHisPrice() external{
+        vm.startPrank(bob);
+        mockERC20.approve(address(raffle), 100e6);
+        raffle.purchaseTicket(2);
+        vm.warp(uint64(block.timestamp) + endTime + 1);
+        uint256 winningTicketNumber = 1;
+        vm.store(address(raffle),bytes32(uint256(9)), bytes32(winningTicketNumber));
+        assertEq(raffle.winningTicket(), winningTicketNumber);
+        raffle.claimPrice();
+        assertEq(mockERC721.ownerOf(nftId),bob);
+        assertEq(raffle.winerAddress(), bob);
+        assertEq(raffle.winningTicket(), 1);
+   }
+
+   function test_RefertIf_UserCallClaimPriceWhenRaffleStillOpen() external{
+        vm.expectRevert(Errors.TIME_NOT_EXCEEDED.selector);
+        raffle.claimPrice();
+   }
+
+   function test_RefertWhen_NotWinnerTryToCallClaimPrice() external{
+          vm.startPrank(bob);
+          mockERC20.approve(address(raffle), 100e6);
+          raffle.purchaseTicket(2);
+          vm.warp(uint64(block.timestamp) + endTime + 1);
+          uint256 winningTicketNumber = 1;
+          vm.store(address(raffle),bytes32(uint256(9)), bytes32(winningTicketNumber));
+          vm.stopPrank();
+          vm.expectRevert(Errors.MSG_SENDER_NOT_WINNER.selector);
+          vm.prank(alice);
+          raffle.claimPrice();
+   }
+
+   function test_RefertWhen_UserClaimPriceButDrawnHasNotBeDone() external{
+          vm.startPrank(bob);
+          mockERC20.approve(address(raffle), 100e6);
+          raffle.purchaseTicket(2);
+          vm.warp(uint64(block.timestamp) + endTime + 1);
+          vm.expectRevert(Errors.MSG_SENDER_NOT_WINNER.selector);
+          raffle.claimPrice();
+   }
+
+   function test_CorrectlyClaimTicketCost() external{
+          vm.startPrank(bob);
+          mockERC20.approve(address(raffle), 100e6);
+          raffle.purchaseTicket(2);
+          vm.warp(uint64(block.timestamp) + endTime + 1);
+   }
 }
