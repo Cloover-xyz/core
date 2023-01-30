@@ -28,13 +28,13 @@ jobs:
         with:
           version: nightly
 
-      - name: Run Forge build
+      - name: Run build
         run: |
           forge --version
           forge build --sizes
         id: build
 
-      - name: Run Forge tests
+      - name: Run tests
         run: |
-          forge test -vvv
+          forge test -vvv --gas-report
         id: test
