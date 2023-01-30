@@ -11,12 +11,12 @@ import {IRaffle} from "@interfaces/IRaffle.sol";
 import {RaffleDataTypes} from "./RaffleDataTypes.sol";
 import {RaffleStorage} from "./RaffleStorage.sol";
  
-
 contract Raffle is IRaffle, RaffleStorage, Initializable {
 
-    event NewRaffle(address indexed raffleAddress, RaffleDataTypes.RaffleData globalData);
-    event TicketPurchased(address indexed buyer, uint256[] ticketNumbers);
-    event WinnerClaimedPrice(address indexed winner, address indexed nftContract, uint256 nftId);
+    event NewRaffle(address indexed raffleContract, RaffleDataTypes.RaffleData globalData);
+    event TicketPurchased(address indexed raffleContract, address indexed buyer, uint256[] ticketNumbers);
+    event WinnerClaimedPrice(address indexed raffleContract, address indexed winner, address indexed nftContract, uint256 nftId);
+    event CreatorClaimTicketSalesAmount(address indexed raffleContract, address indexed winner, uint256 amountReceived);
 
     modifier raffleOpen() {
         if(block.timestamp >= _globalData.endTime) revert Errors.TIME_EXCEEDED();
@@ -62,15 +62,22 @@ contract Raffle is IRaffle, RaffleStorage, Initializable {
             }
         }
         _globalData.ticketSupply = ticketNumber - 1;
-        emit TicketPurchased(msg.sender, ticketsPurchased);
+        emit TicketPurchased(address(this), msg.sender, ticketsPurchased);
     }
 
     function claimPrice() external override raffleEnded(){
-        if(msg.sender != _ticketOwner[_globalData.winningTicketNumber]) revert Errors.MSG_SENDER_NOT_WINNER();
+        if(msg.sender != winerAddress()) revert Errors.MSG_SENDER_NOT_WINNER();
         _globalData.nftContract.safeTransferFrom(address(this), msg.sender,_globalData.nftId);
-        emit WinnerClaimedPrice(address(this), address(_globalData.nftContract), _globalData.nftId);
+        emit WinnerClaimedPrice(address(this), msg.sender, address(_globalData.nftContract), _globalData.nftId);
     }
 
+    function claimTicketSalesAmount() external override raffleEnded(){
+        if(msg.sender != creator()) revert Errors.NOT_CREATOR();
+        if(winerAddress() == address(0))  revert Errors.TICKET_NOT_DRAWN();
+        uint256 amount = _globalData.purchaseCurrency.balanceOf(address(this));
+        _globalData.purchaseCurrency.transfer(msg.sender, amount);
+        emit CreatorClaimTicketSalesAmount(address(this), msg.sender, amount);
+    }
 
     function totalSupply() public view returns(uint256) {
         return _globalData.ticketSupply;
