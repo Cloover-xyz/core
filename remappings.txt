@@ -1,1 +1,7 @@
+@mocks/=src/mocks
+@libraries/=src/libraries
+@interfaces/=src/interfaces
+@raffle/=src/raffle
+@core/=src/core
+@test/=test
 @openzeppelin/=lib/openzeppelin-contracts
