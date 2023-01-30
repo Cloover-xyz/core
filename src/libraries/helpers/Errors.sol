@@ -14,6 +14,8 @@ library Errors {
     error MAX_TICKET_SUPPLY_EXCEEDED(); // 'Maximum amount of ticket sold for the raffle has been reached'
     error NOT_ENOUGH_BALANCE(); // 'Balance lower than required'
     error MSG_SENDER_NOT_WINNER(); // 'msg.sender is not winner address'
+    error NOT_CREATOR(); // 'msg.sender is not the creator of the raffle'
+    error TICKET_NOT_DRAWN(); // 'ticket must be dranw'
 }
 
  
