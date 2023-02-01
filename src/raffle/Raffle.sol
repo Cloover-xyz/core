@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
- 
+
+import {console2} from "forge-std/console2.sol"; 
+
 import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
@@ -17,6 +19,7 @@ contract Raffle is IRaffle, RaffleStorage, Initializable {
     event TicketPurchased(address indexed raffleContract, address indexed buyer, uint256[] ticketNumbers);
     event WinnerClaimedPrice(address indexed raffleContract, address indexed winner, address indexed nftContract, uint256 nftId);
     event CreatorClaimTicketSalesAmount(address indexed raffleContract, address indexed winner, uint256 amountReceived);
+    event WinningTicketDrawned(address indexed raffleContract, uint256 winningTicket);
 
     modifier raffleOpen() {
         if(block.timestamp >= _globalData.endTime) revert Errors.TIME_EXCEEDED();
@@ -43,13 +46,13 @@ contract Raffle is IRaffle, RaffleStorage, Initializable {
 
     function purchaseTicket(uint256 nbOfTickets) external override raffleOpen(){
         if(nbOfTickets == 0) revert Errors.CANT_BE_ZERO();
-        if(_globalData.ticketSupply + nbOfTickets> _globalData.maxTicketSupply) revert Errors.MAX_TICKET_SUPPLY_EXCEEDED();
+        if(totalSupply() + nbOfTickets > _globalData.maxTicketSupply) revert Errors.MAX_TICKET_SUPPLY_EXCEEDED();
         if(_calculateTicketsCost(nbOfTickets) > _globalData.purchaseCurrency.balanceOf(msg.sender)) revert Errors.NOT_ENOUGH_BALANCE();
         
         _globalData.purchaseCurrency.transferFrom(msg.sender, address(this), _calculateTicketsCost(nbOfTickets));
 
         uint256[] storage ownerTickets = _ownerTickets[msg.sender];
-        uint256 ticketNumber = _globalData.ticketSupply + 1 ;
+        uint256 ticketNumber = _globalData.ticketSupply;
 
         uint256[] memory ticketsPurchased = new uint256[](nbOfTickets);
         for(uint i; i<nbOfTickets; ){
@@ -61,19 +64,28 @@ contract Raffle is IRaffle, RaffleStorage, Initializable {
                 ++i;
             }
         }
-        _globalData.ticketSupply = ticketNumber - 1;
+        _globalData.ticketSupply = ticketNumber;
         emit TicketPurchased(address(this), msg.sender, ticketsPurchased);
     }
 
+    function drawnTicket() external override raffleEnded() {
+        if(_isTicketDrawn)  revert Errors.TICKET_ALREADY_DRAWN();
+        uint256 randomNumber = uint256(blockhash(block.number - 1));
+        _globalData.winningTicketNumber = (randomNumber % _globalData.ticketSupply);
+        _isTicketDrawn = true;
+        emit WinningTicketDrawned(address(this), _globalData.winningTicketNumber );
+    }
+
     function claimPrice() external override raffleEnded(){
-        if(msg.sender != winerAddress()) revert Errors.MSG_SENDER_NOT_WINNER();
+        if(!_isTicketDrawn) revert Errors.TICKET_NOT_DRAWN();
+        if(msg.sender != winnerAddress()) revert Errors.MSG_SENDER_NOT_WINNER();
         _globalData.nftContract.safeTransferFrom(address(this), msg.sender,_globalData.nftId);
         emit WinnerClaimedPrice(address(this), msg.sender, address(_globalData.nftContract), _globalData.nftId);
     }
 
     function claimTicketSalesAmount() external override raffleEnded(){
         if(msg.sender != creator()) revert Errors.NOT_CREATOR();
-        if(winerAddress() == address(0))  revert Errors.TICKET_NOT_DRAWN();
+        if(!_isTicketDrawn)  revert Errors.TICKET_NOT_DRAWN();
         uint256 amount = _globalData.purchaseCurrency.balanceOf(address(this));
         _globalData.purchaseCurrency.transfer(msg.sender, amount);
         emit CreatorClaimTicketSalesAmount(address(this), msg.sender, amount);
@@ -103,10 +115,12 @@ contract Raffle is IRaffle, RaffleStorage, Initializable {
     }
     
     function winningTicket() public raffleEnded() view returns(uint256) {
+        if(!_isTicketDrawn) revert Errors.TICKET_NOT_DRAWN();
         return _globalData.winningTicketNumber;
     }
     
-    function winerAddress() public raffleEnded() view returns(address) {
+    function winnerAddress() public raffleEnded() view returns(address) {
+        if(!_isTicketDrawn) revert Errors.TICKET_NOT_DRAWN();
         return _ticketOwner[_globalData.winningTicketNumber];
     }
 

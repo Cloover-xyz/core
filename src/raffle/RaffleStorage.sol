@@ -17,4 +17,6 @@ contract RaffleStorage {
     mapping(address => uint256[]) internal _ownerTickets;
 
     RaffleDataTypes.RaffleData internal _globalData;
+
+    bool internal _isTicketDrawn;
 }

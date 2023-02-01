@@ -15,7 +15,8 @@ library Errors {
     error NOT_ENOUGH_BALANCE(); // 'Balance lower than required'
     error MSG_SENDER_NOT_WINNER(); // 'msg.sender is not winner address'
     error NOT_CREATOR(); // 'msg.sender is not the creator of the raffle'
-    error TICKET_NOT_DRAWN(); // 'ticket must be dranw'
+    error TICKET_NOT_DRAWN(); // 'ticket must be drawn'
+    error TICKET_ALREADY_DRAWN(); // 'ticket has already be drawn'
 }
 
  

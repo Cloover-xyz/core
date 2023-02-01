@@ -21,4 +21,9 @@ interface IRaffle {
      * @dev The functions should send to the creator his part after fees
      */
     function claimTicketSalesAmount() external;
+    
+    /**
+     * @notice Allows to drawn a ticket randommly
+     */
+    function drawnTicket() external;
 }
