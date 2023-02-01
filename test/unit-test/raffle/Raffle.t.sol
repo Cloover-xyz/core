@@ -165,7 +165,7 @@ contract RaffleTest is Test, SetupUsers {
    function test_RevertIf_UserPurchaseTicketsAfterEndTime() external{
         vm.startPrank(bob);
         vm.warp(uint64(block.timestamp) + endTime);
-        vm.expectRevert(Errors.TIME_EXCEEDED.selector);
+        vm.expectRevert(Errors.RAFFLE_CLOSE.selector);
         raffle.purchaseTicket(1);
    }
 
@@ -185,7 +185,7 @@ contract RaffleTest is Test, SetupUsers {
    }
 
    function test_RevertIf_UserCallClaimPriceWhenRaffleStillOpen() external{
-        vm.expectRevert(Errors.TIME_NOT_EXCEEDED.selector);
+        vm.expectRevert(Errors.RAFFLE_STILL_OPEN.selector);
         raffle.claimPrice();
    }
 
@@ -214,7 +214,7 @@ contract RaffleTest is Test, SetupUsers {
           vm.startPrank(bob);
           mockERC20.approve(address(raffle), 100e6);
           raffle.purchaseTicket(2);
-           vm.expectRevert(Errors.TIME_NOT_EXCEEDED.selector);
+           vm.expectRevert(Errors.RAFFLE_STILL_OPEN.selector);
           raffle.drawnTicket();
    }
 
