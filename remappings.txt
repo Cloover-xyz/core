@@ -5,3 +5,4 @@
 @core/=src/core
 @test/=test
 @openzeppelin/=lib/openzeppelin-contracts
+@chainlink/=lib/chainlink/src
