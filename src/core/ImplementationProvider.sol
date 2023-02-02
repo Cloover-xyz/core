@@ -4,7 +4,7 @@ pragma solidity 0.8.17;
 import {IAccessController} from "@interfaces/IAccessController.sol";
 import {IImplementationProvider} from "@interfaces/IImplementationProvider.sol";
 
-import {ImplementationInterfaceName} from "@libraries/helpers/Constant.sol";
+import {ImplementationInterfaceName} from "@libraries/helpers/ImplementationInterfaceName.sol";
 import {Errors} from "@libraries/helpers/Errors.sol";
 
 contract ImplementationProvider is IImplementationProvider{
@@ -64,7 +64,7 @@ contract ImplementationProvider is IImplementationProvider{
     returns (address implementationAddress)
   {
     implementationAddress = interfacesImplemented[interfaceName];
-    require(implementationAddress != address(0x0), 'Implementation not found');
+    if(implementationAddress == address(0x0)) revert Errors.IMPLEMENTATION_NOT_FOUND();
   }
 
 }
