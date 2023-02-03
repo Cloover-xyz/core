@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-interface IImplementationProvider{
+interface IImplementationManager{
     /**
      * @notice Updates the address of the contract that implements `interfaceName`.
      * @param interfaceName bytes32 encoding of the interface name that is either changed or registered.

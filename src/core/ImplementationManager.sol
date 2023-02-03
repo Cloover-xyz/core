@@ -2,12 +2,12 @@
 pragma solidity 0.8.17;
 
 import {IAccessController} from "@interfaces/IAccessController.sol";
-import {IImplementationProvider} from "@interfaces/IImplementationProvider.sol";
+import {IImplementationManager} from "@interfaces/IImplementationManager.sol";
 
-import {ImplementationInterfaceName} from "@libraries/helpers/ImplementationInterfaceName.sol";
+import {ImplementationInterfaceNames} from "@libraries/helpers/ImplementationInterfaceNames.sol";
 import {Errors} from "@libraries/helpers/Errors.sol";
 
-contract ImplementationProvider is IImplementationProvider{
+contract ImplementationManager is IImplementationManager{
 
   //----------------------------------------
   // Storage
@@ -29,13 +29,13 @@ contract ImplementationProvider is IImplementationProvider{
   //----------------------------------------
 
   modifier onlyMaintainer() {
-      IAccessController accessController = IAccessController(interfacesImplemented[ImplementationInterfaceName.AccessController]);
+      IAccessController accessController = IAccessController(interfacesImplemented[ImplementationInterfaceNames.AccessController]);
       if(!accessController.hasRole(accessController.MAINTAINER_ROLE(), msg.sender)) revert Errors.NOT_MAINTAINER();
       _;
   }
 
   constructor(address _accessController) {
-      interfacesImplemented[ImplementationInterfaceName.AccessController] = _accessController;
+      interfacesImplemented[ImplementationInterfaceNames.AccessController] = _accessController;
   }
 
   /**
