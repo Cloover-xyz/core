@@ -16,6 +16,7 @@ library RaffleDataTypes {
         uint256 ticketPrice;
         uint256 winningTicketNumber;
         uint64 endTime;
+        bool isTicketDrawn;
     }
 
     struct InitRaffleParams {

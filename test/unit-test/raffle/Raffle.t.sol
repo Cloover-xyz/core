@@ -97,7 +97,7 @@ contract RaffleTest is Test, SetupUsers {
           
           mockERC20.approve(address(raffle), 100e6);
           
-          raffle.purchaseTicket(1);
+          raffle.purchaseTickets(1);
           
           assertEq(raffle.ownerOf(0), bob);
           uint256[] memory bobTickets = raffle.balanceOf(bob);
@@ -112,13 +112,13 @@ contract RaffleTest is Test, SetupUsers {
           
           mockERC20.approve(address(raffle), 100e6);
           
-          raffle.purchaseTicket(1);
+          raffle.purchaseTickets(1);
           vm.stopPrank();
 
           vm.startPrank(alice);
           mockERC20.mint(alice, 100e6);
           mockERC20.approve(address(raffle), 100e6);
-          raffle.purchaseTicket(9);
+          raffle.purchaseTickets(9);
           assertEq(raffle.ownerOf(0), bob);
           assertEq(raffle.ownerOf(1), alice);
           uint256[] memory alicebTickets = raffle.balanceOf(alice);
@@ -132,7 +132,7 @@ contract RaffleTest is Test, SetupUsers {
     function test_UserCanPurchaseSeveralTickets() external{
         vm.startPrank(bob);
         mockERC20.approve(address(raffle), 100e6);
-        raffle.purchaseTicket(10);
+        raffle.purchaseTickets(10);
         assertEq(raffle.ownerOf(0), bob);
         assertEq(raffle.ownerOf(9), bob);
         uint256[] memory bobTickets = raffle.balanceOf(bob);
@@ -147,36 +147,66 @@ contract RaffleTest is Test, SetupUsers {
         vm.startPrank(bob);
         mockERC20.approve(address(raffle), 100e6);
         vm.expectRevert(Errors.MAX_TICKET_SUPPLY_EXCEEDED.selector);
-        raffle.purchaseTicket(11);
+        raffle.purchaseTickets(11);
    }
 
    function test_RevertIf_UserNotHaveEnoughBalanceForPurchase() external{
         vm.startPrank(alice);
         vm.expectRevert(Errors.NOT_ENOUGH_BALANCE.selector);
-        raffle.purchaseTicket(1);
+        raffle.purchaseTickets(1);
    }
 
    function test_RevertIf_UserPurchaseZeroTicket() external{
         vm.startPrank(bob);
         vm.expectRevert(Errors.CANT_BE_ZERO.selector);
-        raffle.purchaseTicket(0);
+        raffle.purchaseTickets(0);
    }
 
    function test_RevertIf_UserPurchaseTicketsAfterEndTime() external{
         vm.startPrank(bob);
         vm.warp(uint64(block.timestamp) + endTime);
         vm.expectRevert(Errors.RAFFLE_CLOSE.selector);
-        raffle.purchaseTicket(1);
+        raffle.purchaseTickets(1);
    }
+
+
+   function test_CorrectlyDrawnATicket() external{
+          vm.startPrank(bob);
+          mockERC20.approve(address(raffle), 100e6);
+          raffle.purchaseTickets(2);
+          vm.warp(uint64(block.timestamp) + endTime + 1);
+          raffle.drawnTicket();
+          assertFalse(raffle.winnerAddress() == address(0));
+   }
+
+
+   function test_RevertWhen_DrawnATicketCalledOnRaffleNotEnded() external{
+          vm.startPrank(bob);
+          mockERC20.approve(address(raffle), 100e6);
+          raffle.purchaseTickets(2);
+           vm.expectRevert(Errors.RAFFLE_STILL_OPEN.selector);
+          raffle.drawnTicket();
+   }
+
+   function test_RevertWhen_DrawnATicketCalledButAlreadyDrawn() external{
+          vm.startPrank(bob);
+          mockERC20.approve(address(raffle), 100e6);
+          raffle.purchaseTickets(2);
+          vm.warp(uint64(block.timestamp) + endTime + 1);
+          raffle.drawnTicket();
+          vm.expectRevert(Errors.TICKET_ALREADY_DRAWN.selector);
+          raffle.drawnTicket();
+   }
+
 
    function test_UserCanClaimHisPrice() external{
      vm.startPrank(bob);
      mockERC20.approve(address(raffle), 100e6);
-     raffle.purchaseTicket(2);
+     raffle.purchaseTickets(2);
      vm.warp(uint64(block.timestamp) + endTime + 1);
+     raffle.drawnTicket();
      uint256 winningTicketNumber = 1;
      vm.store(address(raffle),bytes32(uint256(9)), bytes32(winningTicketNumber));
-     vm.store(address(raffle),bytes32(uint256(11)), bytes32(uint256(1)));
      assertEq(raffle.winningTicket(), winningTicketNumber);
      raffle.claimPrice();
      assertEq(mockERC721.ownerOf(nftId),bob);
@@ -192,7 +222,7 @@ contract RaffleTest is Test, SetupUsers {
    function test_RevertWhen_NotWinnerTryToCallClaimPrice() external{
           vm.startPrank(bob);
           mockERC20.approve(address(raffle), 100e6);
-          raffle.purchaseTicket(2);
+          raffle.purchaseTickets(2);
           vm.warp(uint64(block.timestamp) + endTime + 1);
           raffle.drawnTicket();
           vm.stopPrank();
@@ -204,43 +234,17 @@ contract RaffleTest is Test, SetupUsers {
    function test_RevertWhen_UserClaimPriceButDrawnHasNotBeDone() external{
           vm.startPrank(bob);
           mockERC20.approve(address(raffle), 100e6);
-          raffle.purchaseTicket(2);
+          raffle.purchaseTickets(2);
           vm.warp(uint64(block.timestamp) + endTime + 1);
           vm.expectRevert(Errors.TICKET_NOT_DRAWN.selector);
           raffle.claimPrice();
    }
 
-   function test_RevertWhen_DrawnATicketCalledOnRaffleNotEnded() external{
-          vm.startPrank(bob);
-          mockERC20.approve(address(raffle), 100e6);
-          raffle.purchaseTicket(2);
-           vm.expectRevert(Errors.RAFFLE_STILL_OPEN.selector);
-          raffle.drawnTicket();
-   }
-
-   function test_RevertWhen_DrawnATicketCalledButAlreadyDrawn() external{
-          vm.startPrank(bob);
-          mockERC20.approve(address(raffle), 100e6);
-          raffle.purchaseTicket(2);
-          vm.warp(uint64(block.timestamp) + endTime + 1);
-          raffle.drawnTicket();
-          vm.expectRevert(Errors.TICKET_ALREADY_DRAWN.selector);
-          raffle.drawnTicket();
-   }
-
-   function test_CorrectlyDrawnATicket() external{
-          vm.startPrank(bob);
-          mockERC20.approve(address(raffle), 100e6);
-          raffle.purchaseTicket(2);
-          vm.warp(uint64(block.timestamp) + endTime + 1);
-          raffle.drawnTicket();
-          assertFalse(raffle.winnerAddress() == address(0));
-   }
 
    function test_CorrectlyClaimTicketSalesAmount() external{
           vm.startPrank(bob);
           mockERC20.approve(address(raffle), 100e6);
-          raffle.purchaseTicket(2);
+          raffle.purchaseTickets(2);
           vm.warp(uint64(block.timestamp) + endTime + 1);
           raffle.drawnTicket();
           vm.stopPrank();
@@ -254,8 +258,9 @@ contract RaffleTest is Test, SetupUsers {
    function test_RevertIf_NotCreatorClaimTicketSalesAmount() external{
           vm.startPrank(bob);
           mockERC20.approve(address(raffle), 100e6);
-          raffle.purchaseTicket(2);
+          raffle.purchaseTickets(2);
           vm.warp(uint64(block.timestamp) + endTime + 1);
+          raffle.drawnTicket();
           vm.expectRevert(Errors.NOT_CREATOR.selector);
           raffle.claimTicketSalesAmount();
    }
@@ -263,7 +268,7 @@ contract RaffleTest is Test, SetupUsers {
    function test_RevertIf_WinningTicketNotDrawnBeforeClaimingTicketSalesAmount() external{
           vm.startPrank(bob);
           mockERC20.approve(address(raffle), 100e6);
-          raffle.purchaseTicket(2);
+          raffle.purchaseTickets(2);
           vm.warp(uint64(block.timestamp) + endTime + 1);
           vm.stopPrank();
           vm.startPrank(alice);

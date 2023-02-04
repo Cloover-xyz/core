@@ -18,5 +18,4 @@ contract RaffleStorage {
 
     RaffleDataTypes.RaffleData internal _globalData;
 
-    bool internal _isTicketDrawn;
 }

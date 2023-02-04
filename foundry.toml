@@ -4,7 +4,7 @@ out = 'out'
 libs = ['lib']
 optimizer = true
 optimizer_runs = 20_000
-gas_reports = ["Raffle"]
+gas_reports = ["Raffle", "AccessController", "ImplementationManager"]
 
 [rpc_endpoints]
 goerli = "${GOERLI_RPC_URL}"

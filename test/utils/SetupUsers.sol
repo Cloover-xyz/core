@@ -23,13 +23,13 @@ contract SetupUsers is Test {
 
         admin = users[0];
         vm.label(admin, "Admin");
-        maintainer = users[0];
+        maintainer = users[1];
         vm.label(maintainer, "Maintainer");
-        alice = users[1];
+        alice = users[2];
         vm.label(alice, "Alice");
-        bob = users[2];
+        bob = users[3];
         vm.label(bob, "Bob");
-        carole = users[3];
+        carole = users[4];
         vm.label(carole, "Carole");
     }
     

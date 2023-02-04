@@ -17,6 +17,8 @@ library Errors {
     error NOT_CREATOR(); // 'msg.sender is not the creator of the raffle'
     error TICKET_NOT_DRAWN(); // 'ticket must be drawn'
     error TICKET_ALREADY_DRAWN(); // 'ticket has already be drawn'
+    error NOT_MAINTAINER(); // 'Caller is not the maintainer'
+    error IMPLEMENTATION_NOT_FOUND(); // 'Implementation interfaces is not registered'
 }
 
  
