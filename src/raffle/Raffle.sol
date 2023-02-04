@@ -13,11 +13,19 @@ import {RaffleStorage} from "./RaffleStorage.sol";
  
 contract Raffle is IRaffle, RaffleStorage, Initializable {
 
+    //----------------------------------------
+    // Events
+    //----------------------------------------
+
     event NewRaffle(address indexed raffleContract, RaffleDataTypes.RaffleData globalData);
     event TicketPurchased(address indexed raffleContract, address indexed buyer, uint256[] ticketNumbers);
     event WinnerClaimedPrice(address indexed raffleContract, address indexed winner, address indexed nftContract, uint256 nftId);
     event CreatorClaimTicketSalesAmount(address indexed raffleContract, address indexed winner, uint256 amountReceived);
     event WinningTicketDrawned(address indexed raffleContract, uint256 winningTicket);
+      
+    //----------------------------------------
+    // Modifier
+    //----------------------------------------
 
     modifier raffleOpen() {
         if(block.timestamp >= _globalData.endTime) revert Errors.RAFFLE_CLOSE();
@@ -28,6 +36,10 @@ contract Raffle is IRaffle, RaffleStorage, Initializable {
         _;
     }
 
+
+    //----------------------------------------
+    // Initialize function
+    //----------------------------------------
     function initialize(RaffleDataTypes.InitRaffleParams memory _data) external initializer {
         _data.nftContract.transferFrom(_data.creator, address(this), _data.nftId);
 
@@ -42,6 +54,9 @@ contract Raffle is IRaffle, RaffleStorage, Initializable {
         emit NewRaffle(address(this), _globalData);
     }
 
+    //----------------------------------------
+    // Externals Functions
+    //----------------------------------------
     function purchaseTicket(uint256 nbOfTickets) external override raffleOpen(){
         if(nbOfTickets == 0) revert Errors.CANT_BE_ZERO();
         if(totalSupply() + nbOfTickets > _globalData.maxTicketSupply) revert Errors.MAX_TICKET_SUPPLY_EXCEEDED();
@@ -134,6 +149,9 @@ contract Raffle is IRaffle, RaffleStorage, Initializable {
         return _ticketOwner[id];
     }
 
+    //----------------------------------------
+    // Internals Functions
+    //----------------------------------------
 
     function _calculateTicketsCost(uint256 nbOfTickets) internal view returns(uint256 amountPrice) {
         amountPrice = _globalData.ticketPrice * nbOfTickets;

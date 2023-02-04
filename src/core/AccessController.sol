@@ -4,7 +4,9 @@ pragma solidity 0.8.17;
 import "@openzeppelin/contracts/access/AccessControl.sol";
 
 contract AccessController is AccessControl {
-    
+  //----------------------------------------
+  // Roles
+  //----------------------------------------
   bytes32 public constant MAINTAINER_ROLE = keccak256("MAINTAINER_ROLE");
 
   constructor(address maintainer) {

@@ -34,10 +34,16 @@ contract ImplementationManager is IImplementationManager{
       _;
   }
 
+  //----------------------------------------
+  // Initialization function
+  //----------------------------------------
   constructor(address _accessController) {
       interfacesImplemented[ImplementationInterfaceNames.AccessController] = _accessController;
   }
 
+  //----------------------------------------
+  // Externals functions
+  //----------------------------------------
   /**
    * @notice Updates the address of the contract that implements `interfaceName`.
    * @param interfaceName bytes32 of the interface name that is either changed or registered.
