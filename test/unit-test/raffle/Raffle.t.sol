@@ -256,6 +256,7 @@ contract RaffleTest is Test, SetupUsers {
           mockERC20.approve(address(raffle), 100e6);
           raffle.purchaseTicket(2);
           vm.warp(uint64(block.timestamp) + endTime + 1);
+          raffle.drawnTicket();
           vm.expectRevert(Errors.NOT_CREATOR.selector);
           raffle.claimTicketSalesAmount();
    }
