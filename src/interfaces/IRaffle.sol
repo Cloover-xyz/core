@@ -8,7 +8,7 @@ interface IRaffle {
      * @dev Only accessible if raffle still open to particpants
      * @param nbOfTickets number of tickets purchased
      */
-    function purchaseTicket(uint256 nbOfTickets) external;
+    function purchaseTickets(uint256 nbOfTickets) external;
 
     /**
      * @notice Allows the winner to claim his price

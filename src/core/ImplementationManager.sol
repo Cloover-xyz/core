@@ -44,11 +44,8 @@ contract ImplementationManager is IImplementationManager{
   //----------------------------------------
   // Externals functions
   //----------------------------------------
-  /**
-   * @notice Updates the address of the contract that implements `interfaceName`.
-   * @param interfaceName bytes32 of the interface name that is either changed or registered.
-   * @param implementationAddress address of the implementation contract.
-   */
+
+  /// @inheritdoc IImplementationManager
   function changeImplementationAddress(
     bytes32 interfaceName,
     address implementationAddress
@@ -58,11 +55,7 @@ contract ImplementationManager is IImplementationManager{
     emit InterfaceImplementationChanged(interfaceName, implementationAddress);
   }
 
-  /**
-   * @notice Gets the address of the contract that implements the given `interfaceName`.
-   * @param interfaceName queried interface.
-   * @return implementationAddress Address of the defined interface.
-   */
+  /// @inheritdoc IImplementationManager
   function getImplementationAddress(bytes32 interfaceName)
     external
     view

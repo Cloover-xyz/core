@@ -66,7 +66,9 @@ contract Raffle is IRaffle, RaffleStorage, Initializable {
     //----------------------------------------
     // Externals Functions
     //----------------------------------------
-    function purchaseTicket(uint256 nbOfTickets) external override ticketSalesOpen(){
+
+    /// @inheritdoc IRaffle
+    function purchaseTickets(uint256 nbOfTickets) external override ticketSalesOpen(){
         if(nbOfTickets == 0) revert Errors.CANT_BE_ZERO();
         if(totalSupply() + nbOfTickets > _globalData.maxTicketSupply) revert Errors.MAX_TICKET_SUPPLY_EXCEEDED();
         if(_calculateTotalTicketsPrice(nbOfTickets) > _globalData.purchaseCurrency.balanceOf(msg.sender)) revert Errors.NOT_ENOUGH_BALANCE();
@@ -90,19 +92,22 @@ contract Raffle is IRaffle, RaffleStorage, Initializable {
         emit TicketPurchased(address(this), msg.sender, ticketsPurchased);
     }
 
+    /// @inheritdoc IRaffle
     function drawnTicket() external override ticketSalesClose() ticketHasNotBeDrawn() {
         uint256 randomNumber = uint256(blockhash(block.number - 1));
         _globalData.winningTicketNumber = (randomNumber % _globalData.ticketSupply);
-        _isTicketDrawn = true;
+        _globalData.isTicketDrawn = true;
         emit WinningTicketDrawned(address(this), _globalData.winningTicketNumber );
     }
 
+    /// @inheritdoc IRaffle
     function claimPrice() external override ticketSalesClose() ticketHasBeDrawn(){
         if(msg.sender != winnerAddress()) revert Errors.MSG_SENDER_NOT_WINNER();
         _globalData.nftContract.safeTransferFrom(address(this), msg.sender,_globalData.nftId);
         emit WinnerClaimedPrice(address(this), msg.sender, address(_globalData.nftContract), _globalData.nftId);
     }
 
+    /// @inheritdoc IRaffle
     function claimTicketSalesAmount() external override ticketSalesClose() ticketHasBeDrawn(){
         if(msg.sender != creator()) revert Errors.NOT_CREATOR();
         uint256 amount = _globalData.purchaseCurrency.balanceOf(address(this));
@@ -110,49 +115,101 @@ contract Raffle is IRaffle, RaffleStorage, Initializable {
         emit CreatorClaimTicketSalesAmount(address(this), msg.sender, amount);
     }
 
+    /**
+    * @notice get the total amount of tickets sold
+    * @return The total amount of tickets sold
+    */
     function totalSupply() public view returns(uint256) {
         return _globalData.ticketSupply;
     }
 
+    /**
+    * @notice get the max amount of tickets that can be sold
+    * @return The total amount of tickets sold
+    */
     function maxSupply() public view returns(uint256) {
         return _globalData.maxTicketSupply;
     }
 
+    /**
+    * @notice get the address of the wallet that initiated the raffle
+    * @return The address of the creator
+    */
     function creator() public view returns(address) {
         return _globalData.creator;
     }
+
+    /**
+    * @notice get the address of the token used to buy tickets
+    * @return The address of the ERC20
+    */
     function purchaseCurrency() public view returns(IERC20) {
         return _globalData.purchaseCurrency;
     }
 
+    /**
+    * @notice get the price of one ticket
+    * @return The amount of token that one ticket cost
+    */
     function ticketPrice() public view returns(uint256) {
         return _globalData.ticketPrice;
     }
 
+   /**
+    * @notice get the end time before ticket sales closing
+    * @return The time in timestamps
+    */
     function endTime() public view returns(uint64) {
         return _globalData.endTime;
     }
     
+    /**
+    * @notice get the winning ticket number
+    * @dev revert if ticket sales not close and if ticket number hasn't be drawn
+    * @return The ticket number that win the raffle
+    */
     function winningTicket() public ticketSalesClose() ticketHasBeDrawn() view returns(uint256) {
         return _globalData.winningTicketNumber;
     }
     
+    /**
+    * @notice get the winner address
+    * @dev revert if ticket sales not close and if ticket number hasn't be drawn
+    * @return The address of the wallet that won the raffle
+    */
     function winnerAddress() public ticketSalesClose() ticketHasBeDrawn() view returns(address) {
         return _ticketOwner[_globalData.winningTicketNumber];
     }
 
+    /**
+    * @notice get the information regarding the nft to win
+    * @return nftContractAddress The address of the nft
+    * @return nftId The id of the nft
+    */
     function nftToWin() public view returns(IERC721 nftContractAddress, uint256 nftId) {
         return (_globalData.nftContract, _globalData.nftId);
     }
 
-    function isTicketDrawn() public view returns(bool ) {
-        return _isTicketDrawn;
+    /**
+    * @notice get info if the winning ticket has been drawn
+    * @return True if ticket has been drawn, False otherwise
+    */
+    function isTicketDrawn() public view returns(bool) {
+        return _globalData.isTicketDrawn;
     }
 
-    function balanceOf(address owner) external view returns(uint256[] memory){
-        return _ownerTickets[owner];
+    /**
+    * @notice get all tickets number bought by a user
+    * @return True if ticket has been drawn, False otherwise
+    */
+    function balanceOf(address user) external view returns(uint256[] memory){
+        return _ownerTickets[user];
     }
 
+     /**
+    * @notice get the wallet that bought a specific ticket number
+    * @return The address that bought the own the ticket
+    */
     function ownerOf(uint256 id) external view returns(address){
         return _ticketOwner[id];
     }
@@ -160,6 +217,11 @@ contract Raffle is IRaffle, RaffleStorage, Initializable {
     //----------------------------------------
     // Internals Functions
     //----------------------------------------
+
+    /**
+    * @notice calculate the total price that must be paid regarding the amount of tickets to buy
+    * @return amountPrice the total cost
+    */
     function _calculateTotalTicketsPrice(uint256 nbOfTickets) internal view returns(uint256 amountPrice) {
         amountPrice = _globalData.ticketPrice * nbOfTickets;
     }
