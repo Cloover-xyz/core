@@ -5,16 +5,12 @@ import {Initializable} from "openzeppelin-contracts/contracts/proxy/utils/Initia
 import {IERC20} from "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 import {IERC721} from "openzeppelin-contracts/contracts/token/ERC721/IERC721.sol";
 
-<<<<<<< HEAD
+import {ImplementationInterfaceNames} from "../libraries/helpers/ImplementationInterfaceNames.sol";
 import {Errors} from "../libraries/helpers/Errors.sol";
-import {IRaffle} from "../interfaces/IRaffle.sol";
-=======
-import {Errors} from "@libraries/helpers/Errors.sol";
-import {ImplementationInterfaceNames} from "@libraries/helpers/ImplementationInterfaceNames.sol";
 
-import {IRaffle} from "@interfaces/IRaffle.sol";
-import {IRandomProvider} from "@interfaces/IRandomProvider.sol";
->>>>>>> eb031b8 (refact: refact Raffle contract to use RamdonProvider)
+
+import {IRaffle} from "../interfaces/IRaffle.sol";
+import {IRandomProvider} from "../interfaces/IRandomProvider.sol";
 
 import {RaffleDataTypes} from "./RaffleDataTypes.sol";
 import {RaffleStorage} from "./RaffleStorage.sol";

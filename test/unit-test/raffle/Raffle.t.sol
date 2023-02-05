@@ -6,27 +6,13 @@ import {Test} from "forge-std/Test.sol";
 import {IERC20} from "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 import {IERC721} from "openzeppelin-contracts/contracts/token/ERC721/IERC721.sol";
 
-<<<<<<< HEAD
 import {MockERC20} from "../../../src/mocks/MockERC20.sol";
+import {MockRandomProvider} from "../../../src/mocks/MockRandomProvider.sol";
 import {MockERC721} from "../../../src/mocks/MockERC721.sol";
 
 import {Raffle} from "../../../src/raffle/Raffle.sol";
 import {RaffleDataTypes} from "../../../src/raffle/RaffleDataTypes.sol";
 import {Errors} from "../../../src/libraries/helpers/Errors.sol";
-=======
-import {MockERC20} from "@mocks/MockERC20.sol";
-import {MockERC721} from "@mocks/MockERC721.sol";
-import {MockRandomProvider} from "@mocks/MockRandomProvider.sol";
-
-import {AccessController} from "@core/AccessController.sol";
-import {ImplementationManager} from "@core/ImplementationManager.sol";
-
-import {Raffle} from "@raffle/Raffle.sol";
-import {RaffleDataTypes} from "@raffle/RaffleDataTypes.sol";
-
-import {Errors} from "@libraries/helpers/Errors.sol";
-import {ImplementationInterfaceNames} from "@libraries/helpers/ImplementationInterfaceNames.sol";
->>>>>>> eb031b8 (refact: refact Raffle contract to use RamdonProvider)
 
 import {SetupUsers} from "../../utils/SetupUsers.sol";
 

@@ -14,7 +14,7 @@ import {Errors} from "@libraries/helpers/Errors.sol";
 
 contract RandomProvider is VRFConsumerBaseV2, IRandomProvider {
 
-    struct ChainlinkVRFData{
+    struct ChainlinkVRFData {
         // see https://docs.chain.link/docs/vrf-contracts/#configurations
         address vrfCoordinator;
         // The gas lane to use, which specifies the maximum gas price to bump to.
