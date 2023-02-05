@@ -1,8 +1,4 @@
-@mocks/=src/mocks
-@libraries/=src/libraries
-@interfaces/=src/interfaces
-@raffle/=src/raffle
-@core/=src/core
-@test/=test
-@openzeppelin/=lib/openzeppelin-contracts
-@chainlink/=lib/chainlink/contracts/src
+chainlink/=lib/chainlink/
+ds-test/=lib/chainlink/contracts/foundry-lib/forge-std/lib/ds-test/src/
+forge-std/=lib/forge-std/src/
+openzeppelin-contracts/=lib/openzeppelin-contracts/
