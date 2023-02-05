@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
-import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import {Initializable} from "openzeppelin-contracts/contracts/proxy/utils/Initializable.sol";
+import {IERC20} from "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
+import {IERC721} from "openzeppelin-contracts/contracts/token/ERC721/IERC721.sol";
 
-import {Errors} from "@libraries/helpers/Errors.sol";
-import {IRaffle} from "@interfaces/IRaffle.sol";
+import {Errors} from "../libraries/helpers/Errors.sol";
+import {IRaffle} from "../interfaces/IRaffle.sol";
 
 import {RaffleDataTypes} from "./RaffleDataTypes.sol";
 import {RaffleStorage} from "./RaffleStorage.sol";

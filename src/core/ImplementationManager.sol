@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-import {IAccessController} from "@interfaces/IAccessController.sol";
-import {IImplementationManager} from "@interfaces/IImplementationManager.sol";
+import {IAccessController} from "../interfaces/IAccessController.sol";
+import {IImplementationManager} from "../interfaces/IImplementationManager.sol";
 
-import {ImplementationInterfaceNames} from "@libraries/helpers/ImplementationInterfaceNames.sol";
-import {Errors} from "@libraries/helpers/Errors.sol";
+import {ImplementationInterfaceNames} from "../libraries/helpers/ImplementationInterfaceNames.sol";
+import {Errors} from "../libraries/helpers/Errors.sol";
 
 contract ImplementationManager is IImplementationManager{
 
