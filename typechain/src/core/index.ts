@@ -3,3 +3,4 @@
 /* eslint-disable */
 export type { AccessController } from "./AccessController";
 export type { ImplementationManager } from "./ImplementationManager";
+export type { RandomProvider } from "./RandomProvider";

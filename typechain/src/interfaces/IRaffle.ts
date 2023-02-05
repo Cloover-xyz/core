@@ -27,7 +27,8 @@ export interface IRaffleInterface extends utils.Interface {
   functions: {
     "claimPrice()": FunctionFragment;
     "claimTicketSalesAmount()": FunctionFragment;
-    "drawnTicket()": FunctionFragment;
+    "drawnRandomTicket()": FunctionFragment;
+    "drawnTicket(uint256)": FunctionFragment;
     "purchaseTickets(uint256)": FunctionFragment;
   };
 
@@ -35,6 +36,7 @@ export interface IRaffleInterface extends utils.Interface {
     nameOrSignatureOrTopic:
       | "claimPrice"
       | "claimTicketSalesAmount"
+      | "drawnRandomTicket"
       | "drawnTicket"
       | "purchaseTickets"
   ): FunctionFragment;
@@ -48,8 +50,12 @@ export interface IRaffleInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "drawnTicket",
+    functionFragment: "drawnRandomTicket",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "drawnTicket",
+    values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "purchaseTickets",
@@ -59,6 +65,10 @@ export interface IRaffleInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "claimPrice", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "claimTicketSalesAmount",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "drawnRandomTicket",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -108,7 +118,12 @@ export interface IRaffle extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    drawnRandomTicket(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     drawnTicket(
+      randomNumber: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -126,7 +141,12 @@ export interface IRaffle extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  drawnRandomTicket(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   drawnTicket(
+    randomNumber: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -140,7 +160,12 @@ export interface IRaffle extends BaseContract {
 
     claimTicketSalesAmount(overrides?: CallOverrides): Promise<void>;
 
-    drawnTicket(overrides?: CallOverrides): Promise<void>;
+    drawnRandomTicket(overrides?: CallOverrides): Promise<void>;
+
+    drawnTicket(
+      randomNumber: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     purchaseTickets(
       nbOfTickets: PromiseOrValue<BigNumberish>,
@@ -159,7 +184,12 @@ export interface IRaffle extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    drawnRandomTicket(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     drawnTicket(
+      randomNumber: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -178,7 +208,12 @@ export interface IRaffle extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    drawnRandomTicket(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     drawnTicket(
+      randomNumber: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

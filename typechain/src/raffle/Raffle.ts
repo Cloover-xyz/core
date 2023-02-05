@@ -31,6 +31,7 @@ export declare namespace RaffleDataTypes {
   export type RaffleDataStruct = {
     creator: PromiseOrValue<string>;
     purchaseCurrency: PromiseOrValue<string>;
+    implementationManager: PromiseOrValue<string>;
     nftContract: PromiseOrValue<string>;
     nftId: PromiseOrValue<BigNumberish>;
     maxTicketSupply: PromiseOrValue<BigNumberish>;
@@ -45,6 +46,7 @@ export declare namespace RaffleDataTypes {
     string,
     string,
     string,
+    string,
     BigNumber,
     BigNumber,
     BigNumber,
@@ -55,6 +57,7 @@ export declare namespace RaffleDataTypes {
   ] & {
     creator: string;
     purchaseCurrency: string;
+    implementationManager: string;
     nftContract: string;
     nftId: BigNumber;
     maxTicketSupply: BigNumber;
@@ -66,7 +69,7 @@ export declare namespace RaffleDataTypes {
   };
 
   export type InitRaffleParamsStruct = {
-    creator: PromiseOrValue<string>;
+    implementationManager: PromiseOrValue<string>;
     purchaseCurrency: PromiseOrValue<string>;
     nftContract: PromiseOrValue<string>;
     nftId: PromiseOrValue<BigNumberish>;
@@ -84,7 +87,7 @@ export declare namespace RaffleDataTypes {
     BigNumber,
     BigNumber
   ] & {
-    creator: string;
+    implementationManager: string;
     purchaseCurrency: string;
     nftContract: string;
     nftId: BigNumber;
@@ -100,7 +103,8 @@ export interface RaffleInterface extends utils.Interface {
     "claimPrice()": FunctionFragment;
     "claimTicketSalesAmount()": FunctionFragment;
     "creator()": FunctionFragment;
-    "drawnTicket()": FunctionFragment;
+    "drawnRandomTicket()": FunctionFragment;
+    "drawnTicket(uint256)": FunctionFragment;
     "endTime()": FunctionFragment;
     "initialize((address,address,address,uint256,uint256,uint256,uint64))": FunctionFragment;
     "isTicketDrawn()": FunctionFragment;
@@ -121,6 +125,7 @@ export interface RaffleInterface extends utils.Interface {
       | "claimPrice"
       | "claimTicketSalesAmount"
       | "creator"
+      | "drawnRandomTicket"
       | "drawnTicket"
       | "endTime"
       | "initialize"
@@ -150,8 +155,12 @@ export interface RaffleInterface extends utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "creator", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "drawnTicket",
+    functionFragment: "drawnRandomTicket",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "drawnTicket",
+    values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(functionFragment: "endTime", values?: undefined): string;
   encodeFunctionData(
@@ -200,6 +209,10 @@ export interface RaffleInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "creator", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "drawnRandomTicket",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "drawnTicket",
     data: BytesLike
@@ -368,7 +381,12 @@ export interface Raffle extends BaseContract {
 
     creator(overrides?: CallOverrides): Promise<[string]>;
 
+    drawnRandomTicket(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     drawnTicket(
+      randomNumber: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -425,7 +443,12 @@ export interface Raffle extends BaseContract {
 
   creator(overrides?: CallOverrides): Promise<string>;
 
+  drawnRandomTicket(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   drawnTicket(
+    randomNumber: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -478,7 +501,12 @@ export interface Raffle extends BaseContract {
 
     creator(overrides?: CallOverrides): Promise<string>;
 
-    drawnTicket(overrides?: CallOverrides): Promise<void>;
+    drawnRandomTicket(overrides?: CallOverrides): Promise<void>;
+
+    drawnTicket(
+      randomNumber: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     endTime(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -592,7 +620,12 @@ export interface Raffle extends BaseContract {
 
     creator(overrides?: CallOverrides): Promise<BigNumber>;
 
+    drawnRandomTicket(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     drawnTicket(
+      randomNumber: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -646,7 +679,12 @@ export interface Raffle extends BaseContract {
 
     creator(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    drawnRandomTicket(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     drawnTicket(
+      randomNumber: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
