@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-import {IRandomProvider} from "@interfaces/IRandomProvider.sol";
-import {IRaffle} from "@interfaces/IRaffle.sol";
+import {IRandomProvider} from "../interfaces/IRandomProvider.sol";
+import {IRaffle} from "../interfaces/IRaffle.sol";
 
 contract MockRandomProvider is IRandomProvider {
 

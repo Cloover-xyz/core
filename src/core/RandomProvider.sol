@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-import {VRFCoordinatorV2Interface } from "@chainlink/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
-import {VRFConsumerBaseV2} from "@chainlink/v0.8/VRFConsumerBaseV2.sol";
+import {VRFCoordinatorV2Interface } from "chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
+import {VRFConsumerBaseV2} from "chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
 
-import {IImplementationManager} from "@interfaces/IImplementationManager.sol";
-import {IAccessController} from "@interfaces/IAccessController.sol";
-import {IRandomProvider} from "@interfaces/IRandomProvider.sol";
-import {IRaffle} from "@interfaces/IRaffle.sol";
+import {IImplementationManager} from "../interfaces/IImplementationManager.sol";
+import {IAccessController} from "../interfaces/IAccessController.sol";
+import {IRandomProvider} from "../interfaces/IRandomProvider.sol";
+import {IRaffle} from "../interfaces/IRaffle.sol";
 
-import {ImplementationInterfaceNames} from "@libraries/helpers/ImplementationInterfaceNames.sol";
-import {Errors} from "@libraries/helpers/Errors.sol";
+import {ImplementationInterfaceNames} from "../libraries/helpers/ImplementationInterfaceNames.sol";
+import {Errors} from "../libraries/helpers/Errors.sol";
 
 contract RandomProvider is VRFConsumerBaseV2, IRandomProvider {
 
