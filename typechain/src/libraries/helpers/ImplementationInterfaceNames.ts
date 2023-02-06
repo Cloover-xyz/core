@@ -23,17 +23,40 @@ import type {
 export interface ImplementationInterfaceNamesInterface extends utils.Interface {
   functions: {
     "AccessController()": FunctionFragment;
+    "RaffleContract()": FunctionFragment;
+    "RandomProvider()": FunctionFragment;
   };
 
-  getFunction(nameOrSignatureOrTopic: "AccessController"): FunctionFragment;
+  getFunction(
+    nameOrSignatureOrTopic:
+      | "AccessController"
+      | "RaffleContract"
+      | "RandomProvider"
+  ): FunctionFragment;
 
   encodeFunctionData(
     functionFragment: "AccessController",
     values?: undefined
   ): string;
+  encodeFunctionData(
+    functionFragment: "RaffleContract",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "RandomProvider",
+    values?: undefined
+  ): string;
 
   decodeFunctionResult(
     functionFragment: "AccessController",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "RaffleContract",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "RandomProvider",
     data: BytesLike
   ): Result;
 
@@ -68,21 +91,41 @@ export interface ImplementationInterfaceNames extends BaseContract {
 
   functions: {
     AccessController(overrides?: CallOverrides): Promise<[string]>;
+
+    RaffleContract(overrides?: CallOverrides): Promise<[string]>;
+
+    RandomProvider(overrides?: CallOverrides): Promise<[string]>;
   };
 
   AccessController(overrides?: CallOverrides): Promise<string>;
 
+  RaffleContract(overrides?: CallOverrides): Promise<string>;
+
+  RandomProvider(overrides?: CallOverrides): Promise<string>;
+
   callStatic: {
     AccessController(overrides?: CallOverrides): Promise<string>;
+
+    RaffleContract(overrides?: CallOverrides): Promise<string>;
+
+    RandomProvider(overrides?: CallOverrides): Promise<string>;
   };
 
   filters: {};
 
   estimateGas: {
     AccessController(overrides?: CallOverrides): Promise<BigNumber>;
+
+    RaffleContract(overrides?: CallOverrides): Promise<BigNumber>;
+
+    RandomProvider(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
     AccessController(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    RaffleContract(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    RandomProvider(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }

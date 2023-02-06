@@ -2,7 +2,7 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "/Users/xutyr/Dev/Windzy/Contracts/src/core/AccessController.sol": {
-      "lastModificationDate": 1675609125917,
+      "lastModificationDate": 1675621671193,
       "contentHash": "8eaab586bc4fa0d45a87a0f50088afa4",
       "sourceName": "src/core/AccessController.sol",
       "solcConfig": {
@@ -35,7 +35,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363735363136353632333631"
+              "__CACHE_BREAKER__": "0x0000000000000031363735363238353930383332"
             }
           }
         }
@@ -84,7 +84,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363735363136353632333631"
+              "__CACHE_BREAKER__": "0x0000000000000031363735363238353930383332"
             }
           }
         }
@@ -136,7 +136,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363735363136353632333631"
+              "__CACHE_BREAKER__": "0x0000000000000031363735363238353930383332"
             }
           }
         }
@@ -183,7 +183,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363735363136353632333631"
+              "__CACHE_BREAKER__": "0x0000000000000031363735363238353930383332"
             }
           }
         }
@@ -230,7 +230,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363735363136353632333631"
+              "__CACHE_BREAKER__": "0x0000000000000031363735363238353930383332"
             }
           }
         }
@@ -280,7 +280,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363735363136353632333631"
+              "__CACHE_BREAKER__": "0x0000000000000031363735363238353930383332"
             }
           }
         }
@@ -329,7 +329,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363735363136353632333631"
+              "__CACHE_BREAKER__": "0x0000000000000031363735363238353930383332"
             }
           }
         }
@@ -376,7 +376,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363735363136353632333631"
+              "__CACHE_BREAKER__": "0x0000000000000031363735363238353930383332"
             }
           }
         }
@@ -423,7 +423,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363735363136353632333631"
+              "__CACHE_BREAKER__": "0x0000000000000031363735363238353930383332"
             }
           }
         }
@@ -470,7 +470,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363735363136353632333631"
+              "__CACHE_BREAKER__": "0x0000000000000031363735363238353930383332"
             }
           }
         }
@@ -519,7 +519,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363735363136353632333631"
+              "__CACHE_BREAKER__": "0x0000000000000031363735363238353930383332"
             }
           }
         }
@@ -568,7 +568,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363735363136353632333631"
+              "__CACHE_BREAKER__": "0x0000000000000031363735363238353930383332"
             }
           }
         }
@@ -623,7 +623,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363735363136353632333631"
+              "__CACHE_BREAKER__": "0x0000000000000031363735363238353930383332"
             }
           }
         }
@@ -670,7 +670,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363735363136353632333631"
+              "__CACHE_BREAKER__": "0x0000000000000031363735363238353930383332"
             }
           }
         }
@@ -717,7 +717,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363735363136353632333631"
+              "__CACHE_BREAKER__": "0x0000000000000031363735363238353930383332"
             }
           }
         }
@@ -768,7 +768,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363735363136353632333631"
+              "__CACHE_BREAKER__": "0x0000000000000031363735363238353930383332"
             }
           }
         }
@@ -815,7 +815,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363735363136353632333631"
+              "__CACHE_BREAKER__": "0x0000000000000031363735363238353930383332"
             }
           }
         }
@@ -831,8 +831,8 @@
       ]
     },
     "/Users/xutyr/Dev/Windzy/Contracts/src/raffle/RaffleDataTypes.sol": {
-      "lastModificationDate": 1675609357005,
-      "contentHash": "60f1bb8129049d3241561b3085ab9139",
+      "lastModificationDate": 1675622184726,
+      "contentHash": "7b3d32b4807630fd1934a9d578b1a84d",
       "sourceName": "src/raffle/RaffleDataTypes.sol",
       "solcConfig": {
         "version": "0.8.17",
@@ -864,14 +864,15 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363735363136353632333631"
+              "__CACHE_BREAKER__": "0x0000000000000031363735363238353930383332"
             }
           }
         }
       },
       "imports": [
         "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
-        "lib/openzeppelin-contracts/contracts/token/ERC721/IERC721.sol"
+        "lib/openzeppelin-contracts/contracts/token/ERC721/IERC721.sol",
+        "../interfaces/IImplementationManager.sol"
       ],
       "versionPragmas": [
         "0.8.17"
@@ -914,7 +915,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363735363136353632333631"
+              "__CACHE_BREAKER__": "0x0000000000000031363735363238353930383332"
             }
           }
         }
@@ -930,8 +931,8 @@
       ]
     },
     "/Users/xutyr/Dev/Windzy/Contracts/src/raffle/Raffle.sol": {
-      "lastModificationDate": 1675609344520,
-      "contentHash": "881e6573a9186fb33a30323fabf4cf09",
+      "lastModificationDate": 1675622274933,
+      "contentHash": "e31750343f952bc1a9b4bbe705886745",
       "sourceName": "src/raffle/Raffle.sol",
       "solcConfig": {
         "version": "0.8.17",
@@ -963,7 +964,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363735363136353632333631"
+              "__CACHE_BREAKER__": "0x0000000000000031363735363238353930383332"
             }
           }
         }
@@ -972,8 +973,10 @@
         "lib/openzeppelin-contracts/contracts/proxy/utils/Initializable.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC721/IERC721.sol",
+        "../libraries/helpers/ImplementationInterfaceNames.sol",
         "../libraries/helpers/Errors.sol",
         "../interfaces/IRaffle.sol",
+        "../interfaces/IRandomProvider.sol",
         "./RaffleDataTypes.sol",
         "./RaffleStorage.sol"
       ],
@@ -985,8 +988,8 @@
       ]
     },
     "/Users/xutyr/Dev/Windzy/Contracts/src/libraries/helpers/Errors.sol": {
-      "lastModificationDate": 1675596926224,
-      "contentHash": "d8fbfd66f346950895623a8bbd287a6b",
+      "lastModificationDate": 1675621671247,
+      "contentHash": "1fbbbd6d2f08a6d60342d4e3219fb225",
       "sourceName": "src/libraries/helpers/Errors.sol",
       "solcConfig": {
         "version": "0.8.17",
@@ -1018,7 +1021,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363735363136353632333631"
+              "__CACHE_BREAKER__": "0x0000000000000031363735363238353930383332"
             }
           }
         }
@@ -1032,8 +1035,8 @@
       ]
     },
     "/Users/xutyr/Dev/Windzy/Contracts/src/interfaces/IRaffle.sol": {
-      "lastModificationDate": 1675596926224,
-      "contentHash": "299bf5df248ab12c62f64d64bfd2f414",
+      "lastModificationDate": 1675621671247,
+      "contentHash": "4dff1a1e6699e3c1631147699a30c07f",
       "sourceName": "src/interfaces/IRaffle.sol",
       "solcConfig": {
         "version": "0.8.17",
@@ -1065,7 +1068,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363735363136353632333631"
+              "__CACHE_BREAKER__": "0x0000000000000031363735363238353930383332"
             }
           }
         }
@@ -1112,7 +1115,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363735363136353632333631"
+              "__CACHE_BREAKER__": "0x0000000000000031363735363238353930383332"
             }
           }
         }
@@ -1128,7 +1131,7 @@
       ]
     },
     "/Users/xutyr/Dev/Windzy/Contracts/src/core/ImplementationManager.sol": {
-      "lastModificationDate": 1675609239771,
+      "lastModificationDate": 1675621671193,
       "contentHash": "3d0b61a0435089b27ef6e0b1e20a5b84",
       "sourceName": "src/core/ImplementationManager.sol",
       "solcConfig": {
@@ -1161,7 +1164,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363735363136353632333631"
+              "__CACHE_BREAKER__": "0x0000000000000031363735363238353930383332"
             }
           }
         }
@@ -1180,7 +1183,7 @@
       ]
     },
     "/Users/xutyr/Dev/Windzy/Contracts/src/interfaces/IAccessController.sol": {
-      "lastModificationDate": 1675609262211,
+      "lastModificationDate": 1675621671193,
       "contentHash": "0ba5ceecf0a5747b5b03949077fa6483",
       "sourceName": "src/interfaces/IAccessController.sol",
       "solcConfig": {
@@ -1213,7 +1216,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363735363136353632333631"
+              "__CACHE_BREAKER__": "0x0000000000000031363735363238353930383332"
             }
           }
         }
@@ -1262,7 +1265,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363735363136353632333631"
+              "__CACHE_BREAKER__": "0x0000000000000031363735363238353930383332"
             }
           }
         }
@@ -1276,8 +1279,8 @@
       ]
     },
     "/Users/xutyr/Dev/Windzy/Contracts/src/libraries/helpers/ImplementationInterfaceNames.sol": {
-      "lastModificationDate": 1675596926225,
-      "contentHash": "c6b3ce144184e7f9fc460278c23a654f",
+      "lastModificationDate": 1675621671232,
+      "contentHash": "c429efa1ee3a7462f786361388db23cd",
       "sourceName": "src/libraries/helpers/ImplementationInterfaceNames.sol",
       "solcConfig": {
         "version": "0.8.17",
@@ -1309,7 +1312,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363735363136353632333631"
+              "__CACHE_BREAKER__": "0x0000000000000031363735363238353930383332"
             }
           }
         }
@@ -1323,7 +1326,7 @@
       ]
     },
     "/Users/xutyr/Dev/Windzy/Contracts/src/mocks/MockERC20.sol": {
-      "lastModificationDate": 1675609293219,
+      "lastModificationDate": 1675621671194,
       "contentHash": "8d164d755a7db3a9d81ba56e9f753267",
       "sourceName": "src/mocks/MockERC20.sol",
       "solcConfig": {
@@ -1356,7 +1359,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363735363136353632333631"
+              "__CACHE_BREAKER__": "0x0000000000000031363735363238353930383332"
             }
           }
         }
@@ -1372,7 +1375,7 @@
       ]
     },
     "/Users/xutyr/Dev/Windzy/Contracts/src/mocks/MockERC721.sol": {
-      "lastModificationDate": 1675609308928,
+      "lastModificationDate": 1675621671194,
       "contentHash": "d53af7849ce1bcfd3f00b66666937366",
       "sourceName": "src/mocks/MockERC721.sol",
       "solcConfig": {
@@ -1405,7 +1408,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363735363136353632333631"
+              "__CACHE_BREAKER__": "0x0000000000000031363735363238353930383332"
             }
           }
         }
@@ -1418,6 +1421,253 @@
       ],
       "artifacts": [
         "MockERC721"
+      ]
+    },
+    "/Users/xutyr/Dev/Windzy/Contracts/src/interfaces/IRandomProvider.sol": {
+      "lastModificationDate": 1675621671231,
+      "contentHash": "1f5a92f84f54c016dedba6c88ccf515e",
+      "sourceName": "src/interfaces/IRandomProvider.sol",
+      "solcConfig": {
+        "version": "0.8.17",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "devdoc",
+                "userdoc",
+                "storageLayout",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          },
+          "libraries": {
+            "": {
+              "__CACHE_BREAKER__": "0x0000000000000031363735363238353930383332"
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "0.8.17"
+      ],
+      "artifacts": [
+        "IRandomProvider"
+      ]
+    },
+    "/Users/xutyr/Dev/Windzy/Contracts/src/mocks/MockRandomProvider.sol": {
+      "lastModificationDate": 1675623851043,
+      "contentHash": "51f5e70592da08ecd41bb4cd47d9b17b",
+      "sourceName": "src/mocks/MockRandomProvider.sol",
+      "solcConfig": {
+        "version": "0.8.17",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "devdoc",
+                "userdoc",
+                "storageLayout",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          },
+          "libraries": {
+            "": {
+              "__CACHE_BREAKER__": "0x0000000000000031363735363238353930383332"
+            }
+          }
+        }
+      },
+      "imports": [
+        "../interfaces/IRandomProvider.sol",
+        "../interfaces/IRaffle.sol"
+      ],
+      "versionPragmas": [
+        "0.8.17"
+      ],
+      "artifacts": [
+        "MockRandomProvider"
+      ]
+    },
+    "/Users/xutyr/Dev/Windzy/Contracts/src/core/RandomProvider.sol": {
+      "lastModificationDate": 1675623835385,
+      "contentHash": "950914da70ec47d608704c35d6257a04",
+      "sourceName": "src/core/RandomProvider.sol",
+      "solcConfig": {
+        "version": "0.8.17",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "devdoc",
+                "userdoc",
+                "storageLayout",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          },
+          "libraries": {
+            "": {
+              "__CACHE_BREAKER__": "0x0000000000000031363735363238353930383332"
+            }
+          }
+        }
+      },
+      "imports": [
+        "lib/chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol",
+        "lib/chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol",
+        "../interfaces/IImplementationManager.sol",
+        "../interfaces/IAccessController.sol",
+        "../interfaces/IRandomProvider.sol",
+        "../interfaces/IRaffle.sol",
+        "../libraries/helpers/ImplementationInterfaceNames.sol",
+        "../libraries/helpers/Errors.sol"
+      ],
+      "versionPragmas": [
+        "0.8.17"
+      ],
+      "artifacts": [
+        "RandomProvider"
+      ]
+    },
+    "/Users/xutyr/Dev/Windzy/Contracts/lib/chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol": {
+      "lastModificationDate": 1675325459549,
+      "contentHash": "eb9cc526ef59dfc4d644f56ddca0633a",
+      "sourceName": "lib/chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol",
+      "solcConfig": {
+        "version": "0.8.17",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "devdoc",
+                "userdoc",
+                "storageLayout",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          },
+          "libraries": {
+            "": {
+              "__CACHE_BREAKER__": "0x0000000000000031363735363238353930383332"
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.4"
+      ],
+      "artifacts": [
+        "VRFConsumerBaseV2"
+      ]
+    },
+    "/Users/xutyr/Dev/Windzy/Contracts/lib/chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol": {
+      "lastModificationDate": 1675325459558,
+      "contentHash": "8c9ed3426b676f67ee200a2bec96e224",
+      "sourceName": "lib/chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol",
+      "solcConfig": {
+        "version": "0.8.17",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "devdoc",
+                "userdoc",
+                "storageLayout",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          },
+          "libraries": {
+            "": {
+              "__CACHE_BREAKER__": "0x0000000000000031363735363238353930383332"
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "VRFCoordinatorV2Interface"
       ]
     }
   }

@@ -3,3 +3,4 @@
 /* eslint-disable */
 export type { MockERC20 } from "./MockERC20";
 export type { MockERC721 } from "./MockERC721";
+export type { MockRandomProvider } from "./MockRandomProvider";

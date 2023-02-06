@@ -23,7 +23,15 @@ interface IRaffle {
     function claimTicketSalesAmount() external;
     
     /**
-     * @notice Allows to drawn a ticket randommly
+     * @notice Request a random number
+     * @dev must call the RandomProvider that use ChainLinkVRFv2 
      */
-    function drawnTicket() external;
+    function drawnRandomTickets() external;
+
+    /**
+     * @notice Select the winning tickets number received from the RandomProvider contract
+     * @dev must be only called by the RandomProvider contract
+     * @param randomNumbers random numbers requested in array
+     */
+    function drawnTickets(uint256[] memory randomNumbers) external;
 }

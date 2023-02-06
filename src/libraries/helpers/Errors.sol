@@ -19,6 +19,8 @@ library Errors {
     error TICKET_ALREADY_DRAWN(); // 'ticket has already be drawn'
     error NOT_MAINTAINER(); // 'Caller is not the maintainer'
     error IMPLEMENTATION_NOT_FOUND(); // 'Implementation interfaces is not registered'
+    error NOT_RAFFLE_CONTRACT(); // 'Caller is not a raffle contract'
+    error NOT_RANDOM_PROVIDER_CONTRACT(); // 'Caller is not the random provider contract'
 }
 
  

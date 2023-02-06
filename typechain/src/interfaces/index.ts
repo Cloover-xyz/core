@@ -4,3 +4,4 @@
 export type { IAccessController } from "./IAccessController";
 export type { IImplementationManager } from "./IImplementationManager";
 export type { IRaffle } from "./IRaffle";
+export type { IRandomProvider } from "./IRandomProvider";

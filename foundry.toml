@@ -9,4 +9,8 @@ gas_reports = ["Raffle", "AccessController", "ImplementationManager"]
 [rpc_endpoints]
 goerli = "${GOERLI_RPC_URL}"
 
+[etherscan]
+mainnet = { key = "${ETHERSCAN_KEY}" }
+goerli = {key = "${ETHERSCAN_KEY}" }
+
 # See more config options https://github.com/foundry-rs/foundry/tree/master/config

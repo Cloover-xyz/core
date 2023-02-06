@@ -4,3 +4,4 @@
 export { IAccessController__factory } from "./IAccessController__factory";
 export { IImplementationManager__factory } from "./IImplementationManager__factory";
 export { IRaffle__factory } from "./IRaffle__factory";
+export { IRandomProvider__factory } from "./IRandomProvider__factory";

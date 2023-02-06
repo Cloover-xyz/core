@@ -5,8 +5,12 @@ import {Initializable} from "openzeppelin-contracts/contracts/proxy/utils/Initia
 import {IERC20} from "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 import {IERC721} from "openzeppelin-contracts/contracts/token/ERC721/IERC721.sol";
 
+import {ImplementationInterfaceNames} from "../libraries/helpers/ImplementationInterfaceNames.sol";
 import {Errors} from "../libraries/helpers/Errors.sol";
+
+
 import {IRaffle} from "../interfaces/IRaffle.sol";
+import {IRandomProvider} from "../interfaces/IRandomProvider.sol";
 
 import {RaffleDataTypes} from "./RaffleDataTypes.sol";
 import {RaffleStorage} from "./RaffleStorage.sol";
@@ -45,14 +49,19 @@ contract Raffle is IRaffle, RaffleStorage, Initializable {
         if(!isTicketDrawn()) revert Errors.TICKET_NOT_DRAWN();
         _;
     }
+    
+    modifier onlyRandomProviderContract(){
+        if(_globalData.implementationManager.getImplementationAddress(ImplementationInterfaceNames.RandomProvider) != msg.sender) revert Errors.NOT_RANDOM_PROVIDER_CONTRACT();
+        _;
+    }
 
     //----------------------------------------
     // Initialize function
     //----------------------------------------
     function initialize(RaffleDataTypes.InitRaffleParams memory _data) external initializer {
-        _data.nftContract.transferFrom(_data.creator, address(this), _data.nftId);
-
-        _globalData.creator = _data.creator;
+        _data.nftContract.transferFrom(msg.sender, address(this), _data.nftId);
+        _globalData.implementationManager = _data.implementationManager;
+        _globalData.creator = msg.sender;
         _globalData.purchaseCurrency = _data.purchaseCurrency;
         _globalData.nftContract = _data.nftContract;
         _globalData.nftId = _data.nftId;
@@ -93,9 +102,14 @@ contract Raffle is IRaffle, RaffleStorage, Initializable {
     }
 
     /// @inheritdoc IRaffle
-    function drawnTicket() external override ticketSalesClose() ticketHasNotBeDrawn() {
-        uint256 randomNumber = uint256(blockhash(block.number - 1));
-        _globalData.winningTicketNumber = (randomNumber % _globalData.ticketSupply);
+    function drawnRandomTickets() external override ticketSalesClose() ticketHasNotBeDrawn() {
+        IRandomProvider(_globalData.implementationManager.getImplementationAddress(ImplementationInterfaceNames.RandomProvider)).requestRandomNumbers(1);
+    }
+
+    /// @inheritdoc IRaffle
+    function drawnTickets(uint256[] memory randomNumbers) external override ticketSalesClose() ticketHasNotBeDrawn() onlyRandomProviderContract(){
+        if(randomNumbers[0] == 0 || randomNumbers.length == 0) revert Errors.CANT_BE_ZERO();
+        _globalData.winningTicketNumber = randomNumbers[0] % _globalData.ticketSupply;
         _globalData.isTicketDrawn = true;
         emit WinningTicketDrawned(address(this), _globalData.winningTicketNumber );
     }

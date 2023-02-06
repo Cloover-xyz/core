@@ -13,6 +13,14 @@ import * as Contracts from ".";
 declare module "hardhat/types/runtime" {
   interface HardhatEthersHelpers extends HardhatEthersHelpersBase {
     getContractFactory(
+      name: "VRFCoordinatorV2Interface",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.VRFCoordinatorV2Interface__factory>;
+    getContractFactory(
+      name: "VRFConsumerBaseV2",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.VRFConsumerBaseV2__factory>;
+    getContractFactory(
       name: "AccessControl",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.AccessControl__factory>;
@@ -69,6 +77,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ImplementationManager__factory>;
     getContractFactory(
+      name: "RandomProvider",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.RandomProvider__factory>;
+    getContractFactory(
       name: "IAccessController",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IAccessController__factory>;
@@ -80,6 +92,10 @@ declare module "hardhat/types/runtime" {
       name: "IRaffle",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IRaffle__factory>;
+    getContractFactory(
+      name: "IRandomProvider",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IRandomProvider__factory>;
     getContractFactory(
       name: "Errors",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -97,10 +113,24 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.MockERC721__factory>;
     getContractFactory(
+      name: "MockRandomProvider",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.MockRandomProvider__factory>;
+    getContractFactory(
       name: "Raffle",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Raffle__factory>;
 
+    getContractAt(
+      name: "VRFCoordinatorV2Interface",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.VRFCoordinatorV2Interface>;
+    getContractAt(
+      name: "VRFConsumerBaseV2",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.VRFConsumerBaseV2>;
     getContractAt(
       name: "AccessControl",
       address: string,
@@ -172,6 +202,11 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.ImplementationManager>;
     getContractAt(
+      name: "RandomProvider",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.RandomProvider>;
+    getContractAt(
       name: "IAccessController",
       address: string,
       signer?: ethers.Signer
@@ -186,6 +221,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.IRaffle>;
+    getContractAt(
+      name: "IRandomProvider",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IRandomProvider>;
     getContractAt(
       name: "Errors",
       address: string,
@@ -206,6 +246,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.MockERC721>;
+    getContractAt(
+      name: "MockRandomProvider",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.MockRandomProvider>;
     getContractAt(
       name: "Raffle",
       address: string,

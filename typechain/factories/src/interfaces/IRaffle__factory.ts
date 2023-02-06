@@ -26,6 +26,19 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "drawnRandomTicket",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "randomNumber",
+        type: "uint256",
+      },
+    ],
     name: "drawnTicket",
     outputs: [],
     stateMutability: "nonpayable",

@@ -1,5 +1,6 @@
 import { DeployFunction } from "hardhat-deploy/types";
 import { verifyContract } from "../utils/verifyContract";
+import { networkConfig } from "../networkConfig";
 
 const func: DeployFunction = async function ({
   deployments,
@@ -8,7 +9,7 @@ const func: DeployFunction = async function ({
 }) {
   const { deploy } = deployments;
   const { deployer } = await getNamedAccounts();
-
+  const { blockConfirmations } = networkConfig[network.name];
   const AccessController = await deployments.get("AccessController");
   const args: unknown[] = [AccessController.address];
 
@@ -16,7 +17,7 @@ const func: DeployFunction = async function ({
     from: deployer,
     args,
     log: true,
-    waitConfirmations: 2,
+    waitConfirmations: blockConfirmations || 1,
   });
   if (!network.tags.dev) {
     await verifyContract(implementationManager.address, args);

@@ -1,5 +1,6 @@
 import { DeployFunction } from "hardhat-deploy/types";
 import { verifyContract } from "../utils/verifyContract";
+import { networkConfig } from "../networkConfig";
 
 const func: DeployFunction = async function ({
   deployments,
