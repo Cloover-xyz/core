@@ -5,6 +5,7 @@ interface IRandomProvider {
 
     /**
      * @notice Request a random numbers using ChainLinkVRFv2
+     * @param numWords number of random number requested
      */
-    function requestRandomNumber() external;
+    function requestRandomNumbers(uint32 numWords) external;
 }

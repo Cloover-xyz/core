@@ -102,14 +102,14 @@ contract Raffle is IRaffle, RaffleStorage, Initializable {
     }
 
     /// @inheritdoc IRaffle
-    function drawnRandomTicket() external override ticketSalesClose() ticketHasNotBeDrawn() {
-        IRandomProvider(_globalData.implementationManager.getImplementationAddress(ImplementationInterfaceNames.RandomProvider)).requestRandomNumber();
+    function drawnRandomTickets() external override ticketSalesClose() ticketHasNotBeDrawn() {
+        IRandomProvider(_globalData.implementationManager.getImplementationAddress(ImplementationInterfaceNames.RandomProvider)).requestRandomNumbers(1);
     }
 
     /// @inheritdoc IRaffle
-    function drawnTicket(uint256 randomNumber) external override ticketSalesClose() ticketHasNotBeDrawn() onlyRandomProviderContract(){
-        if(randomNumber == 0) revert Errors.CANT_BE_ZERO();
-        _globalData.winningTicketNumber = randomNumber % _globalData.ticketSupply;
+    function drawnTickets(uint256[] memory randomNumbers) external override ticketSalesClose() ticketHasNotBeDrawn() onlyRandomProviderContract(){
+        if(randomNumbers[0] == 0 || randomNumbers.length == 0) revert Errors.CANT_BE_ZERO();
+        _globalData.winningTicketNumber = randomNumbers[0] % _globalData.ticketSupply;
         _globalData.isTicketDrawn = true;
         emit WinningTicketDrawned(address(this), _globalData.winningTicketNumber );
     }

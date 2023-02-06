@@ -29,7 +29,7 @@ contract RandomProvider is VRFConsumerBaseV2, IRandomProvider {
         
         uint64 subscriptionId;
     }
-    
+
     //----------------------------------------
     // Storage
     //----------------------------------------
@@ -51,6 +51,10 @@ contract RandomProvider is VRFConsumerBaseV2, IRandomProvider {
         _;
     }
 
+    //----------------------------------------
+    // Initialization 
+    //----------------------------------------
+
    constructor(
         IImplementationManager _implementationManager,
         ChainlinkVRFData memory _data
@@ -64,21 +68,30 @@ contract RandomProvider is VRFConsumerBaseV2, IRandomProvider {
         chainlinkVRFData = _data;
     }
 
-    function requestRandomNumber() external override onlyRaffleContract() {
+
+    //----------------------------------------
+    // External functions 
+    //----------------------------------------
+
+    function requestRandomNumbers(uint32 numWords) external override onlyRaffleContract() {
         uint256 requestId = COORDINATOR.requestRandomWords(
             chainlinkVRFData.keyHash,
             chainlinkVRFData.subscriptionId,
             chainlinkVRFData.requestConfirmations,
             chainlinkVRFData.callbackGasLimit,
-            1
+            numWords
         );
         requestIdToAddress[requestId] = msg.sender;
     }
+
+    //----------------------------------------
+    // Internal functions 
+    //----------------------------------------
 
     function fulfillRandomWords(
         uint256 requestId,
         uint256[] memory randomWords
     ) internal override {
-        IRaffle(requestIdToAddress[requestId]).drawnTicket(randomWords[0]); 
+        IRaffle(requestIdToAddress[requestId]).drawnTickets(randomWords); 
     }
 }
