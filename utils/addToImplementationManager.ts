@@ -1,7 +1,7 @@
 import { ethers } from "hardhat";
 import { ImplementationManager } from "../typechain";
 
-export const addDeployedContractToImplementationManager = async (
+export const addToImplementationManager = async (
   implementationManagerAddress: string,
   deployedContractAddress: string,
   interfaceName: string,

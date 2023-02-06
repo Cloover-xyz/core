@@ -1,8 +1,7 @@
 import { DeployFunction } from "hardhat-deploy/types";
 import { verifyContract } from "../utils/verifyContract";
 import { networkConfig } from "../networkConfig";
-import { addDeployedContractToImplementationManager } from "../utils/addDeployedContractToImplementationManager";
-import { ethers } from "hardhat";
+import { addToImplementationManager } from "../utils/addToImplementationManager";
 
 const func: DeployFunction = async function ({
   deployments,
@@ -38,7 +37,7 @@ const func: DeployFunction = async function ({
     await verifyContract(randomProvider.address, args);
   }
 
-  await addDeployedContractToImplementationManager(
+  await addToImplementationManager(
     ImplementationManager.address,
     randomProvider.address,
     "RandomProvider",
