@@ -46,12 +46,6 @@ contract RandomProvider is VRFConsumerBaseV2, IRandomProvider {
     // Modifier
     //----------------------------------------
 
-    modifier onlyMaintainer() {
-        IAccessController accessController = IAccessController(implementationManager.getImplementationAddress(ImplementationInterfaceNames.AccessController));
-        if(!accessController.hasRole(accessController.MAINTAINER_ROLE(), msg.sender)) revert Errors.NOT_MAINTAINER();
-        _;
-    } 
-
     modifier onlyRaffleContract(){
         if(implementationManager.getImplementationAddress(ImplementationInterfaceNames.RaffleContract) != msg.sender) revert Errors.NOT_RAFFLE_CONTRACT();
         _;
