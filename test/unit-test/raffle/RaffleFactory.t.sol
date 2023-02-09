@@ -32,31 +32,52 @@ contract RaffleTest is Test, SetupUsers {
     uint256 maxTicketSupply = 10;
     uint256 nftId = 1;
     uint256 ticketPrice = 1e7; // 10
-    uint64 openTicketSaleDuration = 24*60*60;
+    uint64 ticketSaleDuration = 24*60*60;
     
     function setUp() public virtual override {
-       SetupUsers.setUp();
+      SetupUsers.setUp();
 
-       mockERC20 = new MockERC20("Mocked USDC", "USDC", 6);
-       mockERC20.mint(bob, 100e6);
-       mockERC721 = new MockERC721("Mocked NFT", "NFT");
-       mockERC721.mint(alice, nftId);
-       
-       changePrank(deployer);
-       accessController = new AccessController(maintainer);
-       implementationManager = new ImplementationManager(address(accessController));
-       
-       factory = new RaffleFactory(address(implementationManager));
+      mockERC20 = new MockERC20("Mocked USDC", "USDC", 6);
+      mockERC20.mint(bob, 100e6);
+      mockERC721 = new MockERC721("Mocked NFT", "NFT");
+      mockERC721.mint(alice, nftId);
       
-       changePrank(maintainer);
-       implementationManager.changeImplementationAddress(
-              ImplementationInterfaceNames.RaffleFactory,
-              address(factory)
-       );
+      changePrank(deployer);
+      accessController = new AccessController(maintainer);
+      implementationManager = new ImplementationManager(address(accessController));
+      
+      factory = new RaffleFactory(address(implementationManager));
+   
+      changePrank(maintainer);
+      implementationManager.changeImplementationAddress(
+         ImplementationInterfaceNames.RaffleFactory,
+         address(factory)
+      );
     }
 
     function test_RaffleCorrecltyInitialize() external {
+      changePrank(alice);
 
+      RaffleFactory.Params memory params = RaffleFactory.Params(
+         mockERC20,
+         mockERC721,
+         nftId,
+         maxTicketSupply,
+         ticketPrice,
+         ticketSaleDuration
+      );
+      mockERC721.approve(address(factory), nftId);
+      raffle = factory.createNewRaffle(params);
+      assertEq(raffle.creator(), alice);
+      assertEq(raffle.ticketPrice(), ticketPrice);
+      assertEq(raffle.endTicketSales(), uint64(block.timestamp) + ticketSaleDuration);
+      assertEq(raffle.totalSupply(), 0);
+      assertEq(raffle.maxSupply(), maxTicketSupply);
+      assertEq(address(raffle.purchaseCurrency()), address(mockERC20));
+      (IERC721 contractAddress, uint256 id )= raffle.nftToWin();
+      assertEq(address(contractAddress) ,address(mockERC721));
+      assertEq(id ,nftId);
+      assertEq(contractAddress.ownerOf(nftId) ,address(raffle));
     }
 
 }

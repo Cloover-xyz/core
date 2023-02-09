@@ -27,7 +27,7 @@ contract RaffleFactory {
         uint256 nftId;
         uint256 maxTicketSupply;
         uint256 ticketPrice;
-        uint64 openTicketSaleDuration;
+        uint64 ticketSaleDuration;
     }
 
     IImplementationManager immutable implementationManager;
@@ -49,10 +49,11 @@ contract RaffleFactory {
     //----------------------------------------
     // External functions
     //----------------------------------------
-    function createNewRaffle(Params memory _params) external {
-        address newRaffle = raffleImplementation.clone();
-        IRaffle(newRaffle).initialize(_convertParams(_params));
-        emit NewRaffle(newRaffle, _params);
+    function createNewRaffle(Params memory _params) external returns(Raffle newRaffle){
+        newRaffle = Raffle(raffleImplementation.clone());
+        _params.nftContract.transferFrom(msg.sender, address(newRaffle), _params.nftId);
+        newRaffle.initialize(_convertParams(_params));
+        emit NewRaffle(address(newRaffle), _params);
     }
 
     //----------------------------------------
@@ -67,7 +68,7 @@ contract RaffleFactory {
             _params.nftId,
             _params.maxTicketSupply,
             _params.ticketPrice,
-            _params.openTicketSaleDuration
+            _params.ticketSaleDuration
         );
     }
 
