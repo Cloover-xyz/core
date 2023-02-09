@@ -21,7 +21,6 @@ contract Raffle is IRaffle, RaffleStorage, Initializable {
     // Events
     //----------------------------------------
 
-    event NewRaffle(address indexed raffleContract, RaffleDataTypes.RaffleData globalData);
     event TicketPurchased(address indexed raffleContract, address indexed buyer, uint256[] ticketNumbers);
     event WinnerClaimedPrice(address indexed raffleContract, address indexed winner, address indexed nftContract, uint256 nftId);
     event CreatorClaimTicketSalesAmount(address indexed raffleContract, address indexed winner, uint256 amountReceived);
@@ -32,11 +31,11 @@ contract Raffle is IRaffle, RaffleStorage, Initializable {
     //----------------------------------------
 
     modifier ticketSalesOpen() {
-        if(block.timestamp >= _globalData.endTime) revert Errors.RAFFLE_CLOSE();
+        if(block.timestamp >= _globalData.endTicketSales) revert Errors.RAFFLE_CLOSE();
         _;
     }
     modifier ticketSalesClose() {
-        if(block.timestamp < _globalData.endTime) revert Errors.RAFFLE_STILL_OPEN();
+        if(block.timestamp < _globalData.endTicketSales) revert Errors.RAFFLE_STILL_OPEN();
         _;
     }
 
@@ -58,18 +57,16 @@ contract Raffle is IRaffle, RaffleStorage, Initializable {
     //----------------------------------------
     // Initialize function
     //----------------------------------------
-    function initialize(RaffleDataTypes.InitRaffleParams memory _data) external initializer {
-        _data.nftContract.transferFrom(msg.sender, address(this), _data.nftId);
-        _globalData.implementationManager = _data.implementationManager;
-        _globalData.creator = msg.sender;
-        _globalData.purchaseCurrency = _data.purchaseCurrency;
-        _globalData.nftContract = _data.nftContract;
-        _globalData.nftId = _data.nftId;
-        _globalData.maxTicketSupply = _data.maxTicketSupply;
-        _globalData.ticketPrice = _data.ticketPrice;
-        _globalData.endTime = uint64(block.timestamp) + _data.endTime;
-
-        emit NewRaffle(address(this), _globalData);
+    function initialize(RaffleDataTypes.InitRaffleParams memory _params) external override initializer {
+        _checkData(_params);
+        _globalData.implementationManager = _params.implementationManager;
+        _globalData.creator = _params.creator;
+        _globalData.purchaseCurrency = _params.purchaseCurrency;
+        _globalData.nftContract = _params.nftContract;
+        _globalData.nftId = _params.nftId;
+        _globalData.maxTicketSupply = _params.maxTicketSupply;
+        _globalData.ticketPrice = _params.ticketPrice;
+        _globalData.endTicketSales = uint64(block.timestamp) + _params.ticketSaleDuration;
     }
 
     //----------------------------------------
@@ -170,11 +167,11 @@ contract Raffle is IRaffle, RaffleStorage, Initializable {
     }
 
    /**
-    * @notice get the end time before ticket sales closing
+    * @notice get the end time where ticket sales closing
     * @return The time in timestamps
     */
-    function endTime() public view returns(uint64) {
-        return _globalData.endTime;
+    function endTicketSales() public view returns(uint64) {
+        return _globalData.endTicketSales;
     }
     
     /**
@@ -231,6 +228,20 @@ contract Raffle is IRaffle, RaffleStorage, Initializable {
     //----------------------------------------
     // Internals Functions
     //----------------------------------------
+    
+    /**
+    * @notice check that initialize data are correct
+    * @param _params the struct data use for initialization
+    */
+    function _checkData(RaffleDataTypes.InitRaffleParams memory _params) internal view {
+        if(address(_params.implementationManager) == address(0)) revert Errors.NOT_ADDRESS_0();
+        if(address(_params.purchaseCurrency) == address(0)) revert Errors.NOT_ADDRESS_0();
+        if(_params.nftContract.ownerOf(_params.nftId) != address(this)) revert Errors.NOT_NFT_OWNER();
+        if(_params.creator == address(0)) revert Errors.NOT_ADDRESS_0();
+        if(_params.ticketPrice == 0) revert Errors.CANT_BE_ZERO();
+        if(_params.maxTicketSupply == 0) revert Errors.CANT_BE_ZERO();
+        if(_params.ticketSaleDuration == 0) revert Errors.CANT_BE_ZERO();
+    }
 
     /**
     * @notice calculate the total price that must be paid regarding the amount of tickets to buy

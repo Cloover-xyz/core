@@ -38,7 +38,7 @@ export declare namespace RaffleDataTypes {
     ticketSupply: PromiseOrValue<BigNumberish>;
     ticketPrice: PromiseOrValue<BigNumberish>;
     winningTicketNumber: PromiseOrValue<BigNumberish>;
-    endTime: PromiseOrValue<BigNumberish>;
+    ticketSaleDuration: PromiseOrValue<BigNumberish>;
     isTicketDrawn: PromiseOrValue<boolean>;
   };
 
@@ -64,7 +64,7 @@ export declare namespace RaffleDataTypes {
     ticketSupply: BigNumber;
     ticketPrice: BigNumber;
     winningTicketNumber: BigNumber;
-    endTime: BigNumber;
+    ticketSaleDuration: BigNumber;
     isTicketDrawn: boolean;
   };
 
@@ -75,7 +75,7 @@ export declare namespace RaffleDataTypes {
     nftId: PromiseOrValue<BigNumberish>;
     maxTicketSupply: PromiseOrValue<BigNumberish>;
     ticketPrice: PromiseOrValue<BigNumberish>;
-    endTime: PromiseOrValue<BigNumberish>;
+    ticketSaleDuration: PromiseOrValue<BigNumberish>;
   };
 
   export type InitRaffleParamsStructOutput = [
@@ -93,7 +93,7 @@ export declare namespace RaffleDataTypes {
     nftId: BigNumber;
     maxTicketSupply: BigNumber;
     ticketPrice: BigNumber;
-    endTime: BigNumber;
+    ticketSaleDuration: BigNumber;
   };
 }
 
@@ -105,7 +105,7 @@ export interface RaffleInterface extends utils.Interface {
     "creator()": FunctionFragment;
     "drawnRandomTicket()": FunctionFragment;
     "drawnTicket(uint256)": FunctionFragment;
-    "endTime()": FunctionFragment;
+    "ticketSaleDuration()": FunctionFragment;
     "initialize((address,address,address,uint256,uint256,uint256,uint64))": FunctionFragment;
     "isTicketDrawn()": FunctionFragment;
     "maxSupply()": FunctionFragment;
@@ -127,7 +127,7 @@ export interface RaffleInterface extends utils.Interface {
       | "creator"
       | "drawnRandomTicket"
       | "drawnTicket"
-      | "endTime"
+      | "ticketSaleDuration"
       | "initialize"
       | "isTicketDrawn"
       | "maxSupply"
@@ -162,7 +162,10 @@ export interface RaffleInterface extends utils.Interface {
     functionFragment: "drawnTicket",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
-  encodeFunctionData(functionFragment: "endTime", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "ticketSaleDuration",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "initialize",
     values: [RaffleDataTypes.InitRaffleParamsStruct]
@@ -217,7 +220,10 @@ export interface RaffleInterface extends utils.Interface {
     functionFragment: "drawnTicket",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "endTime", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "ticketSaleDuration",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "isTicketDrawn",
@@ -390,7 +396,7 @@ export interface Raffle extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    endTime(overrides?: CallOverrides): Promise<[BigNumber]>;
+    ticketSaleDuration(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     initialize(
       _data: RaffleDataTypes.InitRaffleParamsStruct,
@@ -452,7 +458,7 @@ export interface Raffle extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  endTime(overrides?: CallOverrides): Promise<BigNumber>;
+  ticketSaleDuration(overrides?: CallOverrides): Promise<BigNumber>;
 
   initialize(
     _data: RaffleDataTypes.InitRaffleParamsStruct,
@@ -508,7 +514,7 @@ export interface Raffle extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    endTime(overrides?: CallOverrides): Promise<BigNumber>;
+    ticketSaleDuration(overrides?: CallOverrides): Promise<BigNumber>;
 
     initialize(
       _data: RaffleDataTypes.InitRaffleParamsStruct,
@@ -629,7 +635,7 @@ export interface Raffle extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    endTime(overrides?: CallOverrides): Promise<BigNumber>;
+    ticketSaleDuration(overrides?: CallOverrides): Promise<BigNumber>;
 
     initialize(
       _data: RaffleDataTypes.InitRaffleParamsStruct,
@@ -688,7 +694,9 @@ export interface Raffle extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    endTime(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    ticketSaleDuration(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     initialize(
       _data: RaffleDataTypes.InitRaffleParamsStruct,

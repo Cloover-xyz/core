@@ -17,7 +17,7 @@ contract ImplementationManagerTest is Test, SetupUsers {
 
     function setUp() public virtual override {
         SetupUsers.setUp();
-        vm.prank(admin);
+        changePrank(deployer);
         accessController = new AccessController(maintainer);
         implementationManager = new ImplementationManager(address(accessController));
     }
@@ -28,14 +28,14 @@ contract ImplementationManagerTest is Test, SetupUsers {
     }
 
     function test_MaintainerCanChangeImplementationAddress() external{
-        vm.prank(maintainer);
+        changePrank(maintainer);
         implementationManager.changeImplementationAddress(ImplementationInterfaceNames.AccessController, admin);
         address _accessController = implementationManager.getImplementationAddress(ImplementationInterfaceNames.AccessController);
         assertEq(_accessController, admin);
     }
 
     function test_RevertIf_NotMaintainerChangeImplementationAddress() external{
-        vm.prank(admin);
+        changePrank(admin);
         vm.expectRevert(Errors.NOT_MAINTAINER.selector);
         implementationManager.changeImplementationAddress(ImplementationInterfaceNames.AccessController, admin);
     }
