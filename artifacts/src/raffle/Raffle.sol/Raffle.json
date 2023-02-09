@@ -149,7 +149,7 @@
             },
             {
               "internalType": "uint64",
-              "name": "endTime",
+              "name": "ticketSaleDuration",
               "type": "uint64"
             },
             {
@@ -310,7 +310,7 @@
     },
     {
       "inputs": [],
-      "name": "endTime",
+      "name": "ticketSaleDuration",
       "outputs": [
         {
           "internalType": "uint64",
@@ -357,7 +357,7 @@
             },
             {
               "internalType": "uint64",
-              "name": "endTime",
+              "name": "ticketSaleDuration",
               "type": "uint64"
             }
           ],

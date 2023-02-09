@@ -153,7 +153,7 @@ const _abi = [
           },
           {
             internalType: "uint64",
-            name: "endTime",
+            name: "ticketSaleDuration",
             type: "uint64",
           },
           {
@@ -314,7 +314,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "endTime",
+    name: "ticketSaleDuration",
     outputs: [
       {
         internalType: "uint64",
@@ -361,7 +361,7 @@ const _abi = [
           },
           {
             internalType: "uint64",
-            name: "endTime",
+            name: "ticketSaleDuration",
             type: "uint64",
           },
         ],
