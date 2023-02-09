@@ -32,11 +32,11 @@ contract Raffle is IRaffle, RaffleStorage, Initializable {
     //----------------------------------------
 
     modifier ticketSalesOpen() {
-        if(block.timestamp >= _globalData.endTime) revert Errors.RAFFLE_CLOSE();
+        if(block.timestamp >= _globalData.openTicketSaleDuration) revert Errors.RAFFLE_CLOSE();
         _;
     }
     modifier ticketSalesClose() {
-        if(block.timestamp < _globalData.endTime) revert Errors.RAFFLE_STILL_OPEN();
+        if(block.timestamp < _globalData.openTicketSaleDuration) revert Errors.RAFFLE_STILL_OPEN();
         _;
     }
 
