@@ -10,27 +10,27 @@ contract SetupUsers is Test {
  
 
     address payable[] internal users;
+    address internal deployer;
     address internal admin;
     address internal maintainer;
     address internal alice;
     address internal bob;
-    address internal carole;
-    
 
     function setUp() public virtual{
         utils = new Utils();
         users = utils.createUsers(6);
 
-        admin = users[0];
+        deployer = users[0];
+        vm.label(deployer, "Deployer");
+        admin = users[1];
         vm.label(admin, "Admin");
-        maintainer = users[1];
+        maintainer = users[2];
         vm.label(maintainer, "Maintainer");
-        alice = users[2];
+        alice = users[3];
         vm.label(alice, "Alice");
-        bob = users[3];
+        bob = users[4];
         vm.label(bob, "Bob");
-        carole = users[4];
-        vm.label(carole, "Carole");
+    
     }
     
 }
