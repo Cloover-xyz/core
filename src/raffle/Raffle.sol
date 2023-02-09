@@ -59,7 +59,6 @@ contract Raffle is IRaffle, RaffleStorage, Initializable {
     //----------------------------------------
     function initialize(RaffleDataTypes.InitRaffleParams memory _params) external override initializer {
         _checkData(_params);
-        _params.nftContract.transferFrom(msg.sender, address(this), _params.nftId);
         _globalData.implementationManager = _params.implementationManager;
         _globalData.creator = _params.creator;
         _globalData.purchaseCurrency = _params.purchaseCurrency;
@@ -67,7 +66,7 @@ contract Raffle is IRaffle, RaffleStorage, Initializable {
         _globalData.nftId = _params.nftId;
         _globalData.maxTicketSupply = _params.maxTicketSupply;
         _globalData.ticketPrice = _params.ticketPrice;
-        _globalData.endTicketSales = uint64(block.timestamp) + _params.openTicketSaleDuration;
+        _globalData.endTicketSales = uint64(block.timestamp) + _params.ticketSaleDuration;
     }
 
     //----------------------------------------
@@ -234,14 +233,14 @@ contract Raffle is IRaffle, RaffleStorage, Initializable {
     * @notice check that initialize data are correct
     * @param _params the struct data use for initialization
     */
-    function _checkData(RaffleDataTypes.InitRaffleParams memory _params) internal pure {
+    function _checkData(RaffleDataTypes.InitRaffleParams memory _params) internal view {
         if(address(_params.implementationManager) == address(0)) revert Errors.NOT_ADDRESS_0();
         if(address(_params.purchaseCurrency) == address(0)) revert Errors.NOT_ADDRESS_0();
-        if(address(_params.nftContract) == address(0)) revert Errors.NOT_ADDRESS_0();
+        if(_params.nftContract.ownerOf(_params.nftId) != address(this)) revert Errors.NOT_NFT_OWNER();
         if(_params.creator == address(0)) revert Errors.NOT_ADDRESS_0();
         if(_params.ticketPrice == 0) revert Errors.CANT_BE_ZERO();
         if(_params.maxTicketSupply == 0) revert Errors.CANT_BE_ZERO();
-        if(_params.openTicketSaleDuration == 0) revert Errors.CANT_BE_ZERO();
+        if(_params.ticketSaleDuration == 0) revert Errors.CANT_BE_ZERO();
     }
 
     /**

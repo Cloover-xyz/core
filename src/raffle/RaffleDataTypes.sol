@@ -30,6 +30,6 @@ library RaffleDataTypes {
         uint256 nftId;
         uint256 maxTicketSupply;
         uint256 ticketPrice;
-        uint64 openTicketSaleDuration;
+        uint64 ticketSaleDuration;
     }
 }
