@@ -1,7 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
+import {RaffleDataTypes} from '../raffle/RaffleDataTypes.sol';
+
 interface IRaffle {
+    /**
+     * @notice Function to initialize contract
+     * @dev must be tag by the initializer function 
+     * @param _params used for initialization (see InitRaffleParams struct)
+     */
+    function initialize(RaffleDataTypes.InitRaffleParams memory _params) external;
 
     /**
      * @notice Allows users to purchase tickets

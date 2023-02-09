@@ -18,7 +18,7 @@ library RaffleDataTypes {
         uint256 ticketSupply;
         uint256 ticketPrice;
         uint256 winningTicketNumber;
-        uint64 endTime;
+        uint64 endTicketSales;
         bool isTicketDrawn;
     }
 
@@ -26,9 +26,10 @@ library RaffleDataTypes {
         IImplementationManager implementationManager;
         IERC20 purchaseCurrency;
         IERC721 nftContract;
+        address creator;
         uint256 nftId;
         uint256 maxTicketSupply;
         uint256 ticketPrice;
-        uint64 endTime;
+        uint64 openTicketSaleDuration;
     }
 }
