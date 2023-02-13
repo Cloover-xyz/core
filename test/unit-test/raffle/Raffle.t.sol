@@ -124,10 +124,11 @@ contract RaffleTest is Test, SetupUsers {
        
        raffle.purchaseTickets(1);
        
-       assertEq(raffle.ownerOf(0), bob);
+       assertEq(raffle.ownerOf(0), address(0));
+       assertEq(raffle.ownerOf(1), bob);
        uint256[] memory bobTickets = raffle.balanceOf(bob);
        assertEq(bobTickets.length, 1);
-       assertEq(bobTickets[0], 0);
+       assertEq(bobTickets[0], 1);
        assertEq(raffle.totalSupply(), 1);
        assertEq(mockERC20.balanceOf(address(raffle)), 1e7);
     }
@@ -142,12 +143,14 @@ contract RaffleTest is Test, SetupUsers {
        mockERC20.mint(alice, 100e6);
        mockERC20.approve(address(raffle), 100e6);
        raffle.purchaseTickets(9);
-       assertEq(raffle.ownerOf(0), bob);
-       assertEq(raffle.ownerOf(1), alice);
+
+       assertEq(raffle.ownerOf(0), address(0));
+       assertEq(raffle.ownerOf(1), bob);
+       assertEq(raffle.ownerOf(2), alice);
        uint256[] memory alicebTickets = raffle.balanceOf(alice);
        assertEq(alicebTickets.length, 9);
-       assertEq(alicebTickets[0], 1);
-       assertEq(alicebTickets[8], 9);
+       assertEq(alicebTickets[0], 2);
+       assertEq(alicebTickets[8], 10);
        assertEq(raffle.totalSupply(), 10);
        assertEq(mockERC20.balanceOf(address(raffle)), 1e8);
     }
@@ -156,12 +159,13 @@ contract RaffleTest is Test, SetupUsers {
         changePrank(bob);
         mockERC20.approve(address(raffle), 100e6);
         raffle.purchaseTickets(10);
-        assertEq(raffle.ownerOf(0), bob);
-        assertEq(raffle.ownerOf(9), bob);
+       assertEq(raffle.ownerOf(0), address(0));
+       assertEq(raffle.ownerOf(1), bob);
+        assertEq(raffle.ownerOf(10), bob);
         uint256[] memory bobTickets = raffle.balanceOf(bob);
         assertEq(bobTickets.length, 10);
-        assertEq(bobTickets[0], 0);
-        assertEq(bobTickets[9], 9);
+        assertEq(bobTickets[0], 1);
+        assertEq(bobTickets[9], 10);
         assertEq(raffle.totalSupply(), 10);
         assertEq(mockERC20.balanceOf(address(raffle)), 1e8);
     }

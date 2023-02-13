@@ -86,11 +86,11 @@ contract Raffle is IRaffle, RaffleStorage, Initializable {
 
         uint256[] memory ticketsPurchased = new uint256[](nbOfTickets);
         for(uint i; i<nbOfTickets; ){
+            ++ticketNumber;
             ticketsPurchased[i] = ticketNumber;
             ownerTickets.push(ticketNumber);
             _ticketOwner[ticketNumber] = msg.sender;
             unchecked {
-                ++ticketNumber;
                 ++i;
             }
         }
