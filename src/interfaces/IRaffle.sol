@@ -105,10 +105,10 @@ interface IRaffle {
     function nftToWin() external view returns(IERC721 nftContractAddress, uint256 nftId);
 
     /**
-    * @notice get info if the winning ticket has been drawn
-    * @return True if ticket has been drawn, False otherwise
+    * @notice get info regarding the workflow status of the raffle
+    * @return The status regarding the RaffleStatus enum 
     */
-    function isTicketDrawn() external view returns(bool);
+    function raffleStatus() external view returns(RaffleDataTypes.RaffleStatus);
 
     /**
     * @notice get all tickets number bought by a user
@@ -128,9 +128,4 @@ interface IRaffle {
     */
     function randomProvider() external view returns(address);
     
-   /**
-    * @notice get the raffleFactory contract address from the implementationManager
-    * @return The address of the raffleFactory contract
-    */
-    function raffleFactory() external view returns(address);
 }

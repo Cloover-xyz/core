@@ -44,27 +44,27 @@ contract Raffle is IRaffle, Initializable {
     //----------------------------------------
 
     modifier ticketSalesOpen() {
-        if(block.timestamp >= _globalData.endTicketSales) revert Errors.RAFFLE_CLOSE();
+        if(block.timestamp >= endTicketSales()) revert Errors.RAFFLE_CLOSE();
         _;
     }
     
     modifier ticketSalesClose() {
-        if(block.timestamp < _globalData.endTicketSales) revert Errors.RAFFLE_STILL_OPEN();
+        if(block.timestamp < endTicketSales()) revert Errors.RAFFLE_STILL_OPEN();
         _;
     }
 
     modifier ticketHasNotBeDrawn(){
-        if(isTicketDrawn()) revert Errors.TICKET_ALREADY_DRAWN();
+        if(raffleStatus() == RaffleDataTypes.RaffleStatus.WinningTicketsDrawned) revert Errors.TICKET_ALREADY_DRAWN();
         _;
     }
 
     modifier ticketHasBeDrawn(){
-        if(!isTicketDrawn()) revert Errors.TICKET_NOT_DRAWN();
+        if(raffleStatus() != RaffleDataTypes.RaffleStatus.WinningTicketsDrawned) revert Errors.TICKET_NOT_DRAWN();
         _;
     }
     
-    modifier onlyRandomProviderOrRaffleFactoryContract(){
-        if(randomProvider() != msg.sender && raffleFactory() != msg.sender) revert Errors.NOT_RANDOM_PROVIDER_CONTRACT();
+    modifier onlyRandomProviderContract(){
+        if(randomProvider() != msg.sender) revert Errors.NOT_RANDOM_PROVIDER_CONTRACT();
         _;
     }
 
@@ -114,18 +114,23 @@ contract Raffle is IRaffle, Initializable {
 
     /// @inheritdoc IRaffle
     function drawnTickets() external override ticketSalesClose() ticketHasNotBeDrawn() {
+        _globalData.status = RaffleDataTypes.RaffleStatus.DrawnRequested;
         IRandomProvider(randomProvider()).requestRandomNumbers(1);
     }
 
     /// @inheritdoc IRaffle
-    function drawnTickets(uint256[] memory randomNumbers) external override onlyRandomProviderOrRaffleFactoryContract() {
+    function drawnTickets(uint256[] memory randomNumbers) external override onlyRandomProviderContract() {
         /// using if condition instead of reverting to avoid reverting multi raffle drawn
-        if(block.timestamp >= _globalData.endTicketSales && !isTicketDrawn() && randomNumbers[0] != 0 && randomNumbers.length != 0){
+        if(raffleStatus() == RaffleDataTypes.RaffleStatus.DrawnRequested){
+            if( randomNumbers[0] == 0 && randomNumbers.length == 0){
+                _globalData.status = RaffleDataTypes.RaffleStatus.Init;
+                return;
+            }
             _globalData.winningTicketNumber = (randomNumbers[0] % _globalData.ticketSupply) + 1;
-            _globalData.isTicketDrawn = true;
+            _globalData.status = RaffleDataTypes.RaffleStatus.WinningTicketsDrawned;
             emit WinningTicketDrawned(address(this), _globalData.winningTicketNumber );
-
-        }         
+            return;
+        }
     }
 
     /// @inheritdoc IRaffle
@@ -188,12 +193,9 @@ contract Raffle is IRaffle, Initializable {
         return (_globalData.nftContract, _globalData.nftId);
     }
 
-    /**
-    * @notice get info if the winning ticket has been drawn
-    * @return True if ticket has been drawn, False otherwise
-    */
-    function isTicketDrawn() public override view returns(bool) {
-        return _globalData.isTicketDrawn;
+    /// @inheritdoc IRaffle
+    function raffleStatus() public override view returns(RaffleDataTypes.RaffleStatus){
+        return  _globalData.status;
     }
 
     /// @inheritdoc IRaffle
@@ -211,10 +213,6 @@ contract Raffle is IRaffle, Initializable {
         return _globalData.implementationManager.getImplementationAddress(ImplementationInterfaceNames.RandomProvider);
     }
 
-   /// @inheritdoc IRaffle
-    function raffleFactory() public override view returns(address){
-        return _globalData.implementationManager.getImplementationAddress(ImplementationInterfaceNames.RaffleFactory);
-    }
 
     //----------------------------------------
     // Internals Functions

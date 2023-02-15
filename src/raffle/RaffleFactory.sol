@@ -23,8 +23,11 @@ contract RaffleFactory is IRaffleFactory{
     // Storage
     //----------------------------------------
     IImplementationManager immutable implementationManager;
+
     address immutable raffleImplementation;
+
     mapping(address => bool) public override isRegisteredRaffle;
+    
     mapping(uint256 => address[]) public requestIdToContracts;
 
     //----------------------------------------
@@ -63,21 +66,9 @@ contract RaffleFactory is IRaffleFactory{
         emit NewRaffle(address(newRaffle), _params);
     }
 
-    function drawnMultiRaffleTickets(address[] memory _raffleContracts) external override returns(bool) {
-        if(_raffleContracts.length > type(uint32).max) revert Errors.MAX_TICKET_SUPPLY_EXCEEDED();
-        uint32 numWords = uint32(_raffleContracts.length);
-        uint256 requestId = IRandomProvider(randomProvider()).requestRandomNumbers(numWords);
-        requestIdToContracts[requestId] = _raffleContracts;
-        return true;
-    }
-
-    function drawnMultiRaffleTickets(uint256 _requestId, uint256[] memory _randomWords) external override onlyRamdomProvider(){
-        address[] memory raffleContracts = requestIdToContracts[_requestId];
-        if(raffleContracts.length != _randomWords.length) revert Errors.ARRAYS_LENGTH_NOT_EQUAL();
-        for(uint256 i; i< _randomWords.length; i++) {
-            uint256[] memory result = new uint256[](1);
-            result[0] = _randomWords[i];
-            Raffle(raffleContracts[i]).drawnTickets(result);
+    function drawnMultiRaffleTickets(address[] memory _raffleContracts) external override {
+        for(uint32 i; i<_raffleContracts.length; ++i){
+            Raffle(_raffleContracts[i]).drawnTickets();
         }
     }
     

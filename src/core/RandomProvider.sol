@@ -47,11 +47,8 @@ contract RandomProvider is VRFConsumerBaseV2, IRandomProvider {
     // Modifier
     //----------------------------------------
 
-    modifier onlyRaffleContractOrFactory(){
-        if(
-            getRaffleFactory() != msg.sender && 
-            !IRaffleFactory(getRaffleFactory()).isRegisteredRaffle(msg.sender)
-        ) revert Errors.NOT_RAFFLE_CONTRACT();
+    modifier onlyRaffleContract(){
+        if(!IRaffleFactory(getRaffleFactory()).isRegisteredRaffle(msg.sender)) revert Errors.NOT_RAFFLE_CONTRACT();
         _;
     }
 
@@ -78,7 +75,7 @@ contract RandomProvider is VRFConsumerBaseV2, IRandomProvider {
     //----------------------------------------
 
     /// @inheritdoc IRandomProvider
-    function requestRandomNumbers(uint32 numWords) external override onlyRaffleContractOrFactory() returns(uint256 requestId){
+    function requestRandomNumbers(uint32 numWords) external override onlyRaffleContract() returns(uint256 requestId){
         requestId = COORDINATOR.requestRandomWords(
             chainlinkVRFData.keyHash,
             chainlinkVRFData.subscriptionId,
@@ -110,13 +107,8 @@ contract RandomProvider is VRFConsumerBaseV2, IRandomProvider {
         uint256 requestId,
         uint256[] memory randomWords
     ) internal override {
-        address raffleFactory = getRaffleFactory();
         address requestorAddress = requestIdToCaller[requestId];
-        if(raffleFactory == requestorAddress){
-            IRaffleFactory(requestorAddress).drawnMultiRaffleTickets(requestId, randomWords);
-        }else{
-            IRaffle(requestorAddress).drawnTickets(randomWords); 
-        }
+        IRaffle(requestorAddress).drawnTickets(randomWords); 
     }
 
 

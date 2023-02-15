@@ -112,15 +112,15 @@ contract RaffleFactoryTest is Test, SetupUsers {
       mockERC20.approve(address(raffle), 100e6);
       raffle.purchaseTickets(2);
       vm.warp(uint64(block.timestamp) + ticketSaleDuration + 1);
-      assertFalse(raffle.isTicketDrawn());
+      assertFalse(raffle.raffleStatus() == RaffleDataTypes.RaffleStatus.WinningTicketsDrawned);
   
       address[] memory raffleContract = new address[](1);
       raffleContract[0] = address(raffle);
       factory.drawnMultiRaffleTickets(raffleContract);
 
-      uint256 requestId = mockRamdomProvider.callerToRequestId(address(factory));
+      uint256 requestId = mockRamdomProvider.callerToRequestId(address(raffle));
       mockRamdomProvider.generateRandomNumbers(requestId);
-      assertTrue(raffle.isTicketDrawn());
+      assertTrue(raffle.raffleStatus() == RaffleDataTypes.RaffleStatus.WinningTicketsDrawned);
    }
    
    function test_CorrectlyRequestRandomNumberForSeveralRaffles() external {
@@ -148,18 +148,20 @@ contract RaffleFactoryTest is Test, SetupUsers {
       mockERC20.approve(address(raffleTwo), 100e6);
       raffleTwo.purchaseTickets(1);
       vm.warp(uint64(block.timestamp) + ticketSaleDuration + 1);
-      assertFalse(raffleOne.isTicketDrawn());
-      assertFalse(raffleTwo.isTicketDrawn());
+      assertFalse(raffleOne.raffleStatus() == RaffleDataTypes.RaffleStatus.WinningTicketsDrawned);
+      assertFalse(raffleTwo.raffleStatus() == RaffleDataTypes.RaffleStatus.WinningTicketsDrawned);
   
       address[] memory raffleContract = new address[](2);
       raffleContract[0] = address(raffleOne);
       raffleContract[1] = address(raffleTwo);
       factory.drawnMultiRaffleTickets(raffleContract);
 
-      uint256 requestId = mockRamdomProvider.callerToRequestId(address(factory));
+      uint256 requestId = mockRamdomProvider.callerToRequestId(address(raffleOne));
       mockRamdomProvider.generateRandomNumbers(requestId);
-      assertTrue(raffleOne.isTicketDrawn());
-      assertTrue(raffleTwo.isTicketDrawn());
+      requestId = mockRamdomProvider.callerToRequestId(address(raffleTwo));
+      mockRamdomProvider.generateRandomNumbers(requestId);
+      assertTrue(raffleOne.raffleStatus() == RaffleDataTypes.RaffleStatus.WinningTicketsDrawned);
+      assertTrue(raffleTwo.raffleStatus() == RaffleDataTypes.RaffleStatus.WinningTicketsDrawned);
    }
 
    function test_RevertIf_OneOfTheRaffleHasAlreadyBeenDrawned() external {
@@ -191,19 +193,14 @@ contract RaffleFactoryTest is Test, SetupUsers {
       raffleOne.drawnTickets();
       uint256 requestId = mockRamdomProvider.callerToRequestId(address(raffleOne));
       mockRamdomProvider.generateRandomNumbers(requestId);
-      uint256 winningTicket = raffleOne.winningTicket();
-      assertTrue(raffleOne.isTicketDrawn());
-      assertFalse(raffleTwo.isTicketDrawn());
+      raffleOne.winningTicket();
+      assertTrue(raffleOne.raffleStatus() == RaffleDataTypes.RaffleStatus.WinningTicketsDrawned);
+      assertFalse(raffleTwo.raffleStatus() == RaffleDataTypes.RaffleStatus.WinningTicketsDrawned);
 
       address[] memory raffleContract = new address[](2);
       raffleContract[0] = address(raffleOne);
       raffleContract[1] = address(raffleTwo);
+      vm.expectRevert(Errors.TICKET_ALREADY_DRAWN.selector);
       factory.drawnMultiRaffleTickets(raffleContract);
-
-      requestId = mockRamdomProvider.callerToRequestId(address(factory));
-      mockRamdomProvider.generateRandomNumbers(requestId);
-
-      assertEq(raffleOne.winningTicket(), winningTicket);
-
    }
 }

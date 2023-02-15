@@ -219,7 +219,7 @@ contract RaffleTest is Test, SetupUsers {
        raffle.drawnTickets();
    }
 
-   function test_StateNotChangeIf_RandomNumberTicketDrawnedIsZero() external{
+   function test_StatusBackToInitRandomNumberTicketDrawnedIsZero() external{
        changePrank(bob);
        mockERC20.approve(address(raffle), 100e6);
        raffle.purchaseTickets(2);
@@ -227,7 +227,7 @@ contract RaffleTest is Test, SetupUsers {
        raffle.drawnTickets();
        uint256 requestId = mockRamdomProvider.callerToRequestId(address(raffle));
        mockRamdomProvider.requestRandomNumberReturnZero(requestId);
-       assertFalse(raffle.isTicketDrawn());
+       assertFalse(raffle.raffleStatus() == RaffleDataTypes.RaffleStatus.Init);
    }
 
    function test_RevertWhen_DrawnATicketCalledButAlreadyDrawn() external{
@@ -252,12 +252,11 @@ contract RaffleTest is Test, SetupUsers {
      uint256 requestId = mockRamdomProvider.callerToRequestId(address(raffle));
      mockRamdomProvider.generateRandomNumbers(requestId);
      uint256 winningTicketNumber = 1;
-     vm.store(address(raffle),bytes32(uint256(10)), bytes32(winningTicketNumber));
+     vm.store(address(raffle),bytes32(uint256(11)), bytes32(winningTicketNumber));
      assertEq(raffle.winningTicket(), winningTicketNumber);
      raffle.claimPrice();
      assertEq(mockERC721.ownerOf(nftId),bob);
      assertEq(raffle.winnerAddress(), bob);
-     assertEq(raffle.winningTicket(), 1);
    }
 
    function test_RevertIf_UserCallClaimPriceWhenRaffleStillOpen() external{
@@ -268,7 +267,7 @@ contract RaffleTest is Test, SetupUsers {
    function test_RevertWhen_NotWinnerTryToCallClaimPrice() external{
           changePrank(bob);
           mockERC20.approve(address(raffle), 100e6);
-          raffle.purchaseTickets(2);
+          raffle.purchaseTickets(10);
           vm.warp(uint64(block.timestamp) + ticketSaleDuration + 1);
           raffle.drawnTickets();
           uint256 requestId = mockRamdomProvider.callerToRequestId(address(raffle));

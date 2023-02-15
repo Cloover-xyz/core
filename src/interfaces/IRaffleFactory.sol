@@ -36,15 +36,7 @@ interface IRaffleFactory {
     /**
      * @notice Request random number
      * @param _raffleContracts the array of raffle addresses to claim random number
-     * @return True if tickets has been correctly drawn
      */
-    function drawnMultiRaffleTickets(address[] memory _raffleContracts) external returns (bool);
+    function drawnMultiRaffleTickets(address[] memory _raffleContracts) external;
     
-    /**
-     * @notice Receive random numbers and dispatch them to the proper raffle contracts
-     * @dev function must be only callable by the random provider contract
-     * @param _requestId linked to the random numbers requested
-     * @param _randomWords an array of random numbers requested
-     */
-    function drawnMultiRaffleTickets(uint256 _requestId, uint256[] memory _randomWords) external;
 }

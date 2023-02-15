@@ -41,37 +41,17 @@ contract MockRandomProvider is IRandomProvider {
                 randomNumbers[i] =  uint256(keccak256(abi.encode(randomNumbers[i-1], blockhash(block.number - 1))));
             }
         }
-        address raffleFactory = getRaffleFactory();
         address requestorAddress = requestIdToCaller[requestId];
-        if(raffleFactory == requestorAddress){
-            IRaffleFactory(requestorAddress).drawnMultiRaffleTickets(requestId, randomNumbers);
-        }else{
-            IRaffle(requestorAddress).drawnTickets(randomNumbers); 
-        }
+        IRaffle(requestorAddress).drawnTickets(randomNumbers); 
     }
 
     function requestRandomNumberReturnZero(uint256 requestId) external {
-        address raffleFactory = getRaffleFactory();
         address requestorAddress = requestIdToCaller[requestId];
         uint256 numWordsRequested = requestIdToNumWords[requestId];
         uint256[] memory zeroNumbers = new uint256[](numWordsRequested);
         for(uint256 i;i<numWordsRequested;i++){
             zeroNumbers[i] = 0;
         }
-        if(raffleFactory == requestorAddress){
-            IRaffleFactory(requestorAddress).drawnMultiRaffleTickets(requestId, zeroNumbers);
-        }else{
-            IRaffle(requestorAddress).drawnTickets(zeroNumbers); 
-        }
-    
-    }
-
-
-    /**
-    * @notice get the randomProvider contract address from the implementationManager
-    * @return The address of the randomProvider contract
-    */
-    function getRaffleFactory() public view returns(address){
-       return implementationManager.getImplementationAddress(ImplementationInterfaceNames.RaffleFactory);
+        IRaffle(requestorAddress).drawnTickets(zeroNumbers); 
     }
 }
