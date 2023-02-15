@@ -13,9 +13,22 @@ import {IRaffle} from "../interfaces/IRaffle.sol";
 import {IRandomProvider} from "../interfaces/IRandomProvider.sol";
 
 import {RaffleDataTypes} from "./RaffleDataTypes.sol";
-import {RaffleStorage} from "./RaffleStorage.sol";
+
  
-contract Raffle is IRaffle, RaffleStorage, Initializable {
+contract Raffle is IRaffle, Initializable {
+
+    //----------------------------------------
+    // Storage
+    //----------------------------------------
+
+    // Mapping from ticket ID to owner address
+    mapping(uint256 => address) internal _ticketOwner;
+
+    // Mapping owner address to tickets list
+    mapping(address => uint256[]) internal _ownerTickets;
+
+    RaffleDataTypes.RaffleData internal _globalData;
+
 
     //----------------------------------------
     // Events
