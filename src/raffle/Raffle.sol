@@ -34,6 +34,7 @@ contract Raffle is IRaffle, RaffleStorage, Initializable {
         if(block.timestamp >= _globalData.endTicketSales) revert Errors.RAFFLE_CLOSE();
         _;
     }
+    
     modifier ticketSalesClose() {
         if(block.timestamp < _globalData.endTicketSales) revert Errors.RAFFLE_STILL_OPEN();
         _;
@@ -49,8 +50,8 @@ contract Raffle is IRaffle, RaffleStorage, Initializable {
         _;
     }
     
-    modifier onlyRandomProviderContract(){
-        if(_globalData.implementationManager.getImplementationAddress(ImplementationInterfaceNames.RandomProvider) != msg.sender) revert Errors.NOT_RANDOM_PROVIDER_CONTRACT();
+    modifier onlyRandomProviderOrRaffleFactoryContract(){
+        if(randomProvider() != msg.sender && raffleFactory() != msg.sender) revert Errors.NOT_RANDOM_PROVIDER_CONTRACT();
         _;
     }
 
@@ -99,16 +100,19 @@ contract Raffle is IRaffle, RaffleStorage, Initializable {
     }
 
     /// @inheritdoc IRaffle
-    function drawnRandomTickets() external override ticketSalesClose() ticketHasNotBeDrawn() {
-        IRandomProvider(_globalData.implementationManager.getImplementationAddress(ImplementationInterfaceNames.RandomProvider)).requestRandomNumbers(1);
+    function drawnTickets() external override ticketSalesClose() ticketHasNotBeDrawn() {
+        IRandomProvider(randomProvider()).requestRandomNumbers(1);
     }
 
     /// @inheritdoc IRaffle
-    function drawnTickets(uint256[] memory randomNumbers) external override ticketSalesClose() ticketHasNotBeDrawn() onlyRandomProviderContract(){
-        if(randomNumbers[0] == 0 || randomNumbers.length == 0) revert Errors.CANT_BE_ZERO();
-        _globalData.winningTicketNumber = randomNumbers[0] % _globalData.ticketSupply;
-        _globalData.isTicketDrawn = true;
-        emit WinningTicketDrawned(address(this), _globalData.winningTicketNumber );
+    function drawnTickets(uint256[] memory randomNumbers) external override onlyRandomProviderOrRaffleFactoryContract() {
+        /// using if condition instead of reverting to avoid reverting multi raffle drawn
+        if(block.timestamp >= _globalData.endTicketSales && !isTicketDrawn() && randomNumbers[0] != 0 && randomNumbers.length != 0){
+            _globalData.winningTicketNumber = (randomNumbers[0] % _globalData.ticketSupply) + 1;
+            _globalData.isTicketDrawn = true;
+            emit WinningTicketDrawned(address(this), _globalData.winningTicketNumber );
+
+        }         
     }
 
     /// @inheritdoc IRaffle
@@ -126,78 +130,48 @@ contract Raffle is IRaffle, RaffleStorage, Initializable {
         emit CreatorClaimTicketSalesAmount(address(this), msg.sender, amount);
     }
 
-    /**
-    * @notice get the total amount of tickets sold
-    * @return The total amount of tickets sold
-    */
-    function totalSupply() public view returns(uint256) {
+    /// @inheritdoc IRaffle
+    function totalSupply() public override view returns(uint256) {
         return _globalData.ticketSupply;
     }
 
-    /**
-    * @notice get the max amount of tickets that can be sold
-    * @return The total amount of tickets sold
-    */
-    function maxSupply() public view returns(uint256) {
+   /// @inheritdoc IRaffle
+    function maxSupply() public override view returns(uint256) {
         return _globalData.maxTicketSupply;
     }
 
-    /**
-    * @notice get the address of the wallet that initiated the raffle
-    * @return The address of the creator
-    */
-    function creator() public view returns(address) {
+    /// @inheritdoc IRaffle
+    function creator() public override view returns(address) {
         return _globalData.creator;
     }
 
-    /**
-    * @notice get the address of the token used to buy tickets
-    * @return The address of the ERC20
-    */
-    function purchaseCurrency() public view returns(IERC20) {
+   /// @inheritdoc IRaffle
+    function purchaseCurrency() public override view returns(IERC20) {
         return _globalData.purchaseCurrency;
     }
 
-    /**
-    * @notice get the price of one ticket
-    * @return The amount of token that one ticket cost
-    */
-    function ticketPrice() public view returns(uint256) {
+    /// @inheritdoc IRaffle
+    function ticketPrice() public override view returns(uint256) {
         return _globalData.ticketPrice;
     }
 
-   /**
-    * @notice get the end time where ticket sales closing
-    * @return The time in timestamps
-    */
-    function endTicketSales() public view returns(uint64) {
+   /// @inheritdoc IRaffle
+    function endTicketSales() public override view returns(uint64) {
         return _globalData.endTicketSales;
     }
-    
-    /**
-    * @notice get the winning ticket number
-    * @dev revert if ticket sales not close and if ticket number hasn't be drawn
-    * @return The ticket number that win the raffle
-    */
-    function winningTicket() public ticketSalesClose() ticketHasBeDrawn() view returns(uint256) {
+
+    /// @inheritdoc IRaffle
+    function winningTicket() public override view ticketSalesClose() ticketHasBeDrawn() returns(uint256) {
         return _globalData.winningTicketNumber;
     }
     
-    /**
-    * @notice get the winner address
-    * @dev revert if ticket sales not close and if ticket number hasn't be drawn
-    * @return The address of the wallet that won the raffle
-    */
-    function winnerAddress() public ticketSalesClose() ticketHasBeDrawn() view returns(address) {
+    /// @inheritdoc IRaffle
+    function winnerAddress() public override view ticketSalesClose() ticketHasBeDrawn() returns(address) {
         return _ticketOwner[_globalData.winningTicketNumber];
     }
 
-    /**
-    * @notice get the information regarding the nft to win
-    * @return nftContractAddress The address of the nft
-    * @return nftId The id of the nft
-    */
-    function nftToWin() public view returns(IERC721 nftContractAddress, uint256 nftId) {
+    /// @inheritdoc IRaffle
+    function nftToWin() public override view returns(IERC721 nftContractAddress, uint256 nftId) {
         return (_globalData.nftContract, _globalData.nftId);
     }
 
@@ -205,24 +179,28 @@ contract Raffle is IRaffle, RaffleStorage, Initializable {
     * @notice get info if the winning ticket has been drawn
     * @return True if ticket has been drawn, False otherwise
     */
-    function isTicketDrawn() public view returns(bool) {
+    function isTicketDrawn() public override view returns(bool) {
         return _globalData.isTicketDrawn;
     }
 
-    /**
-    * @notice get all tickets number bought by a user
-    * @return True if ticket has been drawn, False otherwise
-    */
-    function balanceOf(address user) external view returns(uint256[] memory){
+    /// @inheritdoc IRaffle
+    function balanceOf(address user) public override view returns(uint256[] memory){
         return _ownerTickets[user];
     }
 
-     /**
-    * @notice get the wallet that bought a specific ticket number
-    * @return The address that bought the own the ticket
-    */
-    function ownerOf(uint256 id) external view returns(address){
+    /// @inheritdoc IRaffle
+    function ownerOf(uint256 id) public override view returns(address){
         return _ticketOwner[id];
+    }
+
+   /// @inheritdoc IRaffle
+    function randomProvider() public override view returns(address){
+        return _globalData.implementationManager.getImplementationAddress(ImplementationInterfaceNames.RandomProvider);
+    }
+
+   /// @inheritdoc IRaffle
+    function raffleFactory() public override view returns(address){
+        return _globalData.implementationManager.getImplementationAddress(ImplementationInterfaceNames.RaffleFactory);
     }
 
     //----------------------------------------

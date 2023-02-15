@@ -8,21 +8,23 @@ import {IERC721} from "openzeppelin-contracts/contracts/token/ERC721/IERC721.sol
 
 import {MockERC20} from "../../../src/mocks/MockERC20.sol";
 import {MockERC721} from "../../../src/mocks/MockERC721.sol";
+import {MockRandomProvider} from "../../../src/mocks/MockRandomProvider.sol";
 
 import {AccessController} from "../../../src/core/AccessController.sol";
 import {ImplementationManager} from "../../../src/core/ImplementationManager.sol";
 import {Raffle} from "../../../src/raffle/Raffle.sol";
 import {RaffleFactory} from "../../../src/raffle/RaffleFactory.sol";
 import {RaffleDataTypes} from "../../../src/raffle/RaffleDataTypes.sol";
-
+import {IRaffleFactory} from "../../../src/interfaces/IRaffleFactory.sol";
 import {ImplementationInterfaceNames} from "../../../src/libraries/helpers/ImplementationInterfaceNames.sol";
 
 import {SetupUsers} from "../../utils/SetupUsers.sol";
 
-contract RaffleTest is Test, SetupUsers {
+contract RaffleFactoryTest is Test, SetupUsers {
 
- MockERC20  mockERC20;
+    MockERC20  mockERC20;
     MockERC721 mockERC721;
+    MockRandomProvider mockRamdomProvider;
 
     RaffleFactory factory;
     Raffle raffle;
@@ -46,19 +48,24 @@ contract RaffleTest is Test, SetupUsers {
       accessController = new AccessController(maintainer);
       implementationManager = new ImplementationManager(address(accessController));
       
-      factory = new RaffleFactory(address(implementationManager));
-   
+      factory = new RaffleFactory(implementationManager);
+      mockRamdomProvider = new MockRandomProvider(implementationManager);
+      
       changePrank(maintainer);
       implementationManager.changeImplementationAddress(
          ImplementationInterfaceNames.RaffleFactory,
          address(factory)
+      );
+      implementationManager.changeImplementationAddress(
+              ImplementationInterfaceNames.RandomProvider,
+              address(mockRamdomProvider)
       );
     }
 
     function test_RaffleCorrecltyInitialize() external {
       changePrank(alice);
 
-      RaffleFactory.Params memory params = RaffleFactory.Params(
+      IRaffleFactory.Params memory params = IRaffleFactory.Params(
          mockERC20,
          mockERC721,
          nftId,
@@ -68,6 +75,8 @@ contract RaffleTest is Test, SetupUsers {
       );
       mockERC721.approve(address(factory), nftId);
       raffle = factory.createNewRaffle(params);
+      
+      assertTrue(factory.isRegisteredRaffle(address(raffle)));
       assertEq(raffle.creator(), alice);
       assertEq(raffle.ticketPrice(), ticketPrice);
       assertEq(raffle.endTicketSales(), uint64(block.timestamp) + ticketSaleDuration);
@@ -80,4 +89,32 @@ contract RaffleTest is Test, SetupUsers {
       assertEq(contractAddress.ownerOf(nftId) ,address(raffle));
     }
 
+   function test_CorrectlyRequestRandomNumberForARaffle() external {
+      changePrank(alice);
+
+      IRaffleFactory.Params memory params = IRaffleFactory.Params(
+         mockERC20,
+         mockERC721,
+         nftId,
+         maxTicketSupply,
+         ticketPrice,
+         ticketSaleDuration
+      );
+      mockERC721.approve(address(factory), nftId);
+      raffle = factory.createNewRaffle(params);
+
+      changePrank(bob);
+      mockERC20.approve(address(raffle), 100e6);
+      raffle.purchaseTickets(2);
+      vm.warp(uint64(block.timestamp) + ticketSaleDuration + 1);
+      assertFalse(raffle.isTicketDrawn());
+  
+      address[] memory raffleContract = new address[](1);
+      raffleContract[0] = address(raffle);
+      factory.drawnMultiRaffleTickets(raffleContract);
+
+      uint256 requestId = mockRamdomProvider.callerToRequestId(address(factory));
+      mockRamdomProvider.generateRandomNumbers(requestId);
+      assertTrue(raffle.isTicketDrawn());
+   }
 }

@@ -22,6 +22,7 @@ library Errors {
     error NOT_RAFFLE_CONTRACT(); // 'Caller is not a raffle contract'
     error NOT_RANDOM_PROVIDER_CONTRACT(); // 'Caller is not the random provider contract'
     error NOT_NFT_OWNER(); // 'Address not the nft owner'
+    error ARRAYS_LENGTH_NOT_EQUAL(); // 'Arrays doesn't have the same size'
 }
 
  
