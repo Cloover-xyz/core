@@ -219,7 +219,7 @@ contract RaffleTest is Test, SetupUsers {
        raffle.drawnTickets();
    }
 
-   function test_ReturnFalseWhen_RandomNumberTicketDrawnedIsZero() external{
+   function test_StateNotChangeIf_RandomNumberTicketDrawnedIsZero() external{
        changePrank(bob);
        mockERC20.approve(address(raffle), 100e6);
        raffle.purchaseTickets(2);
