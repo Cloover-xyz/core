@@ -5,55 +5,79 @@ import {IERC20} from "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 import {IERC721} from "openzeppelin-contracts/contracts/token/ERC721/IERC721.sol";
 import {Clones} from "openzeppelin-contracts/contracts/proxy/Clones.sol";
 
-import {ImplementationInterfaceNames} from "../libraries/helpers/ImplementationInterfaceNames.sol";
 import {Errors} from "../libraries/helpers/Errors.sol";
 
 import {IImplementationManager} from "../interfaces/IImplementationManager.sol";
-import {IRaffle} from "../interfaces/IRaffle.sol";
 import {IRandomProvider} from "../interfaces/IRandomProvider.sol";
+import {IRaffleFactory} from "../interfaces/IRaffleFactory.sol";
+
+import {ImplementationInterfaceNames} from "../libraries/helpers/ImplementationInterfaceNames.sol";
 
 import {RaffleDataTypes} from "./RaffleDataTypes.sol";
 import {Raffle} from "./Raffle.sol";
  
-contract RaffleFactory {
+contract RaffleFactory is IRaffleFactory{
     using Clones for address;
 
     //----------------------------------------
     // Storage
     //----------------------------------------
-    struct Params {
-        IERC20 purchaseCurrency;
-        IERC721 nftContract;
-        uint256 nftId;
-        uint256 maxTicketSupply;
-        uint256 ticketPrice;
-        uint64 ticketSaleDuration;
-    }
-
     IImplementationManager immutable implementationManager;
+
     address immutable raffleImplementation;
+
+    mapping(address => bool) public override isRegisteredRaffle;
+    
+    mapping(uint256 => address[]) public requestIdToContracts;
 
     //----------------------------------------
     // Events
     //----------------------------------------
     event NewRaffle(address indexed raffleContract, Params globalData);
 
+      
+    //----------------------------------------
+    // Modifier
+    //----------------------------------------
+
+    modifier onlyRamdomProvider() {
+        if(randomProvider() != msg.sender) revert Errors.NOT_RANDOM_PROVIDER_CONTRACT();
+        _;
+    }
+
     //----------------------------------------
     // Constructor
     //----------------------------------------
-    constructor(address _implementationManager){
-        implementationManager = IImplementationManager(_implementationManager);
+    constructor(IImplementationManager _implementationManager){
+        implementationManager = _implementationManager;
         raffleImplementation  = address(new Raffle());
     }
 
     //----------------------------------------
     // External functions
     //----------------------------------------
-    function createNewRaffle(Params memory _params) external returns(Raffle newRaffle){
+
+    /// @inheritdoc IRaffleFactory
+    function createNewRaffle(Params memory _params) external override returns(Raffle newRaffle){
         newRaffle = Raffle(raffleImplementation.clone());
         _params.nftContract.transferFrom(msg.sender, address(newRaffle), _params.nftId);
         newRaffle.initialize(_convertParams(_params));
+        isRegisteredRaffle[address(newRaffle)] = true;
         emit NewRaffle(address(newRaffle), _params);
+    }
+
+    function batchRaffleDrawnTickets(address[] memory _raffleContracts) external override {
+        for(uint32 i; i<_raffleContracts.length; ++i){
+            Raffle(_raffleContracts[i]).drawnTickets();
+        }
+    }
+    
+    /**
+    * @notice get the randomProvider contract address from the implementationManager
+    * @return The address of the randomProvider contract
+    */
+    function randomProvider() public view returns(address){
+        return implementationManager.getImplementationAddress(ImplementationInterfaceNames.RandomProvider);
     }
 
     //----------------------------------------

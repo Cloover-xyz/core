@@ -8,6 +8,12 @@ import {IImplementationManager} from "../interfaces/IImplementationManager.sol";
 
 library RaffleDataTypes {
 
+    enum RaffleStatus {
+        Init,
+        DrawnRequested,
+        WinningTicketsDrawned
+    }
+
     struct RaffleData {
         address creator;
         IERC20 purchaseCurrency;
@@ -19,7 +25,7 @@ library RaffleDataTypes {
         uint256 ticketPrice;
         uint256 winningTicketNumber;
         uint64 endTicketSales;
-        bool isTicketDrawn;
+        RaffleStatus status;
     }
 
     struct InitRaffleParams {

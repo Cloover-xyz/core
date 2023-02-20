@@ -17,11 +17,13 @@ library Errors {
     error NOT_CREATOR(); // 'msg.sender is not the creator of the raffle'
     error TICKET_NOT_DRAWN(); // 'ticket must be drawn'
     error TICKET_ALREADY_DRAWN(); // 'ticket has already be drawn'
+    error TICKET_DRAWN_NOT_REQUESTED(); // 'ticket drawn has not be requested'
     error NOT_MAINTAINER(); // 'Caller is not the maintainer'
     error IMPLEMENTATION_NOT_FOUND(); // 'Implementation interfaces is not registered'
     error NOT_RAFFLE_CONTRACT(); // 'Caller is not a raffle contract'
     error NOT_RANDOM_PROVIDER_CONTRACT(); // 'Caller is not the random provider contract'
     error NOT_NFT_OWNER(); // 'Address not the nft owner'
+    error ARRAYS_LENGTH_NOT_EQUAL(); // 'Arrays doesn't have the same size'
 }
 
  
