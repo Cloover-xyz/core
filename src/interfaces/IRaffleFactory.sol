@@ -34,9 +34,9 @@ interface IRaffleFactory {
     function isRegisteredRaffle(address _raffleAddress) external view returns (bool);
 
     /**
-     * @notice Request random number
-     * @param _raffleContracts the array of raffle addresses to claim random number
+     * @notice call by batch drawnTickets() for each raffleContract passed
+     * @param _raffleContracts the array of raffle addresses to call drawnTickets()
      */
-    function drawnMultiRaffleTickets(address[] memory _raffleContracts) external;
+    function batchRaffleDrawnTickets(address[] memory _raffleContracts) external;
     
 }

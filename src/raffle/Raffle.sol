@@ -62,6 +62,11 @@ contract Raffle is IRaffle, Initializable {
         if(raffleStatus() != RaffleDataTypes.RaffleStatus.WinningTicketsDrawned) revert Errors.TICKET_NOT_DRAWN();
         _;
     }
+
+    modifier drawnRequested(){
+        if(raffleStatus() != RaffleDataTypes.RaffleStatus.DrawnRequested) revert Errors.TICKET_DRAWN_NOT_REQUESTED();
+        _;
+    }
     
     modifier onlyRandomProviderContract(){
         if(randomProvider() != msg.sender) revert Errors.NOT_RANDOM_PROVIDER_CONTRACT();
@@ -119,18 +124,13 @@ contract Raffle is IRaffle, Initializable {
     }
 
     /// @inheritdoc IRaffle
-    function drawnTickets(uint256[] memory randomNumbers) external override onlyRandomProviderContract() {
-        /// using if condition instead of reverting to avoid reverting multi raffle drawn
-        if(raffleStatus() == RaffleDataTypes.RaffleStatus.DrawnRequested){
-            if( randomNumbers[0] == 0 && randomNumbers.length == 0){
-                _globalData.status = RaffleDataTypes.RaffleStatus.Init;
-                return;
-            }
-            _globalData.winningTicketNumber = (randomNumbers[0] % _globalData.ticketSupply) + 1;
-            _globalData.status = RaffleDataTypes.RaffleStatus.WinningTicketsDrawned;
-            emit WinningTicketDrawned(address(this), _globalData.winningTicketNumber );
-            return;
+    function drawnTickets(uint256[] memory randomNumbers) external override onlyRandomProviderContract() drawnRequested() {
+        if( randomNumbers[0] == 0 && randomNumbers.length == 0){
+            _globalData.status = RaffleDataTypes.RaffleStatus.Init;
         }
+        _globalData.winningTicketNumber = (randomNumbers[0] % _globalData.ticketSupply) + 1;
+        _globalData.status = RaffleDataTypes.RaffleStatus.WinningTicketsDrawned;
+        emit WinningTicketDrawned(address(this), _globalData.winningTicketNumber );
     }
 
     /// @inheritdoc IRaffle
@@ -212,7 +212,6 @@ contract Raffle is IRaffle, Initializable {
     function randomProvider() public override view returns(address){
         return _globalData.implementationManager.getImplementationAddress(ImplementationInterfaceNames.RandomProvider);
     }
-
 
     //----------------------------------------
     // Internals Functions

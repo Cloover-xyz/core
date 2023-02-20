@@ -116,7 +116,7 @@ contract RaffleFactoryTest is Test, SetupUsers {
   
       address[] memory raffleContract = new address[](1);
       raffleContract[0] = address(raffle);
-      factory.drawnMultiRaffleTickets(raffleContract);
+      factory.batchRaffleDrawnTickets(raffleContract);
 
       uint256 requestId = mockRamdomProvider.callerToRequestId(address(raffle));
       mockRamdomProvider.generateRandomNumbers(requestId);
@@ -154,7 +154,7 @@ contract RaffleFactoryTest is Test, SetupUsers {
       address[] memory raffleContract = new address[](2);
       raffleContract[0] = address(raffleOne);
       raffleContract[1] = address(raffleTwo);
-      factory.drawnMultiRaffleTickets(raffleContract);
+      factory.batchRaffleDrawnTickets(raffleContract);
 
       uint256 requestId = mockRamdomProvider.callerToRequestId(address(raffleOne));
       mockRamdomProvider.generateRandomNumbers(requestId);
@@ -201,6 +201,6 @@ contract RaffleFactoryTest is Test, SetupUsers {
       raffleContract[0] = address(raffleOne);
       raffleContract[1] = address(raffleTwo);
       vm.expectRevert(Errors.TICKET_ALREADY_DRAWN.selector);
-      factory.drawnMultiRaffleTickets(raffleContract);
+      factory.batchRaffleDrawnTickets(raffleContract);
    }
 }
