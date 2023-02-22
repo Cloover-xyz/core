@@ -76,16 +76,16 @@ contract Raffle is IRaffle, Initializable {
     //----------------------------------------
     // Initialize function
     //----------------------------------------
-    function initialize(RaffleDataTypes.InitRaffleParams memory _params) external override initializer {
-        _checkData(_params);
-        _globalData.implementationManager = _params.implementationManager;
-        _globalData.creator = _params.creator;
-        _globalData.purchaseCurrency = _params.purchaseCurrency;
-        _globalData.nftContract = _params.nftContract;
-        _globalData.nftId = _params.nftId;
-        _globalData.maxTicketSupply = _params.maxTicketSupply;
-        _globalData.ticketPrice = _params.ticketPrice;
-        _globalData.endTicketSales = uint64(block.timestamp) + _params.ticketSaleDuration;
+    function initialize(RaffleDataTypes.InitRaffleParams memory params) external override initializer {
+        _checkData(params);
+        _globalData.implementationManager = params.implementationManager;
+        _globalData.creator = params.creator;
+        _globalData.purchaseCurrency = params.purchaseCurrency;
+        _globalData.nftContract = params.nftContract;
+        _globalData.nftId = params.nftId;
+        _globalData.maxTicketSupply = params.maxTicketSupply;
+        _globalData.ticketPrice = params.ticketPrice;
+        _globalData.endTicketSales = uint64(block.timestamp) + params.ticketSaleDuration;
     }
 
     //----------------------------------------
@@ -219,16 +219,16 @@ contract Raffle is IRaffle, Initializable {
     
     /**
     * @notice check that initialize data are correct
-    * @param _params the struct data use for initialization
+    * @param params the struct data use for initialization
     */
-    function _checkData(RaffleDataTypes.InitRaffleParams memory _params) internal view {
-        if(address(_params.implementationManager) == address(0)) revert Errors.NOT_ADDRESS_0();
-        if(address(_params.purchaseCurrency) == address(0)) revert Errors.NOT_ADDRESS_0();
-        if(_params.nftContract.ownerOf(_params.nftId) != address(this)) revert Errors.NOT_NFT_OWNER();
-        if(_params.creator == address(0)) revert Errors.NOT_ADDRESS_0();
-        if(_params.ticketPrice == 0) revert Errors.CANT_BE_ZERO();
-        if(_params.maxTicketSupply == 0) revert Errors.CANT_BE_ZERO();
-        if(_params.ticketSaleDuration == 0) revert Errors.CANT_BE_ZERO();
+    function _checkData(RaffleDataTypes.InitRaffleParams memory params) internal view {
+        if(address(params.implementationManager) == address(0)) revert Errors.NOT_ADDRESS_0();
+        if(address(params.purchaseCurrency) == address(0)) revert Errors.NOT_ADDRESS_0();
+        if(params.nftContract.ownerOf(params.nftId) != address(this)) revert Errors.NOT_NFT_OWNER();
+        if(params.creator == address(0)) revert Errors.NOT_ADDRESS_0();
+        if(params.ticketPrice == 0) revert Errors.CANT_BE_ZERO();
+        if(params.maxTicketSupply == 0) revert Errors.CANT_BE_ZERO();
+        if(params.ticketSaleDuration == 0) revert Errors.CANT_BE_ZERO();
     }
 
     /**

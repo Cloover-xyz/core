@@ -20,23 +20,23 @@ interface IRaffleFactory {
     /**
      * @notice Deploy a new raffle contract
      * @dev must transfer the nft to the contract before initialize()
-     * @param _params used for initialization (see Params struct in RaffleFactory.sol)
+     * @param params used for initialization (see Params struct in RaffleFactory.sol)
      * @return newRaffle the instance of the raffle contract
      */
-    function createNewRaffle(Params memory _params) external returns(Raffle newRaffle);
+    function createNewRaffle(Params memory params) external returns(Raffle newRaffle);
 
 
     /**
      * @notice Return if the address is a raffle deployed by this factory
-     * @param _raffleAddress the address to check
+     * @param raffleAddress the address to check
      * @return bool is true if it's a raffle deployed by this factory, false otherwise
      */
-    function isRegisteredRaffle(address _raffleAddress) external view returns (bool);
+    function isRegisteredRaffle(address raffleAddress) external view returns (bool);
 
     /**
      * @notice call by batch drawnTickets() for each raffleContract passed
-     * @param _raffleContracts the array of raffle addresses to call drawnTickets()
+     * @param raffleContracts the array of raffle addresses to call drawnTickets()
      */
-    function batchRaffleDrawnTickets(address[] memory _raffleContracts) external;
+    function batchRaffleDrawnTickets(address[] memory raffleContracts) external;
     
 }
