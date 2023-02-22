@@ -26,6 +26,7 @@ library Errors {
     error ARRAYS_LENGTH_NOT_EQUAL(); // 'Arrays doesn't have the same size'
     error COLLECTION_ALREADY_WHITELISTED();
     error COLLECTION_NOT_WHITELISTED(); 
+    error BELLOW_MIN_DURATION(); 
 }
 
  

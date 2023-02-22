@@ -11,6 +11,7 @@ import {Errors} from "../libraries/helpers/Errors.sol";
 
 import {IRaffle} from "../interfaces/IRaffle.sol";
 import {IRandomProvider} from "../interfaces/IRandomProvider.sol";
+import {INFTCollectionWhitelist} from "../interfaces/INFTCollectionWhitelist.sol";
 
 import {RaffleDataTypes} from "./RaffleDataTypes.sol";
 
@@ -20,6 +21,8 @@ contract Raffle is IRaffle, Initializable {
     //----------------------------------------
     // Storage
     //----------------------------------------
+
+    uint32 constant MIN_SALE_DURATION = 1 days; // 1 days
 
     // Mapping from ticket ID to owner address
     mapping(uint256 => address) internal _ticketOwner;
@@ -224,11 +227,12 @@ contract Raffle is IRaffle, Initializable {
     function _checkData(RaffleDataTypes.InitRaffleParams memory params) internal view {
         if(address(params.implementationManager) == address(0)) revert Errors.NOT_ADDRESS_0();
         if(address(params.purchaseCurrency) == address(0)) revert Errors.NOT_ADDRESS_0();
+        address whitelist = params.implementationManager.getImplementationAddress(ImplementationInterfaceNames.NFTWhitelist);
+        if(!INFTCollectionWhitelist(whitelist).isWhitelisted(address(params.nftContract))) revert Errors.COLLECTION_NOT_WHITELISTED();
         if(params.nftContract.ownerOf(params.nftId) != address(this)) revert Errors.NOT_NFT_OWNER();
-        if(params.creator == address(0)) revert Errors.NOT_ADDRESS_0();
         if(params.ticketPrice == 0) revert Errors.CANT_BE_ZERO();
         if(params.maxTicketSupply == 0) revert Errors.CANT_BE_ZERO();
-        if(params.ticketSaleDuration == 0) revert Errors.CANT_BE_ZERO();
+        if(params.ticketSaleDuration < MIN_SALE_DURATION) revert Errors.BELLOW_MIN_DURATION();
     }
 
     /**

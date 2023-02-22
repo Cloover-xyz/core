@@ -12,6 +12,8 @@ import {MockERC721} from "../../../src/mocks/MockERC721.sol";
 
 import {AccessController} from "../../../src/core/AccessController.sol";
 import {ImplementationManager} from "../../../src/core/ImplementationManager.sol";
+import {NFTCollectionWhitelist} from "../../../src/core/NFTCollectionWhitelist.sol";
+
 import {Raffle} from "../../../src/raffle/Raffle.sol";
 import {RaffleDataTypes} from "../../../src/raffle/RaffleDataTypes.sol";
 
@@ -28,13 +30,15 @@ contract RaffleTest is Test, SetupUsers {
 
     Raffle raffle;
     ImplementationManager implementationManager;
+    NFTCollectionWhitelist nftCollectionWhitelist;
     AccessController accessController;
     
     uint256 maxTicketSupply = 10;
     uint256 nftId = 1;
     uint256 ticketPrice = 1e7; // 10
     uint64 ticketSaleDuration = 24*60*60;
-    
+    uint32 MIN_SALE_DURATION = 1 days;
+
     function setUp() public virtual override {
        SetupUsers.setUp();
 
@@ -46,7 +50,24 @@ contract RaffleTest is Test, SetupUsers {
        changePrank(deployer);
        accessController = new AccessController(maintainer);
        implementationManager = new ImplementationManager(address(accessController));
-       
+       nftCollectionWhitelist = new NFTCollectionWhitelist(implementationManager);
+
+       mockRamdomProvider = new MockRandomProvider(implementationManager);
+       changePrank(maintainer);
+       implementationManager.changeImplementationAddress(
+         ImplementationInterfaceNames.RaffleFactory,
+         deployer
+      );
+       implementationManager.changeImplementationAddress(
+              ImplementationInterfaceNames.NFTWhitelist,
+              address(nftCollectionWhitelist)
+       );
+       implementationManager.changeImplementationAddress(
+              ImplementationInterfaceNames.RandomProvider,
+              address(mockRamdomProvider)
+       );
+       nftCollectionWhitelist.addToWhitelist(address(mockERC721), admin);
+      
        raffle = new Raffle();
        RaffleDataTypes.InitRaffleParams memory data = RaffleDataTypes.InitRaffleParams(
               implementationManager,
@@ -62,16 +83,6 @@ contract RaffleTest is Test, SetupUsers {
        mockERC721.transferFrom(alice, address(raffle), nftId);
        raffle.initialize(data);
        
-       mockRamdomProvider = new MockRandomProvider(implementationManager);
-       changePrank(maintainer);
-       implementationManager.changeImplementationAddress(
-         ImplementationInterfaceNames.RaffleFactory,
-         deployer
-      );
-       implementationManager.changeImplementationAddress(
-              ImplementationInterfaceNames.RandomProvider,
-              address(mockRamdomProvider)
-       );
     }
 
     function test_RaffleCorrecltyInitialize() external{
@@ -115,6 +126,96 @@ contract RaffleTest is Test, SetupUsers {
        );
        vm.expectRevert("Initializable: contract is already initialized");
        raffle.initialize(data);
+   }
+   function test_RevertIf_RaffleInitializeDataNotCorrect() external{
+       Raffle newRaffle = new Raffle();
+       mockERC721.mint(alice, 2);
+       mockERC721.transferFrom(alice, address(newRaffle), 2);
+       //implementationManager == address(0)
+       RaffleDataTypes.InitRaffleParams memory data = RaffleDataTypes.InitRaffleParams(
+              ImplementationManager(address(0)),
+              mockERC20,
+              mockERC721,
+              alice,
+              2,
+              maxTicketSupply,
+              ticketPrice,
+              ticketSaleDuration
+       );
+       vm.expectRevert(Errors.NOT_ADDRESS_0.selector);
+       newRaffle.initialize(data);
+
+       //Currency == address(0)
+       data = RaffleDataTypes.InitRaffleParams(
+              implementationManager,
+              MockERC20(address(0)),
+              mockERC721,
+              alice,
+              2,
+              maxTicketSupply,
+              ticketPrice,
+              ticketSaleDuration
+       );
+       vm.expectRevert(Errors.NOT_ADDRESS_0.selector);
+       newRaffle.initialize(data);
+
+       //NFT not whitelisted
+       MockERC721 notWhitelistedCollection = new MockERC721("NOT WHITELISTED", "NFT");
+       data = RaffleDataTypes.InitRaffleParams(
+              implementationManager,
+              mockERC20,
+              notWhitelistedCollection,
+              alice,
+              2,
+              maxTicketSupply,
+              ticketPrice,
+              ticketSaleDuration
+       );
+       vm.expectRevert(Errors.COLLECTION_NOT_WHITELISTED.selector);
+       newRaffle.initialize(data);
+
+       // ticketPrice == 0
+       data = RaffleDataTypes.InitRaffleParams(
+              implementationManager,
+              mockERC20,
+              mockERC721,
+              alice,
+              2,
+              maxTicketSupply,
+              0,
+              ticketSaleDuration
+       );
+       vm.expectRevert(Errors.CANT_BE_ZERO.selector);
+       newRaffle.initialize(data);
+
+       // maxTicketSupply == 0
+       data = RaffleDataTypes.InitRaffleParams(
+              implementationManager,
+              mockERC20,
+              mockERC721,
+              alice,
+              2,
+              0,
+              ticketPrice,
+              ticketSaleDuration
+       );
+       vm.expectRevert(Errors.CANT_BE_ZERO.selector);
+       newRaffle.initialize(data);
+
+       // ticketSaleDuration == 0
+       data = RaffleDataTypes.InitRaffleParams(
+              implementationManager,
+              mockERC20,
+              mockERC721,
+              alice,
+              2,
+              maxTicketSupply,
+              ticketPrice,
+              0
+       );
+       vm.expectRevert(Errors.BELLOW_MIN_DURATION.selector);
+       newRaffle.initialize(data);
+
    }
 
     function test_UserCanPurchaseTicket() external{
