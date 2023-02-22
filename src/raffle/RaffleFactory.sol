@@ -8,7 +8,6 @@ import {Clones} from "openzeppelin-contracts/contracts/proxy/Clones.sol";
 import {Errors} from "../libraries/helpers/Errors.sol";
 
 import {IImplementationManager} from "../interfaces/IImplementationManager.sol";
-import {IRandomProvider} from "../interfaces/IRandomProvider.sol";
 import {IRaffleFactory} from "../interfaces/IRaffleFactory.sol";
 
 import {ImplementationInterfaceNames} from "../libraries/helpers/ImplementationInterfaceNames.sol";
@@ -36,14 +35,6 @@ contract RaffleFactory is IRaffleFactory{
     event NewRaffle(address indexed raffleContract, Params globalData);
 
       
-    //----------------------------------------
-    // Modifier
-    //----------------------------------------
-
-    modifier onlyRamdomProvider() {
-        if(randomProvider() != msg.sender) revert Errors.NOT_RANDOM_PROVIDER_CONTRACT();
-        _;
-    }
 
     //----------------------------------------
     // Constructor
@@ -70,14 +61,6 @@ contract RaffleFactory is IRaffleFactory{
         for(uint32 i; i<_raffleContracts.length; ++i){
             Raffle(_raffleContracts[i]).drawnTickets();
         }
-    }
-    
-    /**
-    * @notice get the randomProvider contract address from the implementationManager
-    * @return The address of the randomProvider contract
-    */
-    function randomProvider() public view returns(address){
-        return implementationManager.getImplementationAddress(ImplementationInterfaceNames.RandomProvider);
     }
 
     //----------------------------------------
