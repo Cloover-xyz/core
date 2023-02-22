@@ -3,7 +3,7 @@ src = 'src'
 out = 'out'
 libs = ['lib']
 
-gas_reports = ["Raffle", "AccessController", "ImplementationManager"]
+gas_reports = ["Raffle", "AccessController", "ImplementationManager", "RaffleFactory"]
 
 [rpc_endpoints]
 goerli = "${GOERLI_RPC_URL}"
