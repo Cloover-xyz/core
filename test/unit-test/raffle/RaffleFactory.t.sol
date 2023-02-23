@@ -12,6 +12,8 @@ import {MockRandomProvider} from "../../../src/mocks/MockRandomProvider.sol";
 
 import {AccessController} from "../../../src/core/AccessController.sol";
 import {ImplementationManager} from "../../../src/core/ImplementationManager.sol";
+import {NFTCollectionWhitelist} from "../../../src/core/NFTCollectionWhitelist.sol";
+
 import {Raffle} from "../../../src/raffle/Raffle.sol";
 import {RaffleFactory} from "../../../src/raffle/RaffleFactory.sol";
 import {RaffleDataTypes} from "../../../src/raffle/RaffleDataTypes.sol";
@@ -31,6 +33,7 @@ contract RaffleFactoryTest is Test, SetupUsers {
     RaffleFactory factory;
     Raffle raffle;
     ImplementationManager implementationManager;
+    NFTCollectionWhitelist nftCollectionWhitelist;
     AccessController accessController;
     
     uint256 maxTicketSupply = 10;
@@ -52,7 +55,7 @@ contract RaffleFactoryTest is Test, SetupUsers {
       changePrank(deployer);
       accessController = new AccessController(maintainer);
       implementationManager = new ImplementationManager(address(accessController));
-      
+      nftCollectionWhitelist = new NFTCollectionWhitelist(implementationManager);
       factory = new RaffleFactory(implementationManager);
       mockRamdomProvider = new MockRandomProvider(implementationManager);
       
@@ -62,9 +65,15 @@ contract RaffleFactoryTest is Test, SetupUsers {
          address(factory)
       );
       implementationManager.changeImplementationAddress(
+         ImplementationInterfaceNames.NFTWhitelist,
+         address(nftCollectionWhitelist)
+      );
+      implementationManager.changeImplementationAddress(
               ImplementationInterfaceNames.RandomProvider,
               address(mockRamdomProvider)
       );
+      nftCollectionWhitelist.addToWhitelist(address(mockERC721), admin);
+
     }
 
     function test_RaffleCorrecltyInitialize() external {

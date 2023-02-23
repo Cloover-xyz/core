@@ -4,8 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "forge test --fork-url goerli  -vvv",
-    "gas": "forge test --fork-url goerli  -vvv --gas-report"
+    "test": "forge test -vvv",
+    "gas": "forge test -vvv --gas-report",
+    "coverage": "forge coverage --report lcov && genhtml lcov.info --branch-coverage --output-dir coverage"
   },
   "keywords": [],
   "author": "",

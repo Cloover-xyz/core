@@ -2,7 +2,7 @@
 pragma solidity 0.8.17;
 
 import {Test} from "forge-std/Test.sol";
-import {console2} from "forge-std/console2.sol";
+
 import {SetupUsers} from "../../utils/SetupUsers.sol";
 
 import {AccessController} from "../../../src/core/AccessController.sol";

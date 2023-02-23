@@ -8,7 +8,6 @@ import {Clones} from "openzeppelin-contracts/contracts/proxy/Clones.sol";
 import {Errors} from "../libraries/helpers/Errors.sol";
 
 import {IImplementationManager} from "../interfaces/IImplementationManager.sol";
-import {IRandomProvider} from "../interfaces/IRandomProvider.sol";
 import {IRaffleFactory} from "../interfaces/IRaffleFactory.sol";
 
 import {ImplementationInterfaceNames} from "../libraries/helpers/ImplementationInterfaceNames.sol";
@@ -36,14 +35,6 @@ contract RaffleFactory is IRaffleFactory{
     event NewRaffle(address indexed raffleContract, Params globalData);
 
       
-    //----------------------------------------
-    // Modifier
-    //----------------------------------------
-
-    modifier onlyRamdomProvider() {
-        if(randomProvider() != msg.sender) revert Errors.NOT_RANDOM_PROVIDER_CONTRACT();
-        _;
-    }
 
     //----------------------------------------
     // Constructor
@@ -58,12 +49,12 @@ contract RaffleFactory is IRaffleFactory{
     //----------------------------------------
 
     /// @inheritdoc IRaffleFactory
-    function createNewRaffle(Params memory _params) external override returns(Raffle newRaffle){
+    function createNewRaffle(Params memory params) external override returns(Raffle newRaffle){
         newRaffle = Raffle(raffleImplementation.clone());
-        _params.nftContract.transferFrom(msg.sender, address(newRaffle), _params.nftId);
-        newRaffle.initialize(_convertParams(_params));
+        params.nftContract.transferFrom(msg.sender, address(newRaffle), params.nftId);
+        newRaffle.initialize(_convertParams(params));
         isRegisteredRaffle[address(newRaffle)] = true;
-        emit NewRaffle(address(newRaffle), _params);
+        emit NewRaffle(address(newRaffle), params);
     }
 
     function batchRaffleDrawnTickets(address[] memory _raffleContracts) external override {
@@ -71,28 +62,20 @@ contract RaffleFactory is IRaffleFactory{
             Raffle(_raffleContracts[i]).drawnTickets();
         }
     }
-    
-    /**
-    * @notice get the randomProvider contract address from the implementationManager
-    * @return The address of the randomProvider contract
-    */
-    function randomProvider() public view returns(address){
-        return implementationManager.getImplementationAddress(ImplementationInterfaceNames.RandomProvider);
-    }
 
     //----------------------------------------
     // Internal functions
     //----------------------------------------
-    function _convertParams(Params memory _params) internal view returns(RaffleDataTypes.InitRaffleParams memory raffleParams){
+    function _convertParams(Params memory params) internal view returns(RaffleDataTypes.InitRaffleParams memory raffleParams){
         raffleParams = RaffleDataTypes.InitRaffleParams(
             implementationManager,
-            _params.purchaseCurrency,
-            _params.nftContract,
+            params.purchaseCurrency,
+            params.nftContract,
             msg.sender,
-            _params.nftId,
-            _params.maxTicketSupply,
-            _params.ticketPrice,
-            _params.ticketSaleDuration
+            params.nftId,
+            params.maxTicketSupply,
+            params.ticketPrice,
+            params.ticketSaleDuration
         );
     }
 

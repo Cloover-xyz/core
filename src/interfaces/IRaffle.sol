@@ -10,9 +10,9 @@ interface IRaffle {
     /**
      * @notice Function to initialize contract
      * @dev must be tag by the initializer function 
-     * @param _params used for initialization (see InitRaffleParams struct)
+     * @param params used for initialization (see InitRaffleParams struct)
      */
-    function initialize(RaffleDataTypes.InitRaffleParams memory _params) external;
+    function initialize(RaffleDataTypes.InitRaffleParams memory params) external;
 
     /**
      * @notice Allows users to purchase tickets

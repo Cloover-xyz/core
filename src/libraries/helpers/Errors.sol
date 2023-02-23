@@ -24,6 +24,9 @@ library Errors {
     error NOT_RANDOM_PROVIDER_CONTRACT(); // 'Caller is not the random provider contract'
     error NOT_NFT_OWNER(); // 'Address not the nft owner'
     error ARRAYS_LENGTH_NOT_EQUAL(); // 'Arrays doesn't have the same size'
+    error COLLECTION_ALREADY_WHITELISTED();
+    error COLLECTION_NOT_WHITELISTED(); 
+    error BELLOW_MIN_DURATION(); 
 }
 
  

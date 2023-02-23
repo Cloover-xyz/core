@@ -37,8 +37,8 @@ contract ImplementationManager is IImplementationManager{
   //----------------------------------------
   // Initialization function
   //----------------------------------------
-  constructor(address _accessController) {
-      interfacesImplemented[ImplementationInterfaceNames.AccessController] = _accessController;
+  constructor(address accessController) {
+      interfacesImplemented[ImplementationInterfaceNames.AccessController] = accessController;
   }
 
   //----------------------------------------
