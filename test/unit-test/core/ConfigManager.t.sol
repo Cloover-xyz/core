@@ -9,6 +9,8 @@ import {AccessController} from "../../../src/core/AccessController.sol";
 import {ImplementationManager} from "../../../src/core/ImplementationManager.sol";
 import {ConfigManager} from "../../../src/core/ConfigManager.sol";
 
+import {ConfiguratorInputTypes} from "../../../src/libraries/types/ConfiguratorInputTypes.sol";
+
 import {Errors} from "../../../src/libraries/helpers/Errors.sol";
 import {ImplementationInterfaceNames} from "../../../src/libraries/helpers/ImplementationInterfaceNames.sol";
 
@@ -20,13 +22,22 @@ contract ConfigManagerTest is Test, SetupUsers {
     ConfigManager configManager;
 
     uint256 baseFeePercentage = 1e2; // 1%
+    uint256 baseMaxTicketSupplyAllewed = 10000; 
+    uint256 baseMinTicketSaleDuration = 86400; // 1 days
+    
     function setUp() public virtual override {
         SetupUsers.setUp(); 
         changePrank(deployer);
         
         accessController = new AccessController(maintainer);
         implementationManager = new ImplementationManager(address(accessController));
-        configManager = new ConfigManager(implementationManager, baseFeePercentage);
+
+        ConfiguratorInputTypes.InitConfigManagerInput memory data = ConfiguratorInputTypes.InitConfigManagerInput(
+            baseFeePercentage,
+            baseMaxTicketSupplyAllewed,
+            baseMinTicketSaleDuration 
+        );
+        configManager = new ConfigManager(implementationManager, data);
 
         changePrank(maintainer);
         implementationManager.changeImplementationAddress(
@@ -39,12 +50,19 @@ contract ConfigManagerTest is Test, SetupUsers {
         assertEq(address(configManager.implementationManager()), address(implementationManager));
         assertEq(implementationManager.getImplementationAddress(ImplementationInterfaceNames.ConfigManager), address(configManager));
         assertEq(configManager.procolFeesPercentage(), baseFeePercentage);
+        assertEq(configManager.minTicketSalesDuration(), baseMinTicketSaleDuration);
+        assertEq(configManager.maxTicketSupplyAllowed(), baseMaxTicketSupplyAllewed);
     }
     
     function test_RevertIf_BasePercentageExceed100PercentOnDeployment() external {
-        uint256 newFeePercentage = 1.1e4; //110%
+        uint256 wrongBaseFeePercentage = 1.1e4; //110%
+        ConfiguratorInputTypes.InitConfigManagerInput memory data = ConfiguratorInputTypes.InitConfigManagerInput(
+            wrongBaseFeePercentage,
+            baseMaxTicketSupplyAllewed,
+            baseMinTicketSaleDuration 
+        );
         vm.expectRevert(Errors.EXCEED_MAX_PERCENTAGE.selector);
-        configManager = new ConfigManager(implementationManager, newFeePercentage);
+        configManager = new ConfigManager(implementationManager, data);
     }
     
     function test_CorrectlySetFeePercentage() external{
@@ -66,5 +84,34 @@ contract ConfigManagerTest is Test, SetupUsers {
         uint256 newFeePercentage = 2.5e2; //2.5%
         vm.expectRevert(Errors.NOT_MAINTAINER.selector);
         configManager.setProcolFeesPercentage(newFeePercentage);
+    }
+
+    function test_CorrectlySetMinTicketSalesDuration() external{
+        changePrank(maintainer);
+        uint256 newMinTicketSalesDuration = 1 weeks;
+        configManager.setMinTicketSalesDuration(newMinTicketSalesDuration);
+        assertEq(configManager.minTicketSalesDuration(), newMinTicketSalesDuration);
+    }
+
+
+    function test_RevertIf_NotMaintainerUpdateMinTicketSalesDuration() external{
+        changePrank(alice);
+        uint256 newMinTicketSalesDuration = 1 weeks;
+        vm.expectRevert(Errors.NOT_MAINTAINER.selector);
+        configManager.setMinTicketSalesDuration(newMinTicketSalesDuration);
+    }
+
+    function test_CorrectlySetMaxTicketSupplyAllowed() external{
+        changePrank(maintainer);
+        uint256 newMaxTicketSupplyAllowed = 20000;
+        configManager.setMaxTicketSupplyAllowed(newMaxTicketSupplyAllowed);
+        assertEq(configManager.maxTicketSupplyAllowed(), newMaxTicketSupplyAllowed);
+    }
+
+    function test_RevertIf_NotMaintainerUpdateMaxTicketSupplyAllowed() external{
+        changePrank(alice);
+         uint256 newMaxTicketSupplyAllowed = 20000;
+        vm.expectRevert(Errors.NOT_MAINTAINER.selector);
+        configManager.setMaxTicketSupplyAllowed(newMaxTicketSupplyAllowed);
     }
 }
