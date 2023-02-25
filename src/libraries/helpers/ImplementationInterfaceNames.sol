@@ -6,4 +6,5 @@ library ImplementationInterfaceNames {
   bytes32 public constant RandomProvider = 'RandomProvider';
   bytes32 public constant NFTWhitelist = 'NFTWhitelist';
   bytes32 public constant RaffleFactory = 'RaffleFactory';
+  bytes32 public constant ConfigManager = 'ConfigManager';
 }

@@ -27,6 +27,7 @@ library Errors {
     error COLLECTION_ALREADY_WHITELISTED();
     error COLLECTION_NOT_WHITELISTED(); 
     error BELLOW_MIN_DURATION(); 
+    error EXCEED_MAX_PERCENTAGE(); 
 }
 
  
