@@ -47,6 +47,10 @@ contract NFTCollectionWhitelist is INFTCollectionWhitelist{
         implementationManager = _implementationManager;
     }
 
+    //----------------------------------------
+    // External function
+    //----------------------------------------
+    
     /// @inheritdoc INFTCollectionWhitelist
     function addToWhitelist(address newNftCollection, address creator)
     external
