@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "remap": "forge remappings > remappings.txt",
     "test": "forge test -vvv",
     "gas": "forge test -vvv --gas-report",
     "coverage": "forge coverage --report lcov && genhtml lcov.info --branch-coverage --output-dir coverage"
