@@ -24,10 +24,12 @@ library Errors {
     error NOT_RANDOM_PROVIDER_CONTRACT(); // 'Caller is not the random provider contract'
     error NOT_NFT_OWNER(); // 'Address not the nft owner'
     error ARRAYS_LENGTH_NOT_EQUAL(); // 'Arrays doesn't have the same size'
-    error COLLECTION_ALREADY_WHITELISTED();
-    error COLLECTION_NOT_WHITELISTED(); 
-    error BELLOW_MIN_DURATION(); 
-    error EXCEED_MAX_PERCENTAGE(); 
+    error COLLECTION_ALREADY_WHITELISTED(); //'NFT collection already whitelisted'
+    error COLLECTION_NOT_WHITELISTED(); //'NFT collection not whitelisted'
+    error BELLOW_MIN_DURATION(); //'Ticket sales duration must be higher than min defined'
+    error ABOVE_MAX_DURATION(); //'Ticket sales duration must be lower than max defined'
+    error EXCEED_MAX_PERCENTAGE(); //'Percentage value must be lower than max allowed'
+    error WRONG_DURATION_LIMITS(); //'The min duration must be lower than the max one'
 }
 
  
