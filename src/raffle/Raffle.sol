@@ -8,10 +8,10 @@ import {IERC721} from "openzeppelin-contracts/contracts/token/ERC721/IERC721.sol
 import {ImplementationInterfaceNames} from "../libraries/helpers/ImplementationInterfaceNames.sol";
 import {Errors} from "../libraries/helpers/Errors.sol";
 
-
 import {IRaffle} from "../interfaces/IRaffle.sol";
 import {IRandomProvider} from "../interfaces/IRandomProvider.sol";
 import {INFTCollectionWhitelist} from "../interfaces/INFTCollectionWhitelist.sol";
+import {IConfigManager} from "../interfaces/IConfigManager.sol";
 
 import {RaffleDataTypes} from "./RaffleDataTypes.sol";
 
@@ -227,12 +227,16 @@ contract Raffle is IRaffle, Initializable {
     function _checkData(RaffleDataTypes.InitRaffleParams memory params) internal view {
         if(address(params.implementationManager) == address(0)) revert Errors.NOT_ADDRESS_0();
         if(address(params.purchaseCurrency) == address(0)) revert Errors.NOT_ADDRESS_0();
-        address whitelist = params.implementationManager.getImplementationAddress(ImplementationInterfaceNames.NFTWhitelist);
-        if(!INFTCollectionWhitelist(whitelist).isWhitelisted(address(params.nftContract))) revert Errors.COLLECTION_NOT_WHITELISTED();
+        address nftWhitelist = params.implementationManager.getImplementationAddress(ImplementationInterfaceNames.NFTWhitelist);
+        if(!INFTCollectionWhitelist(nftWhitelist).isWhitelisted(address(params.nftContract))) revert Errors.COLLECTION_NOT_WHITELISTED();
         if(params.nftContract.ownerOf(params.nftId) != address(this)) revert Errors.NOT_NFT_OWNER();
         if(params.ticketPrice == 0) revert Errors.CANT_BE_ZERO();
         if(params.maxTicketSupply == 0) revert Errors.CANT_BE_ZERO();
-        if(params.ticketSaleDuration < MIN_SALE_DURATION) revert Errors.BELLOW_MIN_DURATION();
+        IConfigManager configManager = IConfigManager(params.implementationManager.getImplementationAddress(ImplementationInterfaceNames.ConfigManager));
+        if(params.maxTicketSupply > configManager.maxTicketSupplyAllowed()) revert Errors.EXCEED_MAX_VALUE_ALLOWED();
+        (uint256 minDuration, uint256 maxDuration) = configManager.ticketSalesDurationLimits();
+        uint256 ticketSaleDuration = params.ticketSaleDuration;
+        if(ticketSaleDuration < minDuration || ticketSaleDuration > maxDuration) revert Errors.OUT_OF_RANGE();
     }
 
     /**

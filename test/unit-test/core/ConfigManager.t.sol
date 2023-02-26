@@ -22,7 +22,7 @@ contract ConfigManagerTest is Test, SetupUsers {
     ConfigManager configManager;
 
     uint256 baseFeePercentage = 1e2; // 1%
-    uint256 baseMaxTicketSupplyAllewed = 10000; 
+    uint256 baseMaxTicketSupplyAllowed = 10000; 
     uint256 baseMinTicketSaleDuration = 86400; // 1 days
     uint256 baseMaxTicketSaleDuration = 8 weeks; // 2 months
 
@@ -35,7 +35,7 @@ contract ConfigManagerTest is Test, SetupUsers {
 
         ConfiguratorInputTypes.InitConfigManagerInput memory data = ConfiguratorInputTypes.InitConfigManagerInput(
             baseFeePercentage,
-            baseMaxTicketSupplyAllewed,
+            baseMaxTicketSupplyAllowed,
             baseMinTicketSaleDuration,
             baseMaxTicketSaleDuration
         );
@@ -54,7 +54,7 @@ contract ConfigManagerTest is Test, SetupUsers {
         assertEq(configManager.procolFeesPercentage(), baseFeePercentage);
         assertEq(configManager.minTicketSalesDuration(), baseMinTicketSaleDuration);
         assertEq(configManager.maxTicketSalesDuration(), baseMaxTicketSaleDuration);
-        assertEq(configManager.maxTicketSupplyAllowed(), baseMaxTicketSupplyAllewed);
+        assertEq(configManager.maxTicketSupplyAllowed(), baseMaxTicketSupplyAllowed);
         (uint256 min, uint256 max) = configManager.ticketSalesDurationLimits();
         assertEq(min, baseMinTicketSaleDuration);
         assertEq(max, baseMaxTicketSaleDuration);
@@ -64,7 +64,7 @@ contract ConfigManagerTest is Test, SetupUsers {
         uint256 wrongBaseFeePercentage = 1.1e4; //110%
         ConfiguratorInputTypes.InitConfigManagerInput memory data = ConfiguratorInputTypes.InitConfigManagerInput(
             wrongBaseFeePercentage,
-            baseMaxTicketSupplyAllewed,
+            baseMaxTicketSupplyAllowed,
             baseMinTicketSaleDuration,
             baseMaxTicketSaleDuration
         );
@@ -76,7 +76,7 @@ contract ConfigManagerTest is Test, SetupUsers {
         uint256 wrongMinDuration = baseMaxTicketSaleDuration * 2;
         ConfiguratorInputTypes.InitConfigManagerInput memory data = ConfiguratorInputTypes.InitConfigManagerInput(
             baseFeePercentage,
-            baseMaxTicketSupplyAllewed,
+            baseMaxTicketSupplyAllowed,
             wrongMinDuration,
             baseMaxTicketSaleDuration
         );
