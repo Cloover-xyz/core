@@ -24,7 +24,8 @@ contract ConfigManagerTest is Test, SetupUsers {
     uint256 baseFeePercentage = 1e2; // 1%
     uint256 baseMaxTicketSupplyAllewed = 10000; 
     uint256 baseMinTicketSaleDuration = 86400; // 1 days
-    
+    uint256 baseMaxTicketSaleDuration = 8 weeks; // 2 months
+
     function setUp() public virtual override {
         SetupUsers.setUp(); 
         changePrank(deployer);
@@ -35,7 +36,8 @@ contract ConfigManagerTest is Test, SetupUsers {
         ConfiguratorInputTypes.InitConfigManagerInput memory data = ConfiguratorInputTypes.InitConfigManagerInput(
             baseFeePercentage,
             baseMaxTicketSupplyAllewed,
-            baseMinTicketSaleDuration 
+            baseMinTicketSaleDuration,
+            baseMaxTicketSaleDuration
         );
         configManager = new ConfigManager(implementationManager, data);
 
@@ -51,7 +53,11 @@ contract ConfigManagerTest is Test, SetupUsers {
         assertEq(implementationManager.getImplementationAddress(ImplementationInterfaceNames.ConfigManager), address(configManager));
         assertEq(configManager.procolFeesPercentage(), baseFeePercentage);
         assertEq(configManager.minTicketSalesDuration(), baseMinTicketSaleDuration);
+        assertEq(configManager.maxTicketSalesDuration(), baseMaxTicketSaleDuration);
         assertEq(configManager.maxTicketSupplyAllowed(), baseMaxTicketSupplyAllewed);
+        (uint256 min, uint256 max) = configManager.ticketSalesDurationLimits();
+        assertEq(min, baseMinTicketSaleDuration);
+        assertEq(max, baseMaxTicketSaleDuration);
     }
     
     function test_RevertIf_BasePercentageExceed100PercentOnDeployment() external {
@@ -59,9 +65,22 @@ contract ConfigManagerTest is Test, SetupUsers {
         ConfiguratorInputTypes.InitConfigManagerInput memory data = ConfiguratorInputTypes.InitConfigManagerInput(
             wrongBaseFeePercentage,
             baseMaxTicketSupplyAllewed,
-            baseMinTicketSaleDuration 
+            baseMinTicketSaleDuration,
+            baseMaxTicketSaleDuration
         );
         vm.expectRevert(Errors.EXCEED_MAX_PERCENTAGE.selector);
+        configManager = new ConfigManager(implementationManager, data);
+    }
+
+    function test_RevertIf_MinDurationHigherThanMaxOne() external {
+        uint256 wrongMinDuration = baseMaxTicketSaleDuration * 2;
+        ConfiguratorInputTypes.InitConfigManagerInput memory data = ConfiguratorInputTypes.InitConfigManagerInput(
+            baseFeePercentage,
+            baseMaxTicketSupplyAllewed,
+            wrongMinDuration,
+            baseMaxTicketSaleDuration
+        );
+        vm.expectRevert(Errors.WRONG_DURATION_LIMITS.selector);
         configManager = new ConfigManager(implementationManager, data);
     }
     
@@ -93,12 +112,39 @@ contract ConfigManagerTest is Test, SetupUsers {
         assertEq(configManager.minTicketSalesDuration(), newMinTicketSalesDuration);
     }
 
-
     function test_RevertIf_NotMaintainerUpdateMinTicketSalesDuration() external{
         changePrank(alice);
         uint256 newMinTicketSalesDuration = 1 weeks;
         vm.expectRevert(Errors.NOT_MAINTAINER.selector);
         configManager.setMinTicketSalesDuration(newMinTicketSalesDuration);
+    }
+
+    function test_RevertIf_NewMinTicketSalesDurationIsHigherThanMaxDuration() external{
+        changePrank(maintainer);
+        uint256 newMinTicketSalesDuration = baseMaxTicketSaleDuration * 2;
+        vm.expectRevert(Errors.WRONG_DURATION_LIMITS.selector);
+        configManager.setMinTicketSalesDuration(newMinTicketSalesDuration);
+    }
+
+    function test_CorrectlySetMaxTicketSalesDuration() external{
+        changePrank(maintainer);
+        uint256 newMaxTicketSalesDuration = baseMaxTicketSaleDuration * 2;
+        configManager.setMaxTicketSalesDuration(newMaxTicketSalesDuration);
+        assertEq(configManager.maxTicketSalesDuration(), newMaxTicketSalesDuration);
+    }
+
+    function test_RevertIf_NotMaintainerUpdateMaxTicketSalesDuration() external{
+        changePrank(alice);
+        uint256 newMaxTicketSalesDuration = baseMaxTicketSaleDuration * 2;
+        vm.expectRevert(Errors.NOT_MAINTAINER.selector);
+        configManager.setMaxTicketSalesDuration(newMaxTicketSalesDuration);
+    }
+
+    function test_RevertIf_NewMaxTicketSalesDurationIsLowerThanMinDuration() external{
+        changePrank(maintainer);
+        uint256 newMaxTicketSalesDuration = baseMinTicketSaleDuration - 10;
+        vm.expectRevert(Errors.WRONG_DURATION_LIMITS.selector);
+        configManager.setMaxTicketSalesDuration(newMaxTicketSalesDuration);
     }
 
     function test_CorrectlySetMaxTicketSupplyAllowed() external{

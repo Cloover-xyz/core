@@ -13,7 +13,16 @@ interface IConfigManager{
     function maxTicketSupplyAllowed() external view returns(uint256);
 
     /// @notice Get the min duration for the ticket sales
-    /// @return Tthe min duration
+    /// @return The min duration
     function minTicketSalesDuration() external view returns(uint256);
+    
+    /// @notice Get the max duration for the ticket sales
+    /// @return Tthe max duration
+    function maxTicketSalesDuration() external view returns(uint256);
+    
+    /// @notice Get the limit of duration for the ticket sales
+    /// @return minDuration the minimum of time
+    /// @return maxDuration the maximum of time
+    function ticketSalesDurationLimits() external view returns(uint256 minDuration, uint256 maxDuration);
 
 }
