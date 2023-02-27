@@ -8,6 +8,12 @@ type NetworkConfig = {
       requestConfirmations: number;
       subscriptionId?: number;
     };
+    configManager: {
+      baseFeePercentage: number;
+      maxTicketSupplyAllowed: number;
+      minSalesDuration: number;
+      maxSalesDuration: number;
+    };
     blockConfirmations?: number;
   };
 };
@@ -22,6 +28,12 @@ export const networkConfig: NetworkConfig = {
       callbackGasLimit: 100000,
       requestConfirmations: 3,
       subscriptionId: Number(process.env.CHAINLINK_VRF_SUBSCRIPTION_ID),
+    },
+    configManager: {
+      baseFeePercentage: 250, // 2.5%
+      maxTicketSupplyAllowed: 10000,
+      minSalesDuration: 86400, // 1 day
+      maxSalesDuration: 5270400, // 61 days
     },
     blockConfirmations: 6,
   },
