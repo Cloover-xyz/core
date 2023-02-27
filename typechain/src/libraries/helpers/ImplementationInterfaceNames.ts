@@ -23,14 +23,14 @@ import type {
 export interface ImplementationInterfaceNamesInterface extends utils.Interface {
   functions: {
     "AccessController()": FunctionFragment;
-    "RaffleContract()": FunctionFragment;
+    "RaffleFactory()": FunctionFragment;
     "RandomProvider()": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
       | "AccessController"
-      | "RaffleContract"
+      | "RaffleFactory"
       | "RandomProvider"
   ): FunctionFragment;
 
@@ -39,7 +39,7 @@ export interface ImplementationInterfaceNamesInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "RaffleContract",
+    functionFragment: "RaffleFactory",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -52,7 +52,7 @@ export interface ImplementationInterfaceNamesInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "RaffleContract",
+    functionFragment: "RaffleFactory",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -92,21 +92,21 @@ export interface ImplementationInterfaceNames extends BaseContract {
   functions: {
     AccessController(overrides?: CallOverrides): Promise<[string]>;
 
-    RaffleContract(overrides?: CallOverrides): Promise<[string]>;
+    RaffleFactory(overrides?: CallOverrides): Promise<[string]>;
 
     RandomProvider(overrides?: CallOverrides): Promise<[string]>;
   };
 
   AccessController(overrides?: CallOverrides): Promise<string>;
 
-  RaffleContract(overrides?: CallOverrides): Promise<string>;
+  RaffleFactory(overrides?: CallOverrides): Promise<string>;
 
   RandomProvider(overrides?: CallOverrides): Promise<string>;
 
   callStatic: {
     AccessController(overrides?: CallOverrides): Promise<string>;
 
-    RaffleContract(overrides?: CallOverrides): Promise<string>;
+    RaffleFactory(overrides?: CallOverrides): Promise<string>;
 
     RandomProvider(overrides?: CallOverrides): Promise<string>;
   };
@@ -116,7 +116,7 @@ export interface ImplementationInterfaceNames extends BaseContract {
   estimateGas: {
     AccessController(overrides?: CallOverrides): Promise<BigNumber>;
 
-    RaffleContract(overrides?: CallOverrides): Promise<BigNumber>;
+    RaffleFactory(overrides?: CallOverrides): Promise<BigNumber>;
 
     RandomProvider(overrides?: CallOverrides): Promise<BigNumber>;
   };
@@ -124,7 +124,7 @@ export interface ImplementationInterfaceNames extends BaseContract {
   populateTransaction: {
     AccessController(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    RaffleContract(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    RaffleFactory(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     RandomProvider(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };

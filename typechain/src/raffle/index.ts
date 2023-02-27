@@ -2,3 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { Raffle } from "./Raffle";
+export type { RaffleFactory } from "./RaffleFactory";

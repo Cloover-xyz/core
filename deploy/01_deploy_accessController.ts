@@ -8,6 +8,7 @@ const func: DeployFunction = async function ({
   network,
 }) {
   const { deploy } = deployments;
+  const { blockConfirmations } = networkConfig[network.name];
   const { deployer, maintainer } = await getNamedAccounts();
 
   const args: unknown[] = [maintainer];
@@ -16,7 +17,7 @@ const func: DeployFunction = async function ({
     from: deployer,
     args,
     log: true,
-    waitConfirmations: 2,
+    waitConfirmations: blockConfirmations || 1,
   });
   if (!network.tags.dev) {
     await verifyContract(accessController.address, args);

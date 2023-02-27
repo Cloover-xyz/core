@@ -11,9 +11,21 @@ import type {
 
 const _abi = [
   {
-    inputs: [],
-    name: "requestRandomNumber",
-    outputs: [],
+    inputs: [
+      {
+        internalType: "uint32",
+        name: "numWords",
+        type: "uint32",
+      },
+    ],
+    name: "requestRandomNumbers",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "requestId",
+        type: "uint256",
+      },
+    ],
     stateMutability: "nonpayable",
     type: "function",
   },

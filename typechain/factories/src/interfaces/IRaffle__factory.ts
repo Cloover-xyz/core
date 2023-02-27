@@ -11,6 +11,25 @@ import type {
 
 const _abi = [
   {
+    inputs: [
+      {
+        internalType: "address",
+        name: "user",
+        type: "address",
+      },
+    ],
+    name: "balanceOf",
+    outputs: [
+      {
+        internalType: "uint256[]",
+        name: "",
+        type: "uint256[]",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [],
     name: "claimPrice",
     outputs: [],
@@ -26,7 +45,20 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "drawnRandomTicket",
+    name: "creator",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "drawnTickets",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -34,14 +66,145 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "uint256[]",
+        name: "randomNumbers",
+        type: "uint256[]",
+      },
+    ],
+    name: "drawnTickets",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "endTicketSales",
+    outputs: [
+      {
+        internalType: "uint64",
+        name: "",
+        type: "uint64",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        components: [
+          {
+            internalType: "contract IImplementationManager",
+            name: "implementationManager",
+            type: "address",
+          },
+          {
+            internalType: "contract IERC20",
+            name: "purchaseCurrency",
+            type: "address",
+          },
+          {
+            internalType: "contract IERC721",
+            name: "nftContract",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "creator",
+            type: "address",
+          },
+          {
+            internalType: "uint256",
+            name: "nftId",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "maxTicketSupply",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "ticketPrice",
+            type: "uint256",
+          },
+          {
+            internalType: "uint64",
+            name: "ticketSaleDuration",
+            type: "uint64",
+          },
+        ],
+        internalType: "struct RaffleDataTypes.InitRaffleParams",
+        name: "_params",
+        type: "tuple",
+      },
+    ],
+    name: "initialize",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "maxSupply",
+    outputs: [
+      {
         internalType: "uint256",
-        name: "randomNumber",
+        name: "",
         type: "uint256",
       },
     ],
-    name: "drawnTicket",
-    outputs: [],
-    stateMutability: "nonpayable",
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "nftToWin",
+    outputs: [
+      {
+        internalType: "contract IERC721",
+        name: "nftContractAddress",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "nftId",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "id",
+        type: "uint256",
+      },
+    ],
+    name: "ownerOf",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "purchaseCurrency",
+    outputs: [
+      {
+        internalType: "contract IERC20",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
   {
@@ -55,6 +218,84 @@ const _abi = [
     name: "purchaseTickets",
     outputs: [],
     stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "raffleStatus",
+    outputs: [
+      {
+        internalType: "enum RaffleDataTypes.RaffleStatus",
+        name: "",
+        type: "uint8",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "randomProvider",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "ticketPrice",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "totalSupply",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "winnerAddress",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "winningTicket",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
 ] as const;

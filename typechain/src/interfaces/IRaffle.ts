@@ -23,24 +23,89 @@ import type {
   PromiseOrValue,
 } from "../../common";
 
+export declare namespace RaffleDataTypes {
+  export type InitRaffleParamsStruct = {
+    implementationManager: PromiseOrValue<string>;
+    purchaseCurrency: PromiseOrValue<string>;
+    nftContract: PromiseOrValue<string>;
+    creator: PromiseOrValue<string>;
+    nftId: PromiseOrValue<BigNumberish>;
+    maxTicketSupply: PromiseOrValue<BigNumberish>;
+    ticketPrice: PromiseOrValue<BigNumberish>;
+    ticketSaleDuration: PromiseOrValue<BigNumberish>;
+  };
+
+  export type InitRaffleParamsStructOutput = [
+    string,
+    string,
+    string,
+    string,
+    BigNumber,
+    BigNumber,
+    BigNumber,
+    BigNumber
+  ] & {
+    implementationManager: string;
+    purchaseCurrency: string;
+    nftContract: string;
+    creator: string;
+    nftId: BigNumber;
+    maxTicketSupply: BigNumber;
+    ticketPrice: BigNumber;
+    ticketSaleDuration: BigNumber;
+  };
+}
+
 export interface IRaffleInterface extends utils.Interface {
   functions: {
+    "balanceOf(address)": FunctionFragment;
     "claimPrice()": FunctionFragment;
     "claimTicketSalesAmount()": FunctionFragment;
-    "drawnRandomTicket()": FunctionFragment;
-    "drawnTicket(uint256)": FunctionFragment;
+    "creator()": FunctionFragment;
+    "drawnTickets()": FunctionFragment;
+    "drawnTickets(uint256[])": FunctionFragment;
+    "endTicketSales()": FunctionFragment;
+    "initialize((address,address,address,address,uint256,uint256,uint256,uint64))": FunctionFragment;
+    "maxSupply()": FunctionFragment;
+    "nftToWin()": FunctionFragment;
+    "ownerOf(uint256)": FunctionFragment;
+    "purchaseCurrency()": FunctionFragment;
     "purchaseTickets(uint256)": FunctionFragment;
+    "raffleStatus()": FunctionFragment;
+    "randomProvider()": FunctionFragment;
+    "ticketPrice()": FunctionFragment;
+    "totalSupply()": FunctionFragment;
+    "winnerAddress()": FunctionFragment;
+    "winningTicket()": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
+      | "balanceOf"
       | "claimPrice"
       | "claimTicketSalesAmount"
-      | "drawnRandomTicket"
-      | "drawnTicket"
+      | "creator"
+      | "drawnTickets()"
+      | "drawnTickets(uint256[])"
+      | "endTicketSales"
+      | "initialize"
+      | "maxSupply"
+      | "nftToWin"
+      | "ownerOf"
+      | "purchaseCurrency"
       | "purchaseTickets"
+      | "raffleStatus"
+      | "randomProvider"
+      | "ticketPrice"
+      | "totalSupply"
+      | "winnerAddress"
+      | "winningTicket"
   ): FunctionFragment;
 
+  encodeFunctionData(
+    functionFragment: "balanceOf",
+    values: [PromiseOrValue<string>]
+  ): string;
   encodeFunctionData(
     functionFragment: "claimPrice",
     values?: undefined
@@ -49,34 +114,115 @@ export interface IRaffleInterface extends utils.Interface {
     functionFragment: "claimTicketSalesAmount",
     values?: undefined
   ): string;
+  encodeFunctionData(functionFragment: "creator", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "drawnRandomTicket",
+    functionFragment: "drawnTickets()",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "drawnTicket",
+    functionFragment: "drawnTickets(uint256[])",
+    values: [PromiseOrValue<BigNumberish>[]]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "endTicketSales",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "initialize",
+    values: [RaffleDataTypes.InitRaffleParamsStruct]
+  ): string;
+  encodeFunctionData(functionFragment: "maxSupply", values?: undefined): string;
+  encodeFunctionData(functionFragment: "nftToWin", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "ownerOf",
     values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "purchaseCurrency",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "purchaseTickets",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
+  encodeFunctionData(
+    functionFragment: "raffleStatus",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "randomProvider",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "ticketPrice",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "totalSupply",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "winnerAddress",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "winningTicket",
+    values?: undefined
+  ): string;
 
+  decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "claimPrice", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "claimTicketSalesAmount",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "creator", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "drawnRandomTicket",
+    functionFragment: "drawnTickets()",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "drawnTicket",
+    functionFragment: "drawnTickets(uint256[])",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "endTicketSales",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "maxSupply", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "nftToWin", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "ownerOf", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "purchaseCurrency",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "purchaseTickets",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "raffleStatus",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "randomProvider",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "ticketPrice",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "totalSupply",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "winnerAddress",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "winningTicket",
     data: BytesLike
   ): Result;
 
@@ -110,6 +256,11 @@ export interface IRaffle extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    balanceOf(
+      user: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber[]]>;
+
     claimPrice(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -118,20 +269,61 @@ export interface IRaffle extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    drawnRandomTicket(
+    creator(overrides?: CallOverrides): Promise<[string]>;
+
+    "drawnTickets()"(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    drawnTicket(
-      randomNumber: PromiseOrValue<BigNumberish>,
+    "drawnTickets(uint256[])"(
+      randomNumbers: PromiseOrValue<BigNumberish>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    endTicketSales(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    initialize(
+      _params: RaffleDataTypes.InitRaffleParamsStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    maxSupply(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    nftToWin(
+      overrides?: CallOverrides
+    ): Promise<
+      [string, BigNumber] & { nftContractAddress: string; nftId: BigNumber }
+    >;
+
+    ownerOf(
+      id: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
+    purchaseCurrency(overrides?: CallOverrides): Promise<[string]>;
 
     purchaseTickets(
       nbOfTickets: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    raffleStatus(overrides?: CallOverrides): Promise<[number]>;
+
+    randomProvider(overrides?: CallOverrides): Promise<[string]>;
+
+    ticketPrice(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    totalSupply(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    winnerAddress(overrides?: CallOverrides): Promise<[string]>;
+
+    winningTicket(overrides?: CallOverrides): Promise<[BigNumber]>;
   };
+
+  balanceOf(
+    user: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber[]>;
 
   claimPrice(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -141,41 +333,123 @@ export interface IRaffle extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  drawnRandomTicket(
+  creator(overrides?: CallOverrides): Promise<string>;
+
+  "drawnTickets()"(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  drawnTicket(
-    randomNumber: PromiseOrValue<BigNumberish>,
+  "drawnTickets(uint256[])"(
+    randomNumbers: PromiseOrValue<BigNumberish>[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
+
+  endTicketSales(overrides?: CallOverrides): Promise<BigNumber>;
+
+  initialize(
+    _params: RaffleDataTypes.InitRaffleParamsStruct,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  maxSupply(overrides?: CallOverrides): Promise<BigNumber>;
+
+  nftToWin(
+    overrides?: CallOverrides
+  ): Promise<
+    [string, BigNumber] & { nftContractAddress: string; nftId: BigNumber }
+  >;
+
+  ownerOf(
+    id: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
+  purchaseCurrency(overrides?: CallOverrides): Promise<string>;
 
   purchaseTickets(
     nbOfTickets: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  raffleStatus(overrides?: CallOverrides): Promise<number>;
+
+  randomProvider(overrides?: CallOverrides): Promise<string>;
+
+  ticketPrice(overrides?: CallOverrides): Promise<BigNumber>;
+
+  totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
+
+  winnerAddress(overrides?: CallOverrides): Promise<string>;
+
+  winningTicket(overrides?: CallOverrides): Promise<BigNumber>;
+
   callStatic: {
+    balanceOf(
+      user: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber[]>;
+
     claimPrice(overrides?: CallOverrides): Promise<void>;
 
     claimTicketSalesAmount(overrides?: CallOverrides): Promise<void>;
 
-    drawnRandomTicket(overrides?: CallOverrides): Promise<void>;
+    creator(overrides?: CallOverrides): Promise<string>;
 
-    drawnTicket(
-      randomNumber: PromiseOrValue<BigNumberish>,
+    "drawnTickets()"(overrides?: CallOverrides): Promise<void>;
+
+    "drawnTickets(uint256[])"(
+      randomNumbers: PromiseOrValue<BigNumberish>[],
       overrides?: CallOverrides
     ): Promise<void>;
+
+    endTicketSales(overrides?: CallOverrides): Promise<BigNumber>;
+
+    initialize(
+      _params: RaffleDataTypes.InitRaffleParamsStruct,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    maxSupply(overrides?: CallOverrides): Promise<BigNumber>;
+
+    nftToWin(
+      overrides?: CallOverrides
+    ): Promise<
+      [string, BigNumber] & { nftContractAddress: string; nftId: BigNumber }
+    >;
+
+    ownerOf(
+      id: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    purchaseCurrency(overrides?: CallOverrides): Promise<string>;
 
     purchaseTickets(
       nbOfTickets: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    raffleStatus(overrides?: CallOverrides): Promise<number>;
+
+    randomProvider(overrides?: CallOverrides): Promise<string>;
+
+    ticketPrice(overrides?: CallOverrides): Promise<BigNumber>;
+
+    totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
+
+    winnerAddress(overrides?: CallOverrides): Promise<string>;
+
+    winningTicket(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   filters: {};
 
   estimateGas: {
+    balanceOf(
+      user: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     claimPrice(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -184,22 +458,59 @@ export interface IRaffle extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    drawnRandomTicket(
+    creator(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "drawnTickets()"(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    drawnTicket(
-      randomNumber: PromiseOrValue<BigNumberish>,
+    "drawnTickets(uint256[])"(
+      randomNumbers: PromiseOrValue<BigNumberish>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
+
+    endTicketSales(overrides?: CallOverrides): Promise<BigNumber>;
+
+    initialize(
+      _params: RaffleDataTypes.InitRaffleParamsStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    maxSupply(overrides?: CallOverrides): Promise<BigNumber>;
+
+    nftToWin(overrides?: CallOverrides): Promise<BigNumber>;
+
+    ownerOf(
+      id: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    purchaseCurrency(overrides?: CallOverrides): Promise<BigNumber>;
 
     purchaseTickets(
       nbOfTickets: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
+
+    raffleStatus(overrides?: CallOverrides): Promise<BigNumber>;
+
+    randomProvider(overrides?: CallOverrides): Promise<BigNumber>;
+
+    ticketPrice(overrides?: CallOverrides): Promise<BigNumber>;
+
+    totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
+
+    winnerAddress(overrides?: CallOverrides): Promise<BigNumber>;
+
+    winningTicket(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
+    balanceOf(
+      user: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     claimPrice(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
@@ -208,18 +519,50 @@ export interface IRaffle extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    drawnRandomTicket(
+    creator(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "drawnTickets()"(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    drawnTicket(
-      randomNumber: PromiseOrValue<BigNumberish>,
+    "drawnTickets(uint256[])"(
+      randomNumbers: PromiseOrValue<BigNumberish>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
+
+    endTicketSales(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    initialize(
+      _params: RaffleDataTypes.InitRaffleParamsStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    maxSupply(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    nftToWin(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    ownerOf(
+      id: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    purchaseCurrency(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     purchaseTickets(
       nbOfTickets: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
+
+    raffleStatus(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    randomProvider(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    ticketPrice(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    totalSupply(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    winnerAddress(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    winningTicket(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }

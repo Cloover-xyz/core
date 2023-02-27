@@ -46,6 +46,8 @@ export type { IImplementationManager } from "./src/interfaces/IImplementationMan
 export { IImplementationManager__factory } from "./factories/src/interfaces/IImplementationManager__factory";
 export type { IRaffle } from "./src/interfaces/IRaffle";
 export { IRaffle__factory } from "./factories/src/interfaces/IRaffle__factory";
+export type { IRaffleFactory } from "./src/interfaces/IRaffleFactory";
+export { IRaffleFactory__factory } from "./factories/src/interfaces/IRaffleFactory__factory";
 export type { IRandomProvider } from "./src/interfaces/IRandomProvider";
 export { IRandomProvider__factory } from "./factories/src/interfaces/IRandomProvider__factory";
 export type { Errors } from "./src/libraries/helpers/Errors";
@@ -60,3 +62,5 @@ export type { MockRandomProvider } from "./src/mocks/MockRandomProvider";
 export { MockRandomProvider__factory } from "./factories/src/mocks/MockRandomProvider__factory";
 export type { Raffle } from "./src/raffle/Raffle";
 export { Raffle__factory } from "./factories/src/raffle/Raffle__factory";
+export type { RaffleFactory } from "./src/raffle/RaffleFactory";
+export { RaffleFactory__factory } from "./factories/src/raffle/RaffleFactory__factory";
