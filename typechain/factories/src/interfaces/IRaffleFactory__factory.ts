@@ -14,7 +14,7 @@ const _abi = [
     inputs: [
       {
         internalType: "address[]",
-        name: "_raffleContracts",
+        name: "raffleContracts",
         type: "address[]",
       },
     ],
@@ -59,7 +59,7 @@ const _abi = [
           },
         ],
         internalType: "struct IRaffleFactory.Params",
-        name: "_params",
+        name: "params",
         type: "tuple",
       },
     ],
@@ -78,7 +78,7 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "_raffleAddress",
+        name: "raffleAddress",
         type: "address",
       },
     ],

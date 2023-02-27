@@ -121,49 +121,49 @@ export interface IRaffleFactory extends BaseContract {
 
   functions: {
     batchRaffleDrawnTickets(
-      _raffleContracts: PromiseOrValue<string>[],
+      raffleContracts: PromiseOrValue<string>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     createNewRaffle(
-      _params: IRaffleFactory.ParamsStruct,
+      params: IRaffleFactory.ParamsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     isRegisteredRaffle(
-      _raffleAddress: PromiseOrValue<string>,
+      raffleAddress: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
   };
 
   batchRaffleDrawnTickets(
-    _raffleContracts: PromiseOrValue<string>[],
+    raffleContracts: PromiseOrValue<string>[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   createNewRaffle(
-    _params: IRaffleFactory.ParamsStruct,
+    params: IRaffleFactory.ParamsStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   isRegisteredRaffle(
-    _raffleAddress: PromiseOrValue<string>,
+    raffleAddress: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
   callStatic: {
     batchRaffleDrawnTickets(
-      _raffleContracts: PromiseOrValue<string>[],
+      raffleContracts: PromiseOrValue<string>[],
       overrides?: CallOverrides
     ): Promise<void>;
 
     createNewRaffle(
-      _params: IRaffleFactory.ParamsStruct,
+      params: IRaffleFactory.ParamsStruct,
       overrides?: CallOverrides
     ): Promise<string>;
 
     isRegisteredRaffle(
-      _raffleAddress: PromiseOrValue<string>,
+      raffleAddress: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<boolean>;
   };
@@ -172,34 +172,34 @@ export interface IRaffleFactory extends BaseContract {
 
   estimateGas: {
     batchRaffleDrawnTickets(
-      _raffleContracts: PromiseOrValue<string>[],
+      raffleContracts: PromiseOrValue<string>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     createNewRaffle(
-      _params: IRaffleFactory.ParamsStruct,
+      params: IRaffleFactory.ParamsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     isRegisteredRaffle(
-      _raffleAddress: PromiseOrValue<string>,
+      raffleAddress: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
     batchRaffleDrawnTickets(
-      _raffleContracts: PromiseOrValue<string>[],
+      raffleContracts: PromiseOrValue<string>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     createNewRaffle(
-      _params: IRaffleFactory.ParamsStruct,
+      params: IRaffleFactory.ParamsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     isRegisteredRaffle(
-      _raffleAddress: PromiseOrValue<string>,
+      raffleAddress: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
   };

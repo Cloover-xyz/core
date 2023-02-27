@@ -12,7 +12,17 @@ import type {
 const _abi = [
   {
     inputs: [],
+    name: "ABOVE_MAX_DURATION",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "ARRAYS_LENGTH_NOT_EQUAL",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "BELLOW_MIN_DURATION",
     type: "error",
   },
   {
@@ -23,6 +33,21 @@ const _abi = [
   {
     inputs: [],
     name: "CANT_BE_ZERO",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "COLLECTION_ALREADY_WHITELISTED",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "COLLECTION_NOT_WHITELISTED",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "EXCEED_MAX_PERCENTAGE",
     type: "error",
   },
   {
@@ -100,10 +125,15 @@ const _abi = [
     name: "TICKET_NOT_DRAWN",
     type: "error",
   },
+  {
+    inputs: [],
+    name: "WRONG_DURATION_LIMITS",
+    type: "error",
+  },
 ] as const;
 
 const _bytecode =
-  "0x60566037600b82828239805160001a607314602a57634e487b7160e01b600052600060045260246000fd5b30600052607381538281f3fe73000000000000000000000000000000000000000030146080604052600080fdfea2646970667358221220fe115bffa1605d3aee93ac7a5b01add5f298d42204e914511eaa00ac5c3d846d64736f6c63430008110033";
+  "0x60566037600b82828239805160001a607314602a57634e487b7160e01b600052600060045260246000fd5b30600052607381538281f3fe73000000000000000000000000000000000000000030146080604052600080fdfea264697066735822122046f698afbb9bdd6fb9f70ef83d4b0c91502bfd8b6c649ebdb34de0513cc48aed64736f6c63430008110033";
 
 type ErrorsConstructorParams =
   | [signer?: Signer]

@@ -2,7 +2,9 @@
 /* tslint:disable */
 /* eslint-disable */
 export { IAccessController__factory } from "./IAccessController__factory";
+export { IConfigManager__factory } from "./IConfigManager__factory";
 export { IImplementationManager__factory } from "./IImplementationManager__factory";
+export { INFTCollectionWhitelist__factory } from "./INFTCollectionWhitelist__factory";
 export { IRaffle__factory } from "./IRaffle__factory";
 export { IRaffleFactory__factory } from "./IRaffleFactory__factory";
 export { IRandomProvider__factory } from "./IRandomProvider__factory";

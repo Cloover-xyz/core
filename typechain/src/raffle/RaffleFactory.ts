@@ -59,7 +59,6 @@ export interface RaffleFactoryInterface extends utils.Interface {
     "batchRaffleDrawnTickets(address[])": FunctionFragment;
     "createNewRaffle((address,address,uint256,uint256,uint256,uint64))": FunctionFragment;
     "isRegisteredRaffle(address)": FunctionFragment;
-    "randomProvider()": FunctionFragment;
     "requestIdToContracts(uint256,uint256)": FunctionFragment;
   };
 
@@ -68,7 +67,6 @@ export interface RaffleFactoryInterface extends utils.Interface {
       | "batchRaffleDrawnTickets"
       | "createNewRaffle"
       | "isRegisteredRaffle"
-      | "randomProvider"
       | "requestIdToContracts"
   ): FunctionFragment;
 
@@ -85,10 +83,6 @@ export interface RaffleFactoryInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "randomProvider",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "requestIdToContracts",
     values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
   ): string;
@@ -103,10 +97,6 @@ export interface RaffleFactoryInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "isRegisteredRaffle",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "randomProvider",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -165,7 +155,7 @@ export interface RaffleFactory extends BaseContract {
     ): Promise<ContractTransaction>;
 
     createNewRaffle(
-      _params: IRaffleFactory.ParamsStruct,
+      params: IRaffleFactory.ParamsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -173,8 +163,6 @@ export interface RaffleFactory extends BaseContract {
       arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
-
-    randomProvider(overrides?: CallOverrides): Promise<[string]>;
 
     requestIdToContracts(
       arg0: PromiseOrValue<BigNumberish>,
@@ -189,7 +177,7 @@ export interface RaffleFactory extends BaseContract {
   ): Promise<ContractTransaction>;
 
   createNewRaffle(
-    _params: IRaffleFactory.ParamsStruct,
+    params: IRaffleFactory.ParamsStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -197,8 +185,6 @@ export interface RaffleFactory extends BaseContract {
     arg0: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<boolean>;
-
-  randomProvider(overrides?: CallOverrides): Promise<string>;
 
   requestIdToContracts(
     arg0: PromiseOrValue<BigNumberish>,
@@ -213,7 +199,7 @@ export interface RaffleFactory extends BaseContract {
     ): Promise<void>;
 
     createNewRaffle(
-      _params: IRaffleFactory.ParamsStruct,
+      params: IRaffleFactory.ParamsStruct,
       overrides?: CallOverrides
     ): Promise<string>;
 
@@ -221,8 +207,6 @@ export interface RaffleFactory extends BaseContract {
       arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<boolean>;
-
-    randomProvider(overrides?: CallOverrides): Promise<string>;
 
     requestIdToContracts(
       arg0: PromiseOrValue<BigNumberish>,
@@ -249,7 +233,7 @@ export interface RaffleFactory extends BaseContract {
     ): Promise<BigNumber>;
 
     createNewRaffle(
-      _params: IRaffleFactory.ParamsStruct,
+      params: IRaffleFactory.ParamsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -257,8 +241,6 @@ export interface RaffleFactory extends BaseContract {
       arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
-
-    randomProvider(overrides?: CallOverrides): Promise<BigNumber>;
 
     requestIdToContracts(
       arg0: PromiseOrValue<BigNumberish>,
@@ -274,7 +256,7 @@ export interface RaffleFactory extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     createNewRaffle(
-      _params: IRaffleFactory.ParamsStruct,
+      params: IRaffleFactory.ParamsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -282,8 +264,6 @@ export interface RaffleFactory extends BaseContract {
       arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
-
-    randomProvider(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     requestIdToContracts(
       arg0: PromiseOrValue<BigNumberish>,

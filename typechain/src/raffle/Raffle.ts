@@ -359,7 +359,7 @@ export interface Raffle extends BaseContract {
     endTicketSales(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     initialize(
-      _params: RaffleDataTypes.InitRaffleParamsStruct,
+      params: RaffleDataTypes.InitRaffleParamsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -423,7 +423,7 @@ export interface Raffle extends BaseContract {
   endTicketSales(overrides?: CallOverrides): Promise<BigNumber>;
 
   initialize(
-    _params: RaffleDataTypes.InitRaffleParamsStruct,
+    params: RaffleDataTypes.InitRaffleParamsStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -481,7 +481,7 @@ export interface Raffle extends BaseContract {
     endTicketSales(overrides?: CallOverrides): Promise<BigNumber>;
 
     initialize(
-      _params: RaffleDataTypes.InitRaffleParamsStruct,
+      params: RaffleDataTypes.InitRaffleParamsStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -595,7 +595,7 @@ export interface Raffle extends BaseContract {
     endTicketSales(overrides?: CallOverrides): Promise<BigNumber>;
 
     initialize(
-      _params: RaffleDataTypes.InitRaffleParamsStruct,
+      params: RaffleDataTypes.InitRaffleParamsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -656,7 +656,7 @@ export interface Raffle extends BaseContract {
     endTicketSales(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     initialize(
-      _params: RaffleDataTypes.InitRaffleParamsStruct,
+      params: RaffleDataTypes.InitRaffleParamsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

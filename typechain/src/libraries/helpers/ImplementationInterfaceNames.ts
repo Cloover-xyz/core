@@ -23,6 +23,8 @@ import type {
 export interface ImplementationInterfaceNamesInterface extends utils.Interface {
   functions: {
     "AccessController()": FunctionFragment;
+    "ConfigManager()": FunctionFragment;
+    "NFTWhitelist()": FunctionFragment;
     "RaffleFactory()": FunctionFragment;
     "RandomProvider()": FunctionFragment;
   };
@@ -30,12 +32,22 @@ export interface ImplementationInterfaceNamesInterface extends utils.Interface {
   getFunction(
     nameOrSignatureOrTopic:
       | "AccessController"
+      | "ConfigManager"
+      | "NFTWhitelist"
       | "RaffleFactory"
       | "RandomProvider"
   ): FunctionFragment;
 
   encodeFunctionData(
     functionFragment: "AccessController",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "ConfigManager",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "NFTWhitelist",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -49,6 +61,14 @@ export interface ImplementationInterfaceNamesInterface extends utils.Interface {
 
   decodeFunctionResult(
     functionFragment: "AccessController",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "ConfigManager",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "NFTWhitelist",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -92,6 +112,10 @@ export interface ImplementationInterfaceNames extends BaseContract {
   functions: {
     AccessController(overrides?: CallOverrides): Promise<[string]>;
 
+    ConfigManager(overrides?: CallOverrides): Promise<[string]>;
+
+    NFTWhitelist(overrides?: CallOverrides): Promise<[string]>;
+
     RaffleFactory(overrides?: CallOverrides): Promise<[string]>;
 
     RandomProvider(overrides?: CallOverrides): Promise<[string]>;
@@ -99,12 +123,20 @@ export interface ImplementationInterfaceNames extends BaseContract {
 
   AccessController(overrides?: CallOverrides): Promise<string>;
 
+  ConfigManager(overrides?: CallOverrides): Promise<string>;
+
+  NFTWhitelist(overrides?: CallOverrides): Promise<string>;
+
   RaffleFactory(overrides?: CallOverrides): Promise<string>;
 
   RandomProvider(overrides?: CallOverrides): Promise<string>;
 
   callStatic: {
     AccessController(overrides?: CallOverrides): Promise<string>;
+
+    ConfigManager(overrides?: CallOverrides): Promise<string>;
+
+    NFTWhitelist(overrides?: CallOverrides): Promise<string>;
 
     RaffleFactory(overrides?: CallOverrides): Promise<string>;
 
@@ -116,6 +148,10 @@ export interface ImplementationInterfaceNames extends BaseContract {
   estimateGas: {
     AccessController(overrides?: CallOverrides): Promise<BigNumber>;
 
+    ConfigManager(overrides?: CallOverrides): Promise<BigNumber>;
+
+    NFTWhitelist(overrides?: CallOverrides): Promise<BigNumber>;
+
     RaffleFactory(overrides?: CallOverrides): Promise<BigNumber>;
 
     RandomProvider(overrides?: CallOverrides): Promise<BigNumber>;
@@ -123,6 +159,10 @@ export interface ImplementationInterfaceNames extends BaseContract {
 
   populateTransaction: {
     AccessController(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    ConfigManager(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    NFTWhitelist(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     RaffleFactory(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 

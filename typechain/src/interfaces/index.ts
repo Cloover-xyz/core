@@ -2,7 +2,9 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { IAccessController } from "./IAccessController";
+export type { IConfigManager } from "./IConfigManager";
 export type { IImplementationManager } from "./IImplementationManager";
+export type { INFTCollectionWhitelist } from "./INFTCollectionWhitelist";
 export type { IRaffle } from "./IRaffle";
 export type { IRaffleFactory } from "./IRaffleFactory";
 export type { IRandomProvider } from "./IRandomProvider";
