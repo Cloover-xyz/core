@@ -73,9 +73,17 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.AccessController__factory>;
     getContractFactory(
+      name: "ConfigManager",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ConfigManager__factory>;
+    getContractFactory(
       name: "ImplementationManager",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ImplementationManager__factory>;
+    getContractFactory(
+      name: "NFTCollectionWhitelist",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.NFTCollectionWhitelist__factory>;
     getContractFactory(
       name: "RandomProvider",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -85,9 +93,17 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IAccessController__factory>;
     getContractFactory(
+      name: "IConfigManager",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IConfigManager__factory>;
+    getContractFactory(
       name: "IImplementationManager",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IImplementationManager__factory>;
+    getContractFactory(
+      name: "INFTCollectionWhitelist",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.INFTCollectionWhitelist__factory>;
     getContractFactory(
       name: "IRaffle",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -205,10 +221,20 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.AccessController>;
     getContractAt(
+      name: "ConfigManager",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ConfigManager>;
+    getContractAt(
       name: "ImplementationManager",
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.ImplementationManager>;
+    getContractAt(
+      name: "NFTCollectionWhitelist",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.NFTCollectionWhitelist>;
     getContractAt(
       name: "RandomProvider",
       address: string,
@@ -220,10 +246,20 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.IAccessController>;
     getContractAt(
+      name: "IConfigManager",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IConfigManager>;
+    getContractAt(
       name: "IImplementationManager",
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.IImplementationManager>;
+    getContractAt(
+      name: "INFTCollectionWhitelist",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.INFTCollectionWhitelist>;
     getContractAt(
       name: "IRaffle",
       address: string,

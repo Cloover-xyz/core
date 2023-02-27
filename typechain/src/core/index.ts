@@ -2,5 +2,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { AccessController } from "./AccessController";
+export type { ConfigManager } from "./ConfigManager";
 export type { ImplementationManager } from "./ImplementationManager";
+export type { NFTCollectionWhitelist } from "./NFTCollectionWhitelist";
 export type { RandomProvider } from "./RandomProvider";

@@ -135,7 +135,7 @@ const _abi = [
           },
         ],
         internalType: "struct RaffleDataTypes.InitRaffleParams",
-        name: "_params",
+        name: "params",
         type: "tuple",
       },
     ],
