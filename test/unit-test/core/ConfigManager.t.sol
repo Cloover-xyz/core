@@ -83,6 +83,18 @@ contract ConfigManagerTest is Test, SetupUsers {
         vm.expectRevert(Errors.WRONG_DURATION_LIMITS.selector);
         configManager = new ConfigManager(implementationManager, data);
     }
+
+    function test_RevertIf_MaxSupplyAllowedIsZero() external {
+        
+        ConfiguratorInputTypes.InitConfigManagerInput memory data = ConfiguratorInputTypes.InitConfigManagerInput(
+            baseFeePercentage,
+            0,
+            baseMinTicketSaleDuration,
+            baseMaxTicketSaleDuration
+        );
+        vm.expectRevert(Errors.CANT_BE_ZERO.selector);
+        configManager = new ConfigManager(implementationManager, data);
+    }
     
     function test_CorrectlySetFeePercentage() external{
         changePrank(maintainer);
