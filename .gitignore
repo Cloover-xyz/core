@@ -15,5 +15,8 @@ docs/
 .env
 
 lcov.info
-
 coverage
+
+# Env setup
+*.DS_Store
+.idea
