@@ -51,20 +51,22 @@ export interface RandomProviderInterface extends utils.Interface {
   functions: {
     "COORDINATOR()": FunctionFragment;
     "chainlinkVRFData()": FunctionFragment;
+    "getRaffleFactory()": FunctionFragment;
     "implementationManager()": FunctionFragment;
     "rawFulfillRandomWords(uint256,uint256[])": FunctionFragment;
-    "requestIdToAddress(uint256)": FunctionFragment;
-    "requestRandomNumber()": FunctionFragment;
+    "requestIdToCaller(uint256)": FunctionFragment;
+    "requestRandomNumbers(uint32)": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
       | "COORDINATOR"
       | "chainlinkVRFData"
+      | "getRaffleFactory"
       | "implementationManager"
       | "rawFulfillRandomWords"
-      | "requestIdToAddress"
-      | "requestRandomNumber"
+      | "requestIdToCaller"
+      | "requestRandomNumbers"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -76,6 +78,10 @@ export interface RandomProviderInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "getRaffleFactory",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "implementationManager",
     values?: undefined
   ): string;
@@ -84,12 +90,12 @@ export interface RandomProviderInterface extends utils.Interface {
     values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>[]]
   ): string;
   encodeFunctionData(
-    functionFragment: "requestIdToAddress",
+    functionFragment: "requestIdToCaller",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
-    functionFragment: "requestRandomNumber",
-    values?: undefined
+    functionFragment: "requestRandomNumbers",
+    values: [PromiseOrValue<BigNumberish>]
   ): string;
 
   decodeFunctionResult(
@@ -101,6 +107,10 @@ export interface RandomProviderInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "getRaffleFactory",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "implementationManager",
     data: BytesLike
   ): Result;
@@ -109,11 +119,11 @@ export interface RandomProviderInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "requestIdToAddress",
+    functionFragment: "requestIdToCaller",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "requestRandomNumber",
+    functionFragment: "requestRandomNumbers",
     data: BytesLike
   ): Result;
 
@@ -161,6 +171,8 @@ export interface RandomProvider extends BaseContract {
       }
     >;
 
+    getRaffleFactory(overrides?: CallOverrides): Promise<[string]>;
+
     implementationManager(overrides?: CallOverrides): Promise<[string]>;
 
     rawFulfillRandomWords(
@@ -169,12 +181,13 @@ export interface RandomProvider extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    requestIdToAddress(
+    requestIdToCaller(
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<[string]>;
 
-    requestRandomNumber(
+    requestRandomNumbers(
+      numWords: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
@@ -193,6 +206,8 @@ export interface RandomProvider extends BaseContract {
     }
   >;
 
+  getRaffleFactory(overrides?: CallOverrides): Promise<string>;
+
   implementationManager(overrides?: CallOverrides): Promise<string>;
 
   rawFulfillRandomWords(
@@ -201,12 +216,13 @@ export interface RandomProvider extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  requestIdToAddress(
+  requestIdToCaller(
     arg0: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<string>;
 
-  requestRandomNumber(
+  requestRandomNumbers(
+    numWords: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -225,6 +241,8 @@ export interface RandomProvider extends BaseContract {
       }
     >;
 
+    getRaffleFactory(overrides?: CallOverrides): Promise<string>;
+
     implementationManager(overrides?: CallOverrides): Promise<string>;
 
     rawFulfillRandomWords(
@@ -233,12 +251,15 @@ export interface RandomProvider extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    requestIdToAddress(
+    requestIdToCaller(
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<string>;
 
-    requestRandomNumber(overrides?: CallOverrides): Promise<void>;
+    requestRandomNumbers(
+      numWords: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
   };
 
   filters: {};
@@ -248,6 +269,8 @@ export interface RandomProvider extends BaseContract {
 
     chainlinkVRFData(overrides?: CallOverrides): Promise<BigNumber>;
 
+    getRaffleFactory(overrides?: CallOverrides): Promise<BigNumber>;
+
     implementationManager(overrides?: CallOverrides): Promise<BigNumber>;
 
     rawFulfillRandomWords(
@@ -256,12 +279,13 @@ export interface RandomProvider extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    requestIdToAddress(
+    requestIdToCaller(
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    requestRandomNumber(
+    requestRandomNumbers(
+      numWords: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
@@ -270,6 +294,8 @@ export interface RandomProvider extends BaseContract {
     COORDINATOR(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     chainlinkVRFData(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    getRaffleFactory(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     implementationManager(
       overrides?: CallOverrides
@@ -281,12 +307,13 @@ export interface RandomProvider extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    requestIdToAddress(
+    requestIdToCaller(
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    requestRandomNumber(
+    requestRandomNumbers(
+      numWords: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

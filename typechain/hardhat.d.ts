@@ -93,6 +93,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IRaffle__factory>;
     getContractFactory(
+      name: "IRaffleFactory",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IRaffleFactory__factory>;
+    getContractFactory(
       name: "IRandomProvider",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IRandomProvider__factory>;
@@ -120,6 +124,10 @@ declare module "hardhat/types/runtime" {
       name: "Raffle",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Raffle__factory>;
+    getContractFactory(
+      name: "RaffleFactory",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.RaffleFactory__factory>;
 
     getContractAt(
       name: "VRFCoordinatorV2Interface",
@@ -222,6 +230,11 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.IRaffle>;
     getContractAt(
+      name: "IRaffleFactory",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IRaffleFactory>;
+    getContractAt(
       name: "IRandomProvider",
       address: string,
       signer?: ethers.Signer
@@ -256,6 +269,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.Raffle>;
+    getContractAt(
+      name: "RaffleFactory",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.RaffleFactory>;
 
     // default types
     getContractFactory(

@@ -4,6 +4,7 @@
 import type {
   BaseContract,
   BigNumber,
+  BigNumberish,
   BytesLike,
   CallOverrides,
   ContractTransaction,
@@ -24,31 +25,81 @@ import type {
 
 export interface MockRandomProviderInterface extends utils.Interface {
   functions: {
-    "requestRandomNumber()": FunctionFragment;
-    "requestRandomNumberReturnZero()": FunctionFragment;
+    "callerToRequestId(address)": FunctionFragment;
+    "generateRandomNumbers(uint256)": FunctionFragment;
+    "implementationManager()": FunctionFragment;
+    "requestIdToCaller(uint256)": FunctionFragment;
+    "requestIdToNumWords(uint256)": FunctionFragment;
+    "requestRandomNumberReturnZero(uint256)": FunctionFragment;
+    "requestRandomNumbers(uint32)": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
-      | "requestRandomNumber"
+      | "callerToRequestId"
+      | "generateRandomNumbers"
+      | "implementationManager"
+      | "requestIdToCaller"
+      | "requestIdToNumWords"
       | "requestRandomNumberReturnZero"
+      | "requestRandomNumbers"
   ): FunctionFragment;
 
   encodeFunctionData(
-    functionFragment: "requestRandomNumber",
+    functionFragment: "callerToRequestId",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "generateRandomNumbers",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "implementationManager",
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "requestIdToCaller",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "requestIdToNumWords",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "requestRandomNumberReturnZero",
-    values?: undefined
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "requestRandomNumbers",
+    values: [PromiseOrValue<BigNumberish>]
   ): string;
 
   decodeFunctionResult(
-    functionFragment: "requestRandomNumber",
+    functionFragment: "callerToRequestId",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "generateRandomNumbers",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "implementationManager",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "requestIdToCaller",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "requestIdToNumWords",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "requestRandomNumberReturnZero",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "requestRandomNumbers",
     data: BytesLike
   ): Result;
 
@@ -82,47 +133,173 @@ export interface MockRandomProvider extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    requestRandomNumber(
+    callerToRequestId(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    generateRandomNumbers(
+      requestId: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    implementationManager(overrides?: CallOverrides): Promise<[string]>;
+
+    requestIdToCaller(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
+    requestIdToNumWords(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
     requestRandomNumberReturnZero(
+      requestId: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    requestRandomNumbers(
+      numWords: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
 
-  requestRandomNumber(
+  callerToRequestId(
+    arg0: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  generateRandomNumbers(
+    requestId: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  implementationManager(overrides?: CallOverrides): Promise<string>;
+
+  requestIdToCaller(
+    arg0: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
+  requestIdToNumWords(
+    arg0: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
   requestRandomNumberReturnZero(
+    requestId: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  requestRandomNumbers(
+    numWords: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    requestRandomNumber(overrides?: CallOverrides): Promise<void>;
+    callerToRequestId(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
-    requestRandomNumberReturnZero(overrides?: CallOverrides): Promise<void>;
+    generateRandomNumbers(
+      requestId: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    implementationManager(overrides?: CallOverrides): Promise<string>;
+
+    requestIdToCaller(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    requestIdToNumWords(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    requestRandomNumberReturnZero(
+      requestId: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    requestRandomNumbers(
+      numWords: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
   };
 
   filters: {};
 
   estimateGas: {
-    requestRandomNumber(
+    callerToRequestId(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    generateRandomNumbers(
+      requestId: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    implementationManager(overrides?: CallOverrides): Promise<BigNumber>;
+
+    requestIdToCaller(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    requestIdToNumWords(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     requestRandomNumberReturnZero(
+      requestId: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    requestRandomNumbers(
+      numWords: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    requestRandomNumber(
+    callerToRequestId(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    generateRandomNumbers(
+      requestId: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    implementationManager(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    requestIdToCaller(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    requestIdToNumWords(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     requestRandomNumberReturnZero(
+      requestId: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    requestRandomNumbers(
+      numWords: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

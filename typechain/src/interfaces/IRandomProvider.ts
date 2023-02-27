@@ -4,6 +4,7 @@
 import type {
   BaseContract,
   BigNumber,
+  BigNumberish,
   BytesLike,
   CallOverrides,
   ContractTransaction,
@@ -24,18 +25,18 @@ import type {
 
 export interface IRandomProviderInterface extends utils.Interface {
   functions: {
-    "requestRandomNumber()": FunctionFragment;
+    "requestRandomNumbers(uint32)": FunctionFragment;
   };
 
-  getFunction(nameOrSignatureOrTopic: "requestRandomNumber"): FunctionFragment;
+  getFunction(nameOrSignatureOrTopic: "requestRandomNumbers"): FunctionFragment;
 
   encodeFunctionData(
-    functionFragment: "requestRandomNumber",
-    values?: undefined
+    functionFragment: "requestRandomNumbers",
+    values: [PromiseOrValue<BigNumberish>]
   ): string;
 
   decodeFunctionResult(
-    functionFragment: "requestRandomNumber",
+    functionFragment: "requestRandomNumbers",
     data: BytesLike
   ): Result;
 
@@ -69,29 +70,36 @@ export interface IRandomProvider extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    requestRandomNumber(
+    requestRandomNumbers(
+      numWords: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
 
-  requestRandomNumber(
+  requestRandomNumbers(
+    numWords: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    requestRandomNumber(overrides?: CallOverrides): Promise<void>;
+    requestRandomNumbers(
+      numWords: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
   };
 
   filters: {};
 
   estimateGas: {
-    requestRandomNumber(
+    requestRandomNumbers(
+      numWords: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    requestRandomNumber(
+    requestRandomNumbers(
+      numWords: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

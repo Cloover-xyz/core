@@ -1,0 +1,94 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "IRaffleFactory",
+  "sourceName": "src/interfaces/IRaffleFactory.sol",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address[]",
+          "name": "_raffleContracts",
+          "type": "address[]"
+        }
+      ],
+      "name": "batchRaffleDrawnTickets",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "contract IERC20",
+              "name": "purchaseCurrency",
+              "type": "address"
+            },
+            {
+              "internalType": "contract IERC721",
+              "name": "nftContract",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "nftId",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "maxTicketSupply",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "ticketPrice",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint64",
+              "name": "ticketSaleDuration",
+              "type": "uint64"
+            }
+          ],
+          "internalType": "struct IRaffleFactory.Params",
+          "name": "_params",
+          "type": "tuple"
+        }
+      ],
+      "name": "createNewRaffle",
+      "outputs": [
+        {
+          "internalType": "contract Raffle",
+          "name": "newRaffle",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_raffleAddress",
+          "type": "address"
+        }
+      ],
+      "name": "isRegisteredRaffle",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}

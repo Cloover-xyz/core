@@ -12,6 +12,11 @@ import type {
 const _abi = [
   {
     inputs: [],
+    name: "ARRAYS_LENGTH_NOT_EQUAL",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "BE_ADDRESS_0",
     type: "error",
   },
@@ -57,6 +62,11 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "NOT_NFT_OWNER",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "NOT_RAFFLE_CONTRACT",
     type: "error",
   },
@@ -82,13 +92,18 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "TICKET_DRAWN_NOT_REQUESTED",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "TICKET_NOT_DRAWN",
     type: "error",
   },
 ] as const;
 
 const _bytecode =
-  "0x60566037600b82828239805160001a607314602a57634e487b7160e01b600052600060045260246000fd5b30600052607381538281f3fe73000000000000000000000000000000000000000030146080604052600080fdfea2646970667358221220634174cc68e5f6775d53c41da5a82b648ec1e30b2b51437ddb5a9d7d9d3a3bcb64736f6c63430008110033";
+  "0x60566037600b82828239805160001a607314602a57634e487b7160e01b600052600060045260246000fd5b30600052607381538281f3fe73000000000000000000000000000000000000000030146080604052600080fdfea2646970667358221220fe115bffa1605d3aee93ac7a5b01add5f298d42204e914511eaa00ac5c3d846d64736f6c63430008110033";
 
 type ErrorsConstructorParams =
   | [signer?: Signer]
