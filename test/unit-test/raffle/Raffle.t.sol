@@ -21,11 +21,13 @@ import {RaffleDataTypes} from "../../../src/raffle/RaffleDataTypes.sol";
 import {Errors} from "../../../src/libraries/helpers/Errors.sol";
 import {ImplementationInterfaceNames} from "../../../src/libraries/helpers/ImplementationInterfaceNames.sol";
 import {ConfiguratorInputTypes} from "../../../src/libraries/types/ConfiguratorInputTypes.sol";
+import {PercentageMath} from "../../../src/libraries/math/PercentageMath.sol";
 
 import {SetupUsers} from "../../utils/SetupUsers.sol";
 
 contract RaffleTest is Test, SetupUsers {
 
+       using PercentageMath for uint;
     MockERC20  mockERC20;
     MockERC721 mockERC721;
     MockRandomProvider mockRamdomProvider;
@@ -85,6 +87,10 @@ contract RaffleTest is Test, SetupUsers {
        implementationManager.changeImplementationAddress(
               ImplementationInterfaceNames.RandomProvider,
               address(mockRamdomProvider)
+       );
+       implementationManager.changeImplementationAddress(
+              ImplementationInterfaceNames.Treasury,
+              admin
        );
        nftCollectionWhitelist.addToWhitelist(address(mockERC721), admin);
       
@@ -446,8 +452,11 @@ contract RaffleTest is Test, SetupUsers {
           mockRamdomProvider.generateRandomNumbers(requestId);
           changePrank(alice);
           uint256 aliceBalanceBefore = mockERC20.balanceOf(alice);
+          uint256 treasuryBalanceBefore = mockERC20.balanceOf(admin);
+          uint256 totalSalesAmount = 2e7;
           raffle.claimTicketSalesAmount();
-          assertEq(mockERC20.balanceOf(alice), aliceBalanceBefore + 2e7);
+          assertEq(mockERC20.balanceOf(admin), aliceBalanceBefore + totalSalesAmount.percentMul(FEE_PERCENTAGE));
+          assertEq(mockERC20.balanceOf(alice), treasuryBalanceBefore + totalSalesAmount - totalSalesAmount.percentMul(FEE_PERCENTAGE));
           assertEq(mockERC20.balanceOf(address(raffle)), 0);
    }
 

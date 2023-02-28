@@ -7,6 +7,7 @@ import {IERC721} from "openzeppelin-contracts/contracts/token/ERC721/IERC721.sol
 
 import {ImplementationInterfaceNames} from "../libraries/helpers/ImplementationInterfaceNames.sol";
 import {Errors} from "../libraries/helpers/Errors.sol";
+import {PercentageMath} from "../libraries/math/PercentageMath.sol";
 
 import {IRaffle} from "../interfaces/IRaffle.sol";
 import {IRandomProvider} from "../interfaces/IRandomProvider.sol";
@@ -17,6 +18,8 @@ import {RaffleDataTypes} from "./RaffleDataTypes.sol";
 
  
 contract Raffle is IRaffle, Initializable {
+
+    using PercentageMath for uint;
 
     //----------------------------------------
     // Storage
@@ -144,9 +147,13 @@ contract Raffle is IRaffle, Initializable {
     /// @inheritdoc IRaffle
     function claimTicketSalesAmount() external override ticketSalesClose() ticketHasBeDrawn(){
         if(msg.sender != creator()) revert Errors.NOT_CREATOR();
-        uint256 amount = _globalData.purchaseCurrency.balanceOf(address(this));
-        _globalData.purchaseCurrency.transfer(msg.sender, amount);
-        emit CreatorClaimTicketSalesAmount(address(this), msg.sender, amount);
+        IConfigManager configManager = IConfigManager(_globalData.implementationManager.getImplementationAddress(ImplementationInterfaceNames.ConfigManager));
+        uint256 ticketSalesAmount = _globalData.purchaseCurrency.balanceOf(address(this));
+        uint256 treasuryFeesAmount = ticketSalesAmount.percentMul(configManager.procolFeesPercentage());
+        uint256 creatorAmount = ticketSalesAmount-treasuryFeesAmount;
+        _globalData.purchaseCurrency.transfer(_globalData.implementationManager.getImplementationAddress(ImplementationInterfaceNames.Treasury), treasuryFeesAmount);
+        _globalData.purchaseCurrency.transfer(msg.sender, creatorAmount);
+        emit CreatorClaimTicketSalesAmount(address(this), msg.sender, creatorAmount);
     }
 
     /// @inheritdoc IRaffle
@@ -209,7 +216,7 @@ contract Raffle is IRaffle, Initializable {
         return _ticketOwner[id];
     }
 
-   /// @inheritdoc IRaffle
+    /// @inheritdoc IRaffle
     function randomProvider() public override view returns(address){
         return _globalData.implementationManager.getImplementationAddress(ImplementationInterfaceNames.RandomProvider);
     }
