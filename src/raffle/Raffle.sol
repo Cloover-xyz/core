@@ -22,8 +22,6 @@ contract Raffle is IRaffle, Initializable {
     // Storage
     //----------------------------------------
 
-    uint32 constant MIN_SALE_DURATION = 86400; // 1 days
-
     // Mapping from ticket ID to owner address
     mapping(uint256 => address) internal _ticketOwner;
 
