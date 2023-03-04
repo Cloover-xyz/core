@@ -13,20 +13,26 @@ import {MockERC721} from "../../../src/mocks/MockERC721.sol";
 import {AccessController} from "../../../src/core/AccessController.sol";
 import {ImplementationManager} from "../../../src/core/ImplementationManager.sol";
 import {NFTCollectionWhitelist} from "../../../src/core/NFTCollectionWhitelist.sol";
+import {ConfigManager} from "../../../src/core/ConfigManager.sol";
 
 import {Raffle} from "../../../src/raffle/Raffle.sol";
 import {RaffleDataTypes} from "../../../src/raffle/RaffleDataTypes.sol";
 
 import {Errors} from "../../../src/libraries/helpers/Errors.sol";
 import {ImplementationInterfaceNames} from "../../../src/libraries/helpers/ImplementationInterfaceNames.sol";
+import {ConfiguratorInputTypes} from "../../../src/libraries/types/ConfiguratorInputTypes.sol";
+import {PercentageMath} from "../../../src/libraries/math/PercentageMath.sol";
 
 import {SetupUsers} from "../../utils/SetupUsers.sol";
 
 contract RaffleTest is Test, SetupUsers {
 
+       using PercentageMath for uint;
     MockERC20  mockERC20;
     MockERC721 mockERC721;
     MockRandomProvider mockRamdomProvider;
+    ConfigManager configManager;
+
 
     Raffle raffle;
     ImplementationManager implementationManager;
@@ -36,8 +42,12 @@ contract RaffleTest is Test, SetupUsers {
     uint256 maxTicketSupply = 10;
     uint256 nftId = 1;
     uint256 ticketPrice = 1e7; // 10
-    uint64 ticketSaleDuration = 24*60*60;
-    uint32 MIN_SALE_DURATION = 1 days;
+    uint64 ticketSaleDuration = 1 days;
+
+    uint256 MIN_SALE_DURATION = 1 days;
+    uint256 MAX_SALE_DURATION = 2 weeks;
+    uint256 MAX_TICKET_SUPPLY = 10000;
+    uint256 FEE_PERCENTAGE = 1e2;
 
     function setUp() public virtual override {
        SetupUsers.setUp();
@@ -51,6 +61,14 @@ contract RaffleTest is Test, SetupUsers {
        accessController = new AccessController(maintainer);
        implementationManager = new ImplementationManager(address(accessController));
        nftCollectionWhitelist = new NFTCollectionWhitelist(implementationManager);
+       
+       ConfiguratorInputTypes.InitConfigManagerInput memory configData = ConfiguratorInputTypes.InitConfigManagerInput(
+            FEE_PERCENTAGE,
+            MAX_TICKET_SUPPLY,
+            MIN_SALE_DURATION,
+            MAX_SALE_DURATION
+        );
+       configManager = new ConfigManager(implementationManager, configData);
 
        mockRamdomProvider = new MockRandomProvider(implementationManager);
        changePrank(maintainer);
@@ -59,6 +77,10 @@ contract RaffleTest is Test, SetupUsers {
          deployer
       );
        implementationManager.changeImplementationAddress(
+              ImplementationInterfaceNames.ConfigManager,
+              address(configManager)
+       );
+       implementationManager.changeImplementationAddress(
               ImplementationInterfaceNames.NFTWhitelist,
               address(nftCollectionWhitelist)
        );
@@ -66,10 +88,14 @@ contract RaffleTest is Test, SetupUsers {
               ImplementationInterfaceNames.RandomProvider,
               address(mockRamdomProvider)
        );
+       implementationManager.changeImplementationAddress(
+              ImplementationInterfaceNames.Treasury,
+              admin
+       );
        nftCollectionWhitelist.addToWhitelist(address(mockERC721), admin);
       
        raffle = new Raffle();
-       RaffleDataTypes.InitRaffleParams memory data = RaffleDataTypes.InitRaffleParams(
+       RaffleDataTypes.InitRaffleParams memory raffleData = RaffleDataTypes.InitRaffleParams(
               implementationManager,
               mockERC20,
               mockERC721,
@@ -81,7 +107,7 @@ contract RaffleTest is Test, SetupUsers {
        );
        changePrank(alice);
        mockERC721.transferFrom(alice, address(raffle), nftId);
-       raffle.initialize(data);
+       raffle.initialize(raffleData);
        
     }
 
@@ -202,7 +228,21 @@ contract RaffleTest is Test, SetupUsers {
        vm.expectRevert(Errors.CANT_BE_ZERO.selector);
        newRaffle.initialize(data);
 
-       // ticketSaleDuration == 0
+       // maxTicketSupply > maxTicketSupplyAllowed
+       data = RaffleDataTypes.InitRaffleParams(
+              implementationManager,
+              mockERC20,
+              mockERC721,
+              alice,
+              2,
+              MAX_TICKET_SUPPLY+1,
+              ticketPrice,
+              ticketSaleDuration
+       );
+       vm.expectRevert(Errors.EXCEED_MAX_VALUE_ALLOWED.selector);
+       newRaffle.initialize(data);
+
+       // ticketSaleDuration < minTicketSalesDuration
        data = RaffleDataTypes.InitRaffleParams(
               implementationManager,
               mockERC20,
@@ -211,9 +251,23 @@ contract RaffleTest is Test, SetupUsers {
               2,
               maxTicketSupply,
               ticketPrice,
-              0
+              uint64(MIN_SALE_DURATION) - 1
        );
-       vm.expectRevert(Errors.BELLOW_MIN_DURATION.selector);
+       vm.expectRevert(Errors.OUT_OF_RANGE.selector);
+       newRaffle.initialize(data);
+
+       // ticketSaleDuration > maxTicketSalesDuration
+       data = RaffleDataTypes.InitRaffleParams(
+              implementationManager,
+              mockERC20,
+              mockERC721,
+              alice,
+              2,
+              maxTicketSupply,
+              ticketPrice,
+              uint64(MAX_SALE_DURATION) + 1
+       );
+       vm.expectRevert(Errors.OUT_OF_RANGE.selector);
        newRaffle.initialize(data);
 
    }
@@ -398,8 +452,11 @@ contract RaffleTest is Test, SetupUsers {
           mockRamdomProvider.generateRandomNumbers(requestId);
           changePrank(alice);
           uint256 aliceBalanceBefore = mockERC20.balanceOf(alice);
+          uint256 treasuryBalanceBefore = mockERC20.balanceOf(admin);
+          uint256 totalSalesAmount = 2e7;
           raffle.claimTicketSalesAmount();
-          assertEq(mockERC20.balanceOf(alice), aliceBalanceBefore + 2e7);
+          assertEq(mockERC20.balanceOf(admin), aliceBalanceBefore + totalSalesAmount.percentMul(FEE_PERCENTAGE));
+          assertEq(mockERC20.balanceOf(alice), treasuryBalanceBefore + totalSalesAmount - totalSalesAmount.percentMul(FEE_PERCENTAGE));
           assertEq(mockERC20.balanceOf(address(raffle)), 0);
    }
 

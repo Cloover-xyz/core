@@ -13,6 +13,7 @@ import {MockRandomProvider} from "../../../src/mocks/MockRandomProvider.sol";
 import {AccessController} from "../../../src/core/AccessController.sol";
 import {ImplementationManager} from "../../../src/core/ImplementationManager.sol";
 import {NFTCollectionWhitelist} from "../../../src/core/NFTCollectionWhitelist.sol";
+import {ConfigManager} from "../../../src/core/ConfigManager.sol";
 
 import {Raffle} from "../../../src/raffle/Raffle.sol";
 import {RaffleFactory} from "../../../src/raffle/RaffleFactory.sol";
@@ -21,6 +22,7 @@ import {IRaffleFactory} from "../../../src/interfaces/IRaffleFactory.sol";
 
 import {Errors} from "../../../src/libraries/helpers/Errors.sol";
 import {ImplementationInterfaceNames} from "../../../src/libraries/helpers/ImplementationInterfaceNames.sol";
+import {ConfiguratorInputTypes} from "../../../src/libraries/types/ConfiguratorInputTypes.sol";
 
 import {SetupUsers} from "../../utils/SetupUsers.sol";
 
@@ -35,14 +37,19 @@ contract RaffleFactoryTest is Test, SetupUsers {
     ImplementationManager implementationManager;
     NFTCollectionWhitelist nftCollectionWhitelist;
     AccessController accessController;
+    ConfigManager configManager;
     
     uint256 maxTicketSupply = 10;
     uint256 nftIdOne = 1;
     uint256 nftIdTwo = 2;
     
     uint256 ticketPrice = 1e7; // 10
-    uint64 ticketSaleDuration = 24*60*60;
+    uint64 ticketSaleDuration = 1 days;
     
+   uint256 MIN_SALE_DURATION = 1 days;
+   uint256 MAX_SALE_DURATION = 2 weeks;
+   uint256 MAX_TICKET_SUPPLY = 10000;
+   uint256 FEE_PERCENTAGE = 1e2;
     function setUp() public virtual override {
       SetupUsers.setUp();
 
@@ -58,8 +65,19 @@ contract RaffleFactoryTest is Test, SetupUsers {
       nftCollectionWhitelist = new NFTCollectionWhitelist(implementationManager);
       factory = new RaffleFactory(implementationManager);
       mockRamdomProvider = new MockRandomProvider(implementationManager);
-      
+             
+      ConfiguratorInputTypes.InitConfigManagerInput memory configData = ConfiguratorInputTypes.InitConfigManagerInput(
+         FEE_PERCENTAGE,
+         MAX_TICKET_SUPPLY,
+         MIN_SALE_DURATION,
+         MAX_SALE_DURATION
+      );
+      configManager = new ConfigManager(implementationManager, configData);
       changePrank(maintainer);
+      implementationManager.changeImplementationAddress(
+         ImplementationInterfaceNames.ConfigManager,
+         address(configManager)
+      );
       implementationManager.changeImplementationAddress(
          ImplementationInterfaceNames.RaffleFactory,
          address(factory)

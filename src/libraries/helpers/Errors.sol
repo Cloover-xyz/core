@@ -29,7 +29,9 @@ library Errors {
     error BELLOW_MIN_DURATION(); //'Ticket sales duration must be higher than min defined'
     error ABOVE_MAX_DURATION(); //'Ticket sales duration must be lower than max defined'
     error EXCEED_MAX_PERCENTAGE(); //'Percentage value must be lower than max allowed'
+    error EXCEED_MAX_VALUE_ALLOWED(); //'Value must be lower than max allowed'
     error WRONG_DURATION_LIMITS(); //'The min duration must be lower than the max one'
+    error OUT_OF_RANGE(); //'The value is not in the allowed range'
 }
 
  
