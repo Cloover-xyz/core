@@ -8,3 +8,4 @@ export { INFTCollectionWhitelist__factory } from "./INFTCollectionWhitelist__fac
 export { IRaffle__factory } from "./IRaffle__factory";
 export { IRaffleFactory__factory } from "./IRaffleFactory__factory";
 export { IRandomProvider__factory } from "./IRandomProvider__factory";
+export { ITokenWhitelist__factory } from "./ITokenWhitelist__factory";

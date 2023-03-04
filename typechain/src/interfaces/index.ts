@@ -8,3 +8,4 @@ export type { INFTCollectionWhitelist } from "./INFTCollectionWhitelist";
 export type { IRaffle } from "./IRaffle";
 export type { IRaffleFactory } from "./IRaffleFactory";
 export type { IRandomProvider } from "./IRandomProvider";
+export type { ITokenWhitelist } from "./ITokenWhitelist";

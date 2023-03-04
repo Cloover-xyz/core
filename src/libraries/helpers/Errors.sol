@@ -26,6 +26,8 @@ library Errors {
     error ARRAYS_LENGTH_NOT_EQUAL(); // 'Arrays doesn't have the same size'
     error COLLECTION_ALREADY_WHITELISTED(); //'NFT collection already whitelisted'
     error COLLECTION_NOT_WHITELISTED(); //'NFT collection not whitelisted'
+    error TOKEN_ALREADY_WHITELISTED(); //'Token already whitelisted'
+    error TOKEN_NOT_WHITELISTED(); //'Token not whitelisted'
     error BELLOW_MIN_DURATION(); //'Ticket sales duration must be higher than min defined'
     error ABOVE_MAX_DURATION(); //'Ticket sales duration must be lower than max defined'
     error EXCEED_MAX_PERCENTAGE(); //'Percentage value must be lower than max allowed'

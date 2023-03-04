@@ -13,6 +13,7 @@ import {MockERC721} from "../../../src/mocks/MockERC721.sol";
 import {AccessController} from "../../../src/core/AccessController.sol";
 import {ImplementationManager} from "../../../src/core/ImplementationManager.sol";
 import {NFTCollectionWhitelist} from "../../../src/core/NFTCollectionWhitelist.sol";
+import {TokenWhitelist} from "../../../src/core/TokenWhitelist.sol";
 import {ConfigManager} from "../../../src/core/ConfigManager.sol";
 
 import {Raffle} from "../../../src/raffle/Raffle.sol";
@@ -37,6 +38,7 @@ contract RaffleTest is Test, SetupUsers {
     Raffle raffle;
     ImplementationManager implementationManager;
     NFTCollectionWhitelist nftCollectionWhitelist;
+    TokenWhitelist tokenWhitelist;
     AccessController accessController;
     
     uint256 maxTicketSupply = 10;
@@ -61,6 +63,7 @@ contract RaffleTest is Test, SetupUsers {
        accessController = new AccessController(maintainer);
        implementationManager = new ImplementationManager(address(accessController));
        nftCollectionWhitelist = new NFTCollectionWhitelist(implementationManager);
+       tokenWhitelist = new TokenWhitelist(implementationManager);
        
        ConfiguratorInputTypes.InitConfigManagerInput memory configData = ConfiguratorInputTypes.InitConfigManagerInput(
             FEE_PERCENTAGE,
@@ -85,6 +88,10 @@ contract RaffleTest is Test, SetupUsers {
               address(nftCollectionWhitelist)
        );
        implementationManager.changeImplementationAddress(
+              ImplementationInterfaceNames.TokenWhitelist,
+              address(tokenWhitelist)
+       );
+       implementationManager.changeImplementationAddress(
               ImplementationInterfaceNames.RandomProvider,
               address(mockRamdomProvider)
        );
@@ -93,6 +100,7 @@ contract RaffleTest is Test, SetupUsers {
               admin
        );
        nftCollectionWhitelist.addToWhitelist(address(mockERC721), admin);
+       tokenWhitelist.addToWhitelist(address(mockERC20));
       
        raffle = new Raffle();
        RaffleDataTypes.InitRaffleParams memory raffleData = RaffleDataTypes.InitRaffleParams(
@@ -171,7 +179,7 @@ contract RaffleTest is Test, SetupUsers {
        vm.expectRevert(Errors.NOT_ADDRESS_0.selector);
        newRaffle.initialize(data);
 
-       //Currency == address(0)
+       //Currency not whitelisted
        data = RaffleDataTypes.InitRaffleParams(
               implementationManager,
               MockERC20(address(0)),
@@ -182,7 +190,7 @@ contract RaffleTest is Test, SetupUsers {
               ticketPrice,
               ticketSaleDuration
        );
-       vm.expectRevert(Errors.NOT_ADDRESS_0.selector);
+       vm.expectRevert(Errors.TOKEN_NOT_WHITELISTED.selector);
        newRaffle.initialize(data);
 
        //NFT not whitelisted

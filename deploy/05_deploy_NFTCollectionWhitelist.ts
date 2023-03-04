@@ -16,7 +16,7 @@ const func: DeployFunction = async function ({
 
   const args: unknown[] = [ImplementationManager.address];
 
-  const NFTCollectionWhitelist = await deploy("RaffleFactory", {
+  const NFTCollectionWhitelist = await deploy("NFTCollectionWhitelist", {
     from: deployer,
     args,
     log: true,

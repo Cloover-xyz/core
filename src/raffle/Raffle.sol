@@ -12,6 +12,7 @@ import {PercentageMath} from "../libraries/math/PercentageMath.sol";
 import {IRaffle} from "../interfaces/IRaffle.sol";
 import {IRandomProvider} from "../interfaces/IRandomProvider.sol";
 import {INFTCollectionWhitelist} from "../interfaces/INFTCollectionWhitelist.sol";
+import {ITokenWhitelist} from "../interfaces/ITokenWhitelist.sol";
 import {IConfigManager} from "../interfaces/IConfigManager.sol";
 
 import {RaffleDataTypes} from "./RaffleDataTypes.sol";
@@ -231,7 +232,8 @@ contract Raffle is IRaffle, Initializable {
     */
     function _checkData(RaffleDataTypes.InitRaffleParams memory params) internal view {
         if(address(params.implementationManager) == address(0)) revert Errors.NOT_ADDRESS_0();
-        if(address(params.purchaseCurrency) == address(0)) revert Errors.NOT_ADDRESS_0();
+        address tokenWhitelist = params.implementationManager.getImplementationAddress(ImplementationInterfaceNames.TokenWhitelist);
+        if(!ITokenWhitelist(tokenWhitelist).isWhitelisted(address(params.purchaseCurrency))) revert Errors.TOKEN_NOT_WHITELISTED();
         address nftWhitelist = params.implementationManager.getImplementationAddress(ImplementationInterfaceNames.NFTWhitelist);
         if(!INFTCollectionWhitelist(nftWhitelist).isWhitelisted(address(params.nftContract))) revert Errors.COLLECTION_NOT_WHITELISTED();
         if(params.nftContract.ownerOf(params.nftId) != address(this)) revert Errors.NOT_NFT_OWNER();

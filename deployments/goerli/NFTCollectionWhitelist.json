@@ -1,0 +1,350 @@
+{
+  "address": "0xf6aB0372990d15ade2e42Bd7547E7AA6CC17652C",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "contract IImplementationManager",
+          "name": "_implementationManager",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [],
+      "name": "COLLECTION_ALREADY_WHITELISTED",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "COLLECTION_NOT_WHITELISTED",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "NOT_MAINTAINER",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "addedNftCollection",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "creator",
+          "type": "address"
+        }
+      ],
+      "name": "AddedToWhitelist",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "removedNftCollection",
+          "type": "address"
+        }
+      ],
+      "name": "RemovedFromWhitelist",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newNftCollection",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "creator",
+          "type": "address"
+        }
+      ],
+      "name": "addToWhitelist",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "nftCollection",
+          "type": "address"
+        }
+      ],
+      "name": "getCollectionCreator",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "creator",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getWhitelist",
+      "outputs": [
+        {
+          "internalType": "address[]",
+          "name": "",
+          "type": "address[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "implementationManager",
+      "outputs": [
+        {
+          "internalType": "contract IImplementationManager",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "nftCollectionToCheck",
+          "type": "address"
+        }
+      ],
+      "name": "isWhitelisted",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "nftCollectionToRemove",
+          "type": "address"
+        }
+      ],
+      "name": "removeFromWhitelist",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0x9042a40bd3d542563cec79abd2b24c686dbb2909630a20150970b9d207480e47",
+  "receipt": {
+    "to": null,
+    "from": "0x94e1EBc6464Ff4c0043fF4dD2b8941c655681C44",
+    "contractAddress": "0xf6aB0372990d15ade2e42Bd7547E7AA6CC17652C",
+    "transactionIndex": 147,
+    "gasUsed": "596711",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0x523f292e7bab81cf9907459d9250b7e2f1528f825c4b7e36c442966dbaedf92c",
+    "transactionHash": "0x9042a40bd3d542563cec79abd2b24c686dbb2909630a20150970b9d207480e47",
+    "logs": [],
+    "blockNumber": 8595820,
+    "cumulativeGasUsed": "22943785",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [
+    "0x157d5673250BfD323Bdc6161C6dF767b8E6cC567"
+  ],
+  "numDeployments": 1,
+  "solcInputHash": "c7d477d16723f237a0befe8f99e1b8ab",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"contract IImplementationManager\",\"name\":\"_implementationManager\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[],\"name\":\"COLLECTION_ALREADY_WHITELISTED\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"COLLECTION_NOT_WHITELISTED\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"NOT_MAINTAINER\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"addedNftCollection\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"creator\",\"type\":\"address\"}],\"name\":\"AddedToWhitelist\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"removedNftCollection\",\"type\":\"address\"}],\"name\":\"RemovedFromWhitelist\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newNftCollection\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"creator\",\"type\":\"address\"}],\"name\":\"addToWhitelist\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"nftCollection\",\"type\":\"address\"}],\"name\":\"getCollectionCreator\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"creator\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getWhitelist\",\"outputs\":[{\"internalType\":\"address[]\",\"name\":\"\",\"type\":\"address[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"implementationManager\",\"outputs\":[{\"internalType\":\"contract IImplementationManager\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"nftCollectionToCheck\",\"type\":\"address\"}],\"name\":\"isWhitelisted\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"nftCollectionToRemove\",\"type\":\"address\"}],\"name\":\"removeFromWhitelist\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{\"addToWhitelist(address,address)\":{\"params\":{\"creator\":\"the address of the collection creator.\",\"newNftCollection\":\"the new address to add.\"}},\"getCollectionCreator(address)\":{\"details\":\"used to send royalties part of the raffle.\",\"params\":{\"nftCollection\":\"The address to check.\"},\"returns\":{\"creator\":\"address \"}},\"getWhitelist()\":{\"returns\":{\"_0\":\"The list of addresses on the whitelist.\"}},\"isWhitelisted(address)\":{\"params\":{\"nftCollectionToCheck\":\"The address to check.\"},\"returns\":{\"_0\":\"True if `collateralToCheck` is on the whitelist, or False.\"}},\"removeFromWhitelist(address)\":{\"params\":{\"nftCollectionToRemove\":\"The existing address to remove.\"}}},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"addToWhitelist(address,address)\":{\"notice\":\"Adds an address to the whitelist.\"},\"getCollectionCreator(address)\":{\"notice\":\"Return creator address for a specific nft collection.\"},\"getWhitelist()\":{\"notice\":\"Gets all addresses that are currently included in the whitelist.\"},\"isWhitelisted(address)\":{\"notice\":\"Checks whether an address is on the whitelist.\"},\"removeFromWhitelist(address)\":{\"notice\":\"Removes an address from the whitelist.\"}},\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/core/NFTCollectionWhitelist.sol\":\"NFTCollectionWhitelist\"},\"evmVersion\":\"london\",\"libraries\":{\":__CACHE_BREAKER__\":\"0x0000000000000031363737393336363634363139\"},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"lib/openzeppelin-contracts/contracts/access/IAccessControl.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts v4.4.1 (access/IAccessControl.sol)\\n\\npragma solidity ^0.8.0;\\n\\n/**\\n * @dev External interface of AccessControl declared to support ERC165 detection.\\n */\\ninterface IAccessControl {\\n    /**\\n     * @dev Emitted when `newAdminRole` is set as ``role``'s deployer role, replacing `previousAdminRole`\\n     *\\n     * `DEFAULT_ADMIN_ROLE` is the starting deployer for all roles, despite\\n     * {RoleAdminChanged} not being emitted signaling this.\\n     *\\n     * _Available since v3.1._\\n     */\\n    event RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole);\\n\\n    /**\\n     * @dev Emitted when `account` is granted `role`.\\n     *\\n     * `sender` is the account that originated the contract call, an deployer role\\n     * bearer except when using {AccessControl-_setupRole}.\\n     */\\n    event RoleGranted(bytes32 indexed role, address indexed account, address indexed sender);\\n\\n    /**\\n     * @dev Emitted when `account` is revoked `role`.\\n     *\\n     * `sender` is the account that originated the contract call:\\n     *   - if using `revokeRole`, it is the deployer role bearer\\n     *   - if using `renounceRole`, it is the role bearer (i.e. `account`)\\n     */\\n    event RoleRevoked(bytes32 indexed role, address indexed account, address indexed sender);\\n\\n    /**\\n     * @dev Returns `true` if `account` has been granted `role`.\\n     */\\n    function hasRole(bytes32 role, address account) external view returns (bool);\\n\\n    /**\\n     * @dev Returns the deployer role that controls `role`. See {grantRole} and\\n     * {revokeRole}.\\n     *\\n     * To change a role's deployer, use {AccessControl-_setRoleAdmin}.\\n     */\\n    function getRoleAdmin(bytes32 role) external view returns (bytes32);\\n\\n    /**\\n     * @dev Grants `role` to `account`.\\n     *\\n     * If `account` had not been already granted `role`, emits a {RoleGranted}\\n     * event.\\n     *\\n     * Requirements:\\n     *\\n     * - the caller must have ``role``'s deployer role.\\n     */\\n    function grantRole(bytes32 role, address account) external;\\n\\n    /**\\n     * @dev Revokes `role` from `account`.\\n     *\\n     * If `account` had been granted `role`, emits a {RoleRevoked} event.\\n     *\\n     * Requirements:\\n     *\\n     * - the caller must have ``role``'s deployer role.\\n     */\\n    function revokeRole(bytes32 role, address account) external;\\n\\n    /**\\n     * @dev Revokes `role` from the calling account.\\n     *\\n     * Roles are often managed via {grantRole} and {revokeRole}: this function's\\n     * purpose is to provide a mechanism for accounts to lose their privileges\\n     * if they are compromised (such as when a trusted device is misplaced).\\n     *\\n     * If the calling account had been granted `role`, emits a {RoleRevoked}\\n     * event.\\n     *\\n     * Requirements:\\n     *\\n     * - the caller must be `account`.\\n     */\\n    function renounceRole(bytes32 role, address account) external;\\n}\\n\",\"keccak256\":\"0x179c8d294b2a336dd95ecf6d74e1f759afa0bf98b62eb7fdf30a1685162eadf8\",\"license\":\"MIT\"},\"lib/openzeppelin-contracts/contracts/utils/structs/EnumerableSet.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v4.8.0) (utils/structs/EnumerableSet.sol)\\n// This file was procedurally generated from scripts/generate/templates/EnumerableSet.js.\\n\\npragma solidity ^0.8.0;\\n\\n/**\\n * @dev Library for managing\\n * https://en.wikipedia.org/wiki/Set_(abstract_data_type)[sets] of primitive\\n * types.\\n *\\n * Sets have the following properties:\\n *\\n * - Elements are added, removed, and checked for existence in constant time\\n * (O(1)).\\n * - Elements are enumerated in O(n). No guarantees are made on the ordering.\\n *\\n * ```solidity\\n * contract Example {\\n *     // Add the library methods\\n *     using EnumerableSet for EnumerableSet.AddressSet;\\n *\\n *     // Declare a set state variable\\n *     EnumerableSet.AddressSet private mySet;\\n * }\\n * ```\\n *\\n * As of v3.3.0, sets of type `bytes32` (`Bytes32Set`), `address` (`AddressSet`)\\n * and `uint256` (`UintSet`) are supported.\\n *\\n * [WARNING]\\n * ====\\n * Trying to delete such a structure from storage will likely result in data corruption, rendering the structure\\n * unusable.\\n * See https://github.com/ethereum/solidity/pull/11843[ethereum/solidity#11843] for more info.\\n *\\n * In order to clean an EnumerableSet, you can either remove all elements one by one or create a fresh instance using an\\n * array of EnumerableSet.\\n * ====\\n */\\nlibrary EnumerableSet {\\n    // To implement this library for multiple types with as little code\\n    // repetition as possible, we write it in terms of a generic Set type with\\n    // bytes32 values.\\n    // The Set implementation uses private functions, and user-facing\\n    // implementations (such as AddressSet) are just wrappers around the\\n    // underlying Set.\\n    // This means that we can only create new EnumerableSets for types that fit\\n    // in bytes32.\\n\\n    struct Set {\\n        // Storage of set values\\n        bytes32[] _values;\\n        // Position of the value in the `values` array, plus 1 because index 0\\n        // means a value is not in the set.\\n        mapping(bytes32 => uint256) _indexes;\\n    }\\n\\n    /**\\n     * @dev Add a value to a set. O(1).\\n     *\\n     * Returns true if the value was added to the set, that is if it was not\\n     * already present.\\n     */\\n    function _add(Set storage set, bytes32 value) private returns (bool) {\\n        if (!_contains(set, value)) {\\n            set._values.push(value);\\n            // The value is stored at length-1, but we add 1 to all indexes\\n            // and use 0 as a sentinel value\\n            set._indexes[value] = set._values.length;\\n            return true;\\n        } else {\\n            return false;\\n        }\\n    }\\n\\n    /**\\n     * @dev Removes a value from a set. O(1).\\n     *\\n     * Returns true if the value was removed from the set, that is if it was\\n     * present.\\n     */\\n    function _remove(Set storage set, bytes32 value) private returns (bool) {\\n        // We read and store the value's index to prevent multiple reads from the same storage slot\\n        uint256 valueIndex = set._indexes[value];\\n\\n        if (valueIndex != 0) {\\n            // Equivalent to contains(set, value)\\n            // To delete an element from the _values array in O(1), we swap the element to delete with the last one in\\n            // the array, and then remove the last element (sometimes called as 'swap and pop').\\n            // This modifies the order of the array, as noted in {at}.\\n\\n            uint256 toDeleteIndex = valueIndex - 1;\\n            uint256 lastIndex = set._values.length - 1;\\n\\n            if (lastIndex != toDeleteIndex) {\\n                bytes32 lastValue = set._values[lastIndex];\\n\\n                // Move the last value to the index where the value to delete is\\n                set._values[toDeleteIndex] = lastValue;\\n                // Update the index for the moved value\\n                set._indexes[lastValue] = valueIndex; // Replace lastValue's index to valueIndex\\n            }\\n\\n            // Delete the slot where the moved value was stored\\n            set._values.pop();\\n\\n            // Delete the index for the deleted slot\\n            delete set._indexes[value];\\n\\n            return true;\\n        } else {\\n            return false;\\n        }\\n    }\\n\\n    /**\\n     * @dev Returns true if the value is in the set. O(1).\\n     */\\n    function _contains(Set storage set, bytes32 value) private view returns (bool) {\\n        return set._indexes[value] != 0;\\n    }\\n\\n    /**\\n     * @dev Returns the number of values on the set. O(1).\\n     */\\n    function _length(Set storage set) private view returns (uint256) {\\n        return set._values.length;\\n    }\\n\\n    /**\\n     * @dev Returns the value stored at position `index` in the set. O(1).\\n     *\\n     * Note that there are no guarantees on the ordering of values inside the\\n     * array, and it may change when more values are added or removed.\\n     *\\n     * Requirements:\\n     *\\n     * - `index` must be strictly less than {length}.\\n     */\\n    function _at(Set storage set, uint256 index) private view returns (bytes32) {\\n        return set._values[index];\\n    }\\n\\n    /**\\n     * @dev Return the entire set in an array\\n     *\\n     * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed\\n     * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that\\n     * this function has an unbounded cost, and using it as part of a state-changing function may render the function\\n     * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.\\n     */\\n    function _values(Set storage set) private view returns (bytes32[] memory) {\\n        return set._values;\\n    }\\n\\n    // Bytes32Set\\n\\n    struct Bytes32Set {\\n        Set _inner;\\n    }\\n\\n    /**\\n     * @dev Add a value to a set. O(1).\\n     *\\n     * Returns true if the value was added to the set, that is if it was not\\n     * already present.\\n     */\\n    function add(Bytes32Set storage set, bytes32 value) internal returns (bool) {\\n        return _add(set._inner, value);\\n    }\\n\\n    /**\\n     * @dev Removes a value from a set. O(1).\\n     *\\n     * Returns true if the value was removed from the set, that is if it was\\n     * present.\\n     */\\n    function remove(Bytes32Set storage set, bytes32 value) internal returns (bool) {\\n        return _remove(set._inner, value);\\n    }\\n\\n    /**\\n     * @dev Returns true if the value is in the set. O(1).\\n     */\\n    function contains(Bytes32Set storage set, bytes32 value) internal view returns (bool) {\\n        return _contains(set._inner, value);\\n    }\\n\\n    /**\\n     * @dev Returns the number of values in the set. O(1).\\n     */\\n    function length(Bytes32Set storage set) internal view returns (uint256) {\\n        return _length(set._inner);\\n    }\\n\\n    /**\\n     * @dev Returns the value stored at position `index` in the set. O(1).\\n     *\\n     * Note that there are no guarantees on the ordering of values inside the\\n     * array, and it may change when more values are added or removed.\\n     *\\n     * Requirements:\\n     *\\n     * - `index` must be strictly less than {length}.\\n     */\\n    function at(Bytes32Set storage set, uint256 index) internal view returns (bytes32) {\\n        return _at(set._inner, index);\\n    }\\n\\n    /**\\n     * @dev Return the entire set in an array\\n     *\\n     * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed\\n     * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that\\n     * this function has an unbounded cost, and using it as part of a state-changing function may render the function\\n     * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.\\n     */\\n    function values(Bytes32Set storage set) internal view returns (bytes32[] memory) {\\n        bytes32[] memory store = _values(set._inner);\\n        bytes32[] memory result;\\n\\n        /// @solidity memory-safe-assembly\\n        assembly {\\n            result := store\\n        }\\n\\n        return result;\\n    }\\n\\n    // AddressSet\\n\\n    struct AddressSet {\\n        Set _inner;\\n    }\\n\\n    /**\\n     * @dev Add a value to a set. O(1).\\n     *\\n     * Returns true if the value was added to the set, that is if it was not\\n     * already present.\\n     */\\n    function add(AddressSet storage set, address value) internal returns (bool) {\\n        return _add(set._inner, bytes32(uint256(uint160(value))));\\n    }\\n\\n    /**\\n     * @dev Removes a value from a set. O(1).\\n     *\\n     * Returns true if the value was removed from the set, that is if it was\\n     * present.\\n     */\\n    function remove(AddressSet storage set, address value) internal returns (bool) {\\n        return _remove(set._inner, bytes32(uint256(uint160(value))));\\n    }\\n\\n    /**\\n     * @dev Returns true if the value is in the set. O(1).\\n     */\\n    function contains(AddressSet storage set, address value) internal view returns (bool) {\\n        return _contains(set._inner, bytes32(uint256(uint160(value))));\\n    }\\n\\n    /**\\n     * @dev Returns the number of values in the set. O(1).\\n     */\\n    function length(AddressSet storage set) internal view returns (uint256) {\\n        return _length(set._inner);\\n    }\\n\\n    /**\\n     * @dev Returns the value stored at position `index` in the set. O(1).\\n     *\\n     * Note that there are no guarantees on the ordering of values inside the\\n     * array, and it may change when more values are added or removed.\\n     *\\n     * Requirements:\\n     *\\n     * - `index` must be strictly less than {length}.\\n     */\\n    function at(AddressSet storage set, uint256 index) internal view returns (address) {\\n        return address(uint160(uint256(_at(set._inner, index))));\\n    }\\n\\n    /**\\n     * @dev Return the entire set in an array\\n     *\\n     * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed\\n     * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that\\n     * this function has an unbounded cost, and using it as part of a state-changing function may render the function\\n     * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.\\n     */\\n    function values(AddressSet storage set) internal view returns (address[] memory) {\\n        bytes32[] memory store = _values(set._inner);\\n        address[] memory result;\\n\\n        /// @solidity memory-safe-assembly\\n        assembly {\\n            result := store\\n        }\\n\\n        return result;\\n    }\\n\\n    // UintSet\\n\\n    struct UintSet {\\n        Set _inner;\\n    }\\n\\n    /**\\n     * @dev Add a value to a set. O(1).\\n     *\\n     * Returns true if the value was added to the set, that is if it was not\\n     * already present.\\n     */\\n    function add(UintSet storage set, uint256 value) internal returns (bool) {\\n        return _add(set._inner, bytes32(value));\\n    }\\n\\n    /**\\n     * @dev Removes a value from a set. O(1).\\n     *\\n     * Returns true if the value was removed from the set, that is if it was\\n     * present.\\n     */\\n    function remove(UintSet storage set, uint256 value) internal returns (bool) {\\n        return _remove(set._inner, bytes32(value));\\n    }\\n\\n    /**\\n     * @dev Returns true if the value is in the set. O(1).\\n     */\\n    function contains(UintSet storage set, uint256 value) internal view returns (bool) {\\n        return _contains(set._inner, bytes32(value));\\n    }\\n\\n    /**\\n     * @dev Returns the number of values in the set. O(1).\\n     */\\n    function length(UintSet storage set) internal view returns (uint256) {\\n        return _length(set._inner);\\n    }\\n\\n    /**\\n     * @dev Returns the value stored at position `index` in the set. O(1).\\n     *\\n     * Note that there are no guarantees on the ordering of values inside the\\n     * array, and it may change when more values are added or removed.\\n     *\\n     * Requirements:\\n     *\\n     * - `index` must be strictly less than {length}.\\n     */\\n    function at(UintSet storage set, uint256 index) internal view returns (uint256) {\\n        return uint256(_at(set._inner, index));\\n    }\\n\\n    /**\\n     * @dev Return the entire set in an array\\n     *\\n     * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed\\n     * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that\\n     * this function has an unbounded cost, and using it as part of a state-changing function may render the function\\n     * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.\\n     */\\n    function values(UintSet storage set) internal view returns (uint256[] memory) {\\n        bytes32[] memory store = _values(set._inner);\\n        uint256[] memory result;\\n\\n        /// @solidity memory-safe-assembly\\n        assembly {\\n            result := store\\n        }\\n\\n        return result;\\n    }\\n}\\n\",\"keccak256\":\"0xacbaaa9be521944f83d2852379e1f40b28ada61a256493474f6cdc9b59620598\",\"license\":\"MIT\"},\"src/core/NFTCollectionWhitelist.sol\":{\"content\":\"\\n// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.0;\\n\\nimport {EnumerableSet} from 'lib/openzeppelin-contracts/contracts/utils/structs/EnumerableSet.sol';\\n\\nimport {IAccessController} from \\\"../interfaces/IAccessController.sol\\\";\\nimport {IImplementationManager} from \\\"../interfaces/IImplementationManager.sol\\\";\\nimport {INFTCollectionWhitelist} from \\\"../interfaces/INFTCollectionWhitelist.sol\\\";\\n\\nimport {ImplementationInterfaceNames} from \\\"../libraries/helpers/ImplementationInterfaceNames.sol\\\";\\nimport {Errors} from \\\"../libraries/helpers/Errors.sol\\\";\\n\\ncontract NFTCollectionWhitelist is INFTCollectionWhitelist{\\n    using EnumerableSet for EnumerableSet.AddressSet;\\n\\n    //----------------------------------------\\n    // Storage\\n    //----------------------------------------\\n\\n    EnumerableSet.AddressSet private nftCollections;\\n    \\n    IImplementationManager public implementationManager;\\n\\n    mapping(address => address) private collectionToCreator;\\n\\n    //----------------------------------------\\n    // Events\\n    //----------------------------------------\\n\\n    event AddedToWhitelist(address indexed addedNftCollection, address indexed creator);\\n    event RemovedFromWhitelist(address indexed removedNftCollection);\\n\\n    //----------------------------------------\\n    // Modifiers\\n    //----------------------------------------\\n    modifier onlyMaintainer() {\\n        IAccessController accessController = IAccessController(implementationManager.getImplementationAddress(ImplementationInterfaceNames.AccessController));\\n        if(!accessController.hasRole(accessController.MAINTAINER_ROLE(), msg.sender)) revert Errors.NOT_MAINTAINER();\\n        _;\\n    }\\n\\n    //----------------------------------------\\n    // Initialization function\\n    //----------------------------------------\\n    constructor(IImplementationManager _implementationManager){\\n        implementationManager = _implementationManager;\\n    }\\n\\n    //----------------------------------------\\n    // External function\\n    //----------------------------------------\\n    \\n    /// @inheritdoc INFTCollectionWhitelist\\n    function addToWhitelist(address newNftCollection, address creator)\\n    external\\n    override\\n    onlyMaintainer\\n    {\\n        if(!nftCollections.add(newNftCollection)) revert Errors.COLLECTION_ALREADY_WHITELISTED();\\n        collectionToCreator[newNftCollection] = creator;\\n        emit AddedToWhitelist(newNftCollection, creator);\\n    }\\n\\n    /// @inheritdoc INFTCollectionWhitelist\\n    function removeFromWhitelist(address nftCollectionToRemove)\\n    external\\n    override\\n    onlyMaintainer\\n    {\\n        if(!nftCollections.remove(nftCollectionToRemove)) revert Errors.COLLECTION_NOT_WHITELISTED();\\n        delete collectionToCreator[nftCollectionToRemove];\\n        emit RemovedFromWhitelist(nftCollectionToRemove);\\n    }\\n\\n    /// @inheritdoc INFTCollectionWhitelist\\n    function isWhitelisted(address nftCollectionToCheck)\\n    external\\n    view\\n    override\\n    returns (bool)\\n    {\\n        return nftCollections.contains(nftCollectionToCheck);\\n    }\\n\\n    /**\\n     * @notice Gets all addresses that are currently included in the whitelist.\\n     * @return The list of addresses on the whitelist.\\n     */\\n    function getWhitelist() external view returns (address[] memory) {\\n        uint256 numberOfElements = nftCollections.length();\\n        address[] memory activeNftCollections = new address[](numberOfElements);\\n        for (uint256 i = 0; i < numberOfElements; ++i) {\\n            activeNftCollections[i] = nftCollections.at(i);\\n        }\\n        return activeNftCollections;\\n    }\\n\\n    /// @inheritdoc INFTCollectionWhitelist\\n    function getCollectionCreator(address nftCollection)\\n    external\\n    view\\n    override\\n    returns (address creator)\\n    {\\n        return collectionToCreator[nftCollection];\\n    }\\n\\n}\",\"keccak256\":\"0xe2c2065a16219e44a8770fa419a2607fc310b7de3215653a997a859595b8766b\",\"license\":\"MIT\"},\"src/interfaces/IAccessController.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.0;\\n\\nimport {IAccessControl} from \\\"lib/openzeppelin-contracts/contracts/access/IAccessControl.sol\\\";\\n\\ninterface IAccessController is IAccessControl {\\n  function MAINTAINER_ROLE() external view returns (bytes32);\\n  function MANAGER_ROLE() external view returns (bytes32);\\n\\n}\",\"keccak256\":\"0x4c911fab8585cd6986f06b4dc39e8290b817e61e4506a0ebdacd38a8efcab341\",\"license\":\"MIT\"},\"src/interfaces/IImplementationManager.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.0;\\n\\ninterface IImplementationManager{\\n    /**\\n     * @notice Updates the address of the contract that implements `interfaceName`.\\n     * @param interfaceName bytes32 encoding of the interface name that is either changed or registered.\\n     * @param implementationAddress address of the deployed contract that implements the interface.\\n     */\\n    function changeImplementationAddress(\\n        bytes32 interfaceName,\\n        address implementationAddress\\n    ) external;\\n\\n  /**\\n   * @notice Gets the address of the contract that implements the given `interfaceName`.\\n   * @param interfaceName queried interface.\\n   * @return implementationAddress Address of the deployed contract that implements the interface.\\n   */\\n  function getImplementationAddress(bytes32 interfaceName)\\n    external\\n    view\\n    returns (address implementationAddress);\\n\\n}\",\"keccak256\":\"0x4b81c1727f3045f25a7d38da86e5ea25993c1991630e441c9032c125f477ca4b\",\"license\":\"MIT\"},\"src/interfaces/INFTCollectionWhitelist.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.0;\\n\\ninterface INFTCollectionWhitelist{\\n\\n    /**\\n     * @notice Adds an address to the whitelist.\\n     * @param newNftCollection the new address to add.\\n     * @param creator the address of the collection creator.\\n     */\\n    function addToWhitelist(address newNftCollection, address creator) external;\\n\\n    /**\\n     * @notice Removes an address from the whitelist.\\n     * @param nftCollectionToRemove The existing address to remove.\\n     */\\n    function removeFromWhitelist(address nftCollectionToRemove) external;\\n\\n    /**\\n     * @notice Checks whether an address is on the whitelist.\\n     * @param nftCollectionToCheck The address to check.\\n     * @return True if `collateralToCheck` is on the whitelist, or False.\\n     */\\n    function isWhitelisted(address nftCollectionToCheck) external view returns(bool);\\n\\n    /**\\n     * @notice Return creator address for a specific nft collection.\\n     * @dev used to send royalties part of the raffle.\\n     * @param nftCollection The address to check.\\n     * @return creator address \\n     */\\n    function getCollectionCreator(address nftCollection) external view returns(address creator);\\n}\\n\\n\\n\",\"keccak256\":\"0xf563904fee79deaa6b2a8104b1e1a3e11eb5cc43fafa7d6f69b9ec45c05d8d36\",\"license\":\"MIT\"},\"src/libraries/helpers/Errors.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.0;\\n\\n/**\\n * @title Errors library\\n * @notice Defines the error messages emitted by the different contracts of the protocol\\n */\\nlibrary Errors {\\n    error BE_ADDRESS_0(); // 'Address must be address(0)'\\n    error NOT_ADDRESS_0(); // 'Address must not be address(0)'\\n    error RAFFLE_CLOSE(); // 'Current timestamps greater or equal than the close time'\\n    error RAFFLE_STILL_OPEN(); // 'Current timestamps lesser or equal than the close time'\\n    error CANT_BE_ZERO(); // 'Value can't must be higher than 0'\\n    error MAX_TICKET_SUPPLY_EXCEEDED(); // 'Maximum amount of ticket sold for the raffle has been reached'\\n    error NOT_ENOUGH_BALANCE(); // 'Balance lower than required'\\n    error MSG_SENDER_NOT_WINNER(); // 'msg.sender is not winner address'\\n    error NOT_CREATOR(); // 'msg.sender is not the creator of the raffle'\\n    error TICKET_NOT_DRAWN(); // 'ticket must be drawn'\\n    error TICKET_ALREADY_DRAWN(); // 'ticket has already be drawn'\\n    error TICKET_DRAWN_NOT_REQUESTED(); // 'ticket drawn has not be requested'\\n    error NOT_MAINTAINER(); // 'Caller is not the maintainer'\\n    error IMPLEMENTATION_NOT_FOUND(); // 'Implementation interfaces is not registered'\\n    error NOT_RAFFLE_CONTRACT(); // 'Caller is not a raffle contract'\\n    error NOT_RANDOM_PROVIDER_CONTRACT(); // 'Caller is not the random provider contract'\\n    error NOT_NFT_OWNER(); // 'Address not the nft owner'\\n    error ARRAYS_LENGTH_NOT_EQUAL(); // 'Arrays doesn't have the same size'\\n    error COLLECTION_ALREADY_WHITELISTED(); //'NFT collection already whitelisted'\\n    error COLLECTION_NOT_WHITELISTED(); //'NFT collection not whitelisted'\\n    error TOKEN_ALREADY_WHITELISTED(); //'Token already whitelisted'\\n    error TOKEN_NOT_WHITELISTED(); //'Token not whitelisted'\\n    error BELLOW_MIN_DURATION(); //'Ticket sales duration must be higher than min defined'\\n    error ABOVE_MAX_DURATION(); //'Ticket sales duration must be lower than max defined'\\n    error EXCEED_MAX_PERCENTAGE(); //'Percentage value must be lower than max allowed'\\n    error EXCEED_MAX_VALUE_ALLOWED(); //'Value must be lower than max allowed'\\n    error WRONG_DURATION_LIMITS(); //'The min duration must be lower than the max one'\\n    error OUT_OF_RANGE(); //'The value is not in the allowed range'\\n}\\n\\n \",\"keccak256\":\"0x205cb1516b2cba91a0a93a279d32ffdfd71e85bd7058c2602232941c5ccaabaf\",\"license\":\"MIT\"},\"src/libraries/helpers/ImplementationInterfaceNames.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.0;\\n\\nlibrary ImplementationInterfaceNames {\\n  bytes32 public constant AccessController = 'AccessController';\\n  bytes32 public constant RandomProvider = 'RandomProvider';\\n  bytes32 public constant NFTWhitelist = 'NFTWhitelist';\\n  bytes32 public constant TokenWhitelist = 'TokenWhitelist';\\n  bytes32 public constant RaffleFactory = 'RaffleFactory';\\n  bytes32 public constant ConfigManager = 'ConfigManager';\\n  bytes32 public constant Treasury = 'Treasury';\\n}\\n\",\"keccak256\":\"0xb9fac717d1357fc7cf9ab58c0dde12ec1d909f33cf6f0f0a1279e040e7cc5704\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b506040516109f83803806109f883398101604081905261002f91610054565b600280546001600160a01b0319166001600160a01b0392909216919091179055610084565b60006020828403121561006657600080fd5b81516001600160a01b038116811461007d57600080fd5b9392505050565b610965806100936000396000f3fe608060405234801561001057600080fd5b50600436106100625760003560e01c80631f6b17af146100675780632bafa11b146100b05780633af32abf146100c357806357518243146100e65780638ab1d681146100fb578063d01f63f51461010e575b600080fd5b6100936100753660046107b0565b6001600160a01b039081166000908152600360205260409020541690565b6040516001600160a01b0390911681526020015b60405180910390f35b600254610093906001600160a01b031681565b6100d66100d13660046107b0565b610123565b60405190151581526020016100a7565b6100f96100f43660046107cd565b610135565b005b6100f96101093660046107b0565b61032b565b610116610519565b6040516100a79190610806565b600061012f81836105c7565b92915050565b6002546040516302abf57960e61b81526f20b1b1b2b9b9a1b7b73a3937b63632b960811b60048201526000916001600160a01b03169063aafd5e4090602401602060405180830381865afa158015610191573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906101b59190610853565b9050806001600160a01b03166391d14854826001600160a01b031663f87422546040518163ffffffff1660e01b8152600401602060405180830381865afa158015610204573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906102289190610870565b6040516001600160e01b031960e084901b1681526004810191909152336024820152604401602060405180830381865afa15801561026a573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061028e9190610889565b6102ab576040516337ab45b760e01b815260040160405180910390fd5b6102b66000846105ec565b6102d357604051630530e81b60e41b815260040160405180910390fd5b6001600160a01b0383811660008181526003602052604080822080546001600160a01b0319169487169485179055517f0c4b48e75a1f7ab0a9a2f786b5d6c1f7789020403bff177fb54d46edb89ccc009190a3505050565b6002546040516302abf57960e61b81526f20b1b1b2b9b9a1b7b73a3937b63632b960811b60048201526000916001600160a01b03169063aafd5e4090602401602060405180830381865afa158015610387573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906103ab9190610853565b9050806001600160a01b03166391d14854826001600160a01b031663f87422546040518163ffffffff1660e01b8152600401602060405180830381865afa1580156103fa573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061041e9190610870565b6040516001600160e01b031960e084901b1681526004810191909152336024820152604401602060405180830381865afa158015610460573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906104849190610889565b6104a1576040516337ab45b760e01b815260040160405180910390fd5b6104ac600083610601565b6104c957604051636191047560e11b815260040160405180910390fd5b6001600160a01b03821660008181526003602052604080822080546001600160a01b0319169055517fcdd2e9b91a56913d370075169cefa1602ba36be5301664f752192bb1709df7579190a25050565b606060006105276000610616565b905060008167ffffffffffffffff811115610544576105446108ab565b60405190808252806020026020018201604052801561056d578160200160208202803683370190505b50905060005b828110156105c057610586600082610620565b828281518110610598576105986108c1565b6001600160a01b03909216602092830291909101909101526105b9816108ed565b9050610573565b5092915050565b6001600160a01b038116600090815260018301602052604081205415155b9392505050565b60006105e5836001600160a01b03841661062c565b60006105e5836001600160a01b03841661067b565b600061012f825490565b60006105e5838361076e565b60008181526001830160205260408120546106735750815460018181018455600084815260208082209093018490558454848252828601909352604090209190915561012f565b50600061012f565b6000818152600183016020526040812054801561076457600061069f600183610906565b85549091506000906106b390600190610906565b90508181146107185760008660000182815481106106d3576106d36108c1565b90600052602060002001549050808760000184815481106106f6576106f66108c1565b6000918252602080832090910192909255918252600188019052604090208390555b855486908061072957610729610919565b60019003818190600052602060002001600090559055856001016000868152602001908152602001600020600090556001935050505061012f565b600091505061012f565b6000826000018281548110610785576107856108c1565b9060005260206000200154905092915050565b6001600160a01b03811681146107ad57600080fd5b50565b6000602082840312156107c257600080fd5b81356105e581610798565b600080604083850312156107e057600080fd5b82356107eb81610798565b915060208301356107fb81610798565b809150509250929050565b6020808252825182820181905260009190848201906040850190845b818110156108475783516001600160a01b031683529284019291840191600101610822565b50909695505050505050565b60006020828403121561086557600080fd5b81516105e581610798565b60006020828403121561088257600080fd5b5051919050565b60006020828403121561089b57600080fd5b815180151581146105e557600080fd5b634e487b7160e01b600052604160045260246000fd5b634e487b7160e01b600052603260045260246000fd5b634e487b7160e01b600052601160045260246000fd5b6000600182016108ff576108ff6108d7565b5060010190565b8181038181111561012f5761012f6108d7565b634e487b7160e01b600052603160045260246000fdfea26469706673582212203df2d1bd30528f68f8d8a2a06581ffbc86c7a31903c68cfc28c4f9956e4ff3fd64736f6c63430008110033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b50600436106100625760003560e01c80631f6b17af146100675780632bafa11b146100b05780633af32abf146100c357806357518243146100e65780638ab1d681146100fb578063d01f63f51461010e575b600080fd5b6100936100753660046107b0565b6001600160a01b039081166000908152600360205260409020541690565b6040516001600160a01b0390911681526020015b60405180910390f35b600254610093906001600160a01b031681565b6100d66100d13660046107b0565b610123565b60405190151581526020016100a7565b6100f96100f43660046107cd565b610135565b005b6100f96101093660046107b0565b61032b565b610116610519565b6040516100a79190610806565b600061012f81836105c7565b92915050565b6002546040516302abf57960e61b81526f20b1b1b2b9b9a1b7b73a3937b63632b960811b60048201526000916001600160a01b03169063aafd5e4090602401602060405180830381865afa158015610191573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906101b59190610853565b9050806001600160a01b03166391d14854826001600160a01b031663f87422546040518163ffffffff1660e01b8152600401602060405180830381865afa158015610204573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906102289190610870565b6040516001600160e01b031960e084901b1681526004810191909152336024820152604401602060405180830381865afa15801561026a573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061028e9190610889565b6102ab576040516337ab45b760e01b815260040160405180910390fd5b6102b66000846105ec565b6102d357604051630530e81b60e41b815260040160405180910390fd5b6001600160a01b0383811660008181526003602052604080822080546001600160a01b0319169487169485179055517f0c4b48e75a1f7ab0a9a2f786b5d6c1f7789020403bff177fb54d46edb89ccc009190a3505050565b6002546040516302abf57960e61b81526f20b1b1b2b9b9a1b7b73a3937b63632b960811b60048201526000916001600160a01b03169063aafd5e4090602401602060405180830381865afa158015610387573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906103ab9190610853565b9050806001600160a01b03166391d14854826001600160a01b031663f87422546040518163ffffffff1660e01b8152600401602060405180830381865afa1580156103fa573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061041e9190610870565b6040516001600160e01b031960e084901b1681526004810191909152336024820152604401602060405180830381865afa158015610460573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906104849190610889565b6104a1576040516337ab45b760e01b815260040160405180910390fd5b6104ac600083610601565b6104c957604051636191047560e11b815260040160405180910390fd5b6001600160a01b03821660008181526003602052604080822080546001600160a01b0319169055517fcdd2e9b91a56913d370075169cefa1602ba36be5301664f752192bb1709df7579190a25050565b606060006105276000610616565b905060008167ffffffffffffffff811115610544576105446108ab565b60405190808252806020026020018201604052801561056d578160200160208202803683370190505b50905060005b828110156105c057610586600082610620565b828281518110610598576105986108c1565b6001600160a01b03909216602092830291909101909101526105b9816108ed565b9050610573565b5092915050565b6001600160a01b038116600090815260018301602052604081205415155b9392505050565b60006105e5836001600160a01b03841661062c565b60006105e5836001600160a01b03841661067b565b600061012f825490565b60006105e5838361076e565b60008181526001830160205260408120546106735750815460018181018455600084815260208082209093018490558454848252828601909352604090209190915561012f565b50600061012f565b6000818152600183016020526040812054801561076457600061069f600183610906565b85549091506000906106b390600190610906565b90508181146107185760008660000182815481106106d3576106d36108c1565b90600052602060002001549050808760000184815481106106f6576106f66108c1565b6000918252602080832090910192909255918252600188019052604090208390555b855486908061072957610729610919565b60019003818190600052602060002001600090559055856001016000868152602001908152602001600020600090556001935050505061012f565b600091505061012f565b6000826000018281548110610785576107856108c1565b9060005260206000200154905092915050565b6001600160a01b03811681146107ad57600080fd5b50565b6000602082840312156107c257600080fd5b81356105e581610798565b600080604083850312156107e057600080fd5b82356107eb81610798565b915060208301356107fb81610798565b809150509250929050565b6020808252825182820181905260009190848201906040850190845b818110156108475783516001600160a01b031683529284019291840191600101610822565b50909695505050505050565b60006020828403121561086557600080fd5b81516105e581610798565b60006020828403121561088257600080fd5b5051919050565b60006020828403121561089b57600080fd5b815180151581146105e557600080fd5b634e487b7160e01b600052604160045260246000fd5b634e487b7160e01b600052603260045260246000fd5b634e487b7160e01b600052601160045260246000fd5b6000600182016108ff576108ff6108d7565b5060010190565b8181038181111561012f5761012f6108d7565b634e487b7160e01b600052603160045260246000fdfea26469706673582212203df2d1bd30528f68f8d8a2a06581ffbc86c7a31903c68cfc28c4f9956e4ff3fd64736f6c63430008110033",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {
+      "addToWhitelist(address,address)": {
+        "params": {
+          "creator": "the address of the collection creator.",
+          "newNftCollection": "the new address to add."
+        }
+      },
+      "getCollectionCreator(address)": {
+        "details": "used to send royalties part of the raffle.",
+        "params": {
+          "nftCollection": "The address to check."
+        },
+        "returns": {
+          "creator": "address "
+        }
+      },
+      "getWhitelist()": {
+        "returns": {
+          "_0": "The list of addresses on the whitelist."
+        }
+      },
+      "isWhitelisted(address)": {
+        "params": {
+          "nftCollectionToCheck": "The address to check."
+        },
+        "returns": {
+          "_0": "True if `collateralToCheck` is on the whitelist, or False."
+        }
+      },
+      "removeFromWhitelist(address)": {
+        "params": {
+          "nftCollectionToRemove": "The existing address to remove."
+        }
+      }
+    },
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {
+      "addToWhitelist(address,address)": {
+        "notice": "Adds an address to the whitelist."
+      },
+      "getCollectionCreator(address)": {
+        "notice": "Return creator address for a specific nft collection."
+      },
+      "getWhitelist()": {
+        "notice": "Gets all addresses that are currently included in the whitelist."
+      },
+      "isWhitelisted(address)": {
+        "notice": "Checks whether an address is on the whitelist."
+      },
+      "removeFromWhitelist(address)": {
+        "notice": "Removes an address from the whitelist."
+      }
+    },
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 5262,
+        "contract": "src/core/NFTCollectionWhitelist.sol:NFTCollectionWhitelist",
+        "label": "nftCollections",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_struct(AddressSet)4501_storage"
+      },
+      {
+        "astId": 5265,
+        "contract": "src/core/NFTCollectionWhitelist.sol:NFTCollectionWhitelist",
+        "label": "implementationManager",
+        "offset": 0,
+        "slot": "2",
+        "type": "t_contract(IImplementationManager)5890"
+      },
+      {
+        "astId": 5269,
+        "contract": "src/core/NFTCollectionWhitelist.sol:NFTCollectionWhitelist",
+        "label": "collectionToCreator",
+        "offset": 0,
+        "slot": "3",
+        "type": "t_mapping(t_address,t_address)"
+      }
+    ],
+    "types": {
+      "t_address": {
+        "encoding": "inplace",
+        "label": "address",
+        "numberOfBytes": "20"
+      },
+      "t_array(t_bytes32)dyn_storage": {
+        "base": "t_bytes32",
+        "encoding": "dynamic_array",
+        "label": "bytes32[]",
+        "numberOfBytes": "32"
+      },
+      "t_bytes32": {
+        "encoding": "inplace",
+        "label": "bytes32",
+        "numberOfBytes": "32"
+      },
+      "t_contract(IImplementationManager)5890": {
+        "encoding": "inplace",
+        "label": "contract IImplementationManager",
+        "numberOfBytes": "20"
+      },
+      "t_mapping(t_address,t_address)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => address)",
+        "numberOfBytes": "32",
+        "value": "t_address"
+      },
+      "t_mapping(t_bytes32,t_uint256)": {
+        "encoding": "mapping",
+        "key": "t_bytes32",
+        "label": "mapping(bytes32 => uint256)",
+        "numberOfBytes": "32",
+        "value": "t_uint256"
+      },
+      "t_struct(AddressSet)4501_storage": {
+        "encoding": "inplace",
+        "label": "struct EnumerableSet.AddressSet",
+        "members": [
+          {
+            "astId": 4500,
+            "contract": "src/core/NFTCollectionWhitelist.sol:NFTCollectionWhitelist",
+            "label": "_inner",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_struct(Set)4186_storage"
+          }
+        ],
+        "numberOfBytes": "64"
+      },
+      "t_struct(Set)4186_storage": {
+        "encoding": "inplace",
+        "label": "struct EnumerableSet.Set",
+        "members": [
+          {
+            "astId": 4181,
+            "contract": "src/core/NFTCollectionWhitelist.sol:NFTCollectionWhitelist",
+            "label": "_values",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_array(t_bytes32)dyn_storage"
+          },
+          {
+            "astId": 4185,
+            "contract": "src/core/NFTCollectionWhitelist.sol:NFTCollectionWhitelist",
+            "label": "_indexes",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_mapping(t_bytes32,t_uint256)"
+          }
+        ],
+        "numberOfBytes": "64"
+      },
+      "t_uint256": {
+        "encoding": "inplace",
+        "label": "uint256",
+        "numberOfBytes": "32"
+      }
+    }
+  }
+}

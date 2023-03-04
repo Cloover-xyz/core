@@ -6,3 +6,4 @@ export { ConfigManager__factory } from "./ConfigManager__factory";
 export { ImplementationManager__factory } from "./ImplementationManager__factory";
 export { NFTCollectionWhitelist__factory } from "./NFTCollectionWhitelist__factory";
 export { RandomProvider__factory } from "./RandomProvider__factory";
+export { TokenWhitelist__factory } from "./TokenWhitelist__factory";
