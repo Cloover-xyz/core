@@ -83,9 +83,12 @@ contract Raffle is IRaffle, Initializable {
     //----------------------------------------
     function initialize(RaffleDataTypes.InitRaffleParams memory params) external override initializer {
         _checkData(params);
+        _globalData.isETHTokenSales = params.isETHTokenSales;
         _globalData.implementationManager = params.implementationManager;
         _globalData.creator = params.creator;
-        _globalData.purchaseCurrency = params.purchaseCurrency;
+        if(!params.isETHTokenSales){
+            _globalData.purchaseCurrency = params.purchaseCurrency;
+        }
         _globalData.nftContract = params.nftContract;
         _globalData.nftId = params.nftId;
         _globalData.maxTicketSupply = params.maxTicketSupply;
@@ -99,26 +102,27 @@ contract Raffle is IRaffle, Initializable {
 
     /// @inheritdoc IRaffle
     function purchaseTickets(uint256 nbOfTickets) external override ticketSalesOpen(){
+        if(_globalData.isETHTokenSales) revert Errors.IS_ETH_RAFFLE();
         if(nbOfTickets == 0) revert Errors.CANT_BE_ZERO();
         if(totalSupply() + nbOfTickets > _globalData.maxTicketSupply) revert Errors.MAX_TICKET_SUPPLY_EXCEEDED();
         if(_calculateTotalTicketsPrice(nbOfTickets) > _globalData.purchaseCurrency.balanceOf(msg.sender)) revert Errors.NOT_ENOUGH_BALANCE();
-        
+
         _globalData.purchaseCurrency.transferFrom(msg.sender, address(this), _calculateTotalTicketsPrice(nbOfTickets));
 
-        uint256[] storage ownerTickets = _ownerTickets[msg.sender];
-        uint256 ticketNumber = _globalData.ticketSupply;
+        uint256[] memory ticketsPurchased = _purchaseTicket(nbOfTickets);
+        
+        emit TicketPurchased(msg.sender, ticketsPurchased);
+    }
 
-        uint256[] memory ticketsPurchased = new uint256[](nbOfTickets);
-        for(uint i; i<nbOfTickets; ){
-            ++ticketNumber;
-            ticketsPurchased[i] = ticketNumber;
-            ownerTickets.push(ticketNumber);
-            _ticketOwner[ticketNumber] = msg.sender;
-            unchecked {
-                ++i;
-            }
-        }
-        _globalData.ticketSupply = ticketNumber;
+    /// @inheritdoc IRaffle
+    function purchaseTicketsInEth(uint256 nbOfTickets) external payable override ticketSalesOpen(){
+        if(!_globalData.isETHTokenSales) revert Errors.NOT_ETH_RAFFLE();
+        if(nbOfTickets == 0) revert Errors.CANT_BE_ZERO();
+        if(totalSupply() + nbOfTickets > _globalData.maxTicketSupply) revert Errors.MAX_TICKET_SUPPLY_EXCEEDED();
+        if(_calculateTotalTicketsPrice(nbOfTickets) > msg.value) revert Errors.NOT_ENOUGH_BALANCE();
+        
+        uint256[] memory ticketsPurchased = _purchaseTicket(nbOfTickets);
+        
         emit TicketPurchased(msg.sender, ticketsPurchased);
     }
 
@@ -132,10 +136,11 @@ contract Raffle is IRaffle, Initializable {
     function drawnTickets(uint256[] memory randomNumbers) external override onlyRandomProviderContract() drawnRequested() {
         if( randomNumbers[0] == 0 && randomNumbers.length == 0){
             _globalData.status = RaffleDataTypes.RaffleStatus.Init;
+        } else{
+            _globalData.winningTicketNumber = (randomNumbers[0] % _globalData.ticketSupply) + 1;
+            _globalData.status = RaffleDataTypes.RaffleStatus.WinningTicketsDrawned;
+            emit WinningTicketDrawned(_globalData.winningTicketNumber );
         }
-        _globalData.winningTicketNumber = (randomNumbers[0] % _globalData.ticketSupply) + 1;
-        _globalData.status = RaffleDataTypes.RaffleStatus.WinningTicketsDrawned;
-        emit WinningTicketDrawned(_globalData.winningTicketNumber );
     }
 
     /// @inheritdoc IRaffle
@@ -146,14 +151,24 @@ contract Raffle is IRaffle, Initializable {
     }
 
     /// @inheritdoc IRaffle
-    function claimTicketSalesAmount() external override ticketSalesClose() ticketHasBeDrawn(){
+    function claimTokenTicketSalesAmount() external override ticketSalesClose() ticketHasBeDrawn(){
+        if(_globalData.isETHTokenSales) revert Errors.IS_ETH_RAFFLE();
         if(msg.sender != creator()) revert Errors.NOT_CREATOR();
-        IConfigManager configManager = IConfigManager(_globalData.implementationManager.getImplementationAddress(ImplementationInterfaceNames.ConfigManager));
         uint256 ticketSalesAmount = _globalData.purchaseCurrency.balanceOf(address(this));
-        uint256 treasuryFeesAmount = ticketSalesAmount.percentMul(configManager.procolFeesPercentage());
-        uint256 creatorAmount = ticketSalesAmount-treasuryFeesAmount;
+        (uint256 creatorAmount, uint256 treasuryFeesAmount) = _calculateAmountToTransfer(ticketSalesAmount);
         _globalData.purchaseCurrency.transfer(_globalData.implementationManager.getImplementationAddress(ImplementationInterfaceNames.Treasury), treasuryFeesAmount);
         _globalData.purchaseCurrency.transfer(msg.sender, creatorAmount);
+        emit CreatorClaimedTicketSalesAmount(msg.sender, creatorAmount, treasuryFeesAmount);
+    }
+
+    /// @inheritdoc IRaffle
+    function claimETHTicketSalesAmount() external override ticketSalesClose() ticketHasBeDrawn(){
+        if(!_globalData.isETHTokenSales) revert Errors.NOT_ETH_RAFFLE();
+        if(msg.sender != creator()) revert Errors.NOT_CREATOR();
+        uint256 ticketSalesAmount = address(this).balance;
+        (uint256 creatorAmount, uint256 treasuryFeesAmount) = _calculateAmountToTransfer(ticketSalesAmount);
+        _safeTransferETH(_globalData.implementationManager.getImplementationAddress(ImplementationInterfaceNames.Treasury),treasuryFeesAmount);
+        _safeTransferETH(msg.sender,creatorAmount);
         emit CreatorClaimedTicketSalesAmount(msg.sender, creatorAmount, treasuryFeesAmount);
     }
 
@@ -222,6 +237,11 @@ contract Raffle is IRaffle, Initializable {
         return _globalData.implementationManager.getImplementationAddress(ImplementationInterfaceNames.RandomProvider);
     }
 
+    /// @inheritdoc IRaffle
+    function isETHTokenSales() public override view returns(bool){
+        return _globalData.isETHTokenSales;
+    }
+
     //----------------------------------------
     // Internals Functions
     //----------------------------------------
@@ -232,8 +252,10 @@ contract Raffle is IRaffle, Initializable {
     */
     function _checkData(RaffleDataTypes.InitRaffleParams memory params) internal view {
         if(address(params.implementationManager) == address(0)) revert Errors.NOT_ADDRESS_0();
-        address tokenWhitelist = params.implementationManager.getImplementationAddress(ImplementationInterfaceNames.TokenWhitelist);
-        if(!ITokenWhitelist(tokenWhitelist).isWhitelisted(address(params.purchaseCurrency))) revert Errors.TOKEN_NOT_WHITELISTED();
+        if(!params.isETHTokenSales){
+            address tokenWhitelist = params.implementationManager.getImplementationAddress(ImplementationInterfaceNames.TokenWhitelist);
+            if(!ITokenWhitelist(tokenWhitelist).isWhitelisted(address(params.purchaseCurrency))) revert Errors.TOKEN_NOT_WHITELISTED();
+        }
         address nftWhitelist = params.implementationManager.getImplementationAddress(ImplementationInterfaceNames.NFTWhitelist);
         if(!INFTCollectionWhitelist(nftWhitelist).isWhitelisted(address(params.nftContract))) revert Errors.COLLECTION_NOT_WHITELISTED();
         if(params.nftContract.ownerOf(params.nftId) != address(this)) revert Errors.NOT_NFT_OWNER();
@@ -252,5 +274,43 @@ contract Raffle is IRaffle, Initializable {
     */
     function _calculateTotalTicketsPrice(uint256 nbOfTickets) internal view returns(uint256 amountPrice) {
         amountPrice = _globalData.ticketPrice * nbOfTickets;
+    }
+
+    /**
+    * @notice attribute ticket to msg.sender
+    * @param nbOfTickets the amount of ticket that the msg.sender to purchasing
+    * @return ticketsPurchased the list of tickets purchased by the msg.sender
+    */
+    function _purchaseTicket(uint256 nbOfTickets) internal returns(uint256[] memory ticketsPurchased){
+        uint256[] storage ownerTickets = _ownerTickets[msg.sender];
+        uint256 ticketNumber = _globalData.ticketSupply;
+
+        ticketsPurchased = new uint256[](nbOfTickets);
+        for(uint i; i<nbOfTickets; ){
+            ++ticketNumber;
+            ticketsPurchased[i] = ticketNumber;
+            ownerTickets.push(ticketNumber);
+            _ticketOwner[ticketNumber] = msg.sender;
+            unchecked {
+                ++i;
+            }
+        }
+        _globalData.ticketSupply = ticketNumber;
+    }
+
+    function _calculateAmountToTransfer(uint256 ticketSalesAmount) internal view returns(uint256 creatorAmount, uint256 treasuryFeesAmount) {
+        IConfigManager configManager = IConfigManager(_globalData.implementationManager.getImplementationAddress(ImplementationInterfaceNames.ConfigManager));
+        treasuryFeesAmount = ticketSalesAmount.percentMul(configManager.procolFeesPercentage());
+        creatorAmount = ticketSalesAmount - treasuryFeesAmount;
+    }
+
+    /**
+    * @notice Transfers ETH to the recipient address
+    * @param to The destination of the transfer
+    * @param value The value to be transferred
+    */
+    function _safeTransferETH(address to, uint256 value) internal {
+        (bool success, ) = payable(to).call{value: value}(new bytes(0));
+        if(!success) revert Errors.TRANSFER_FAIL();
     }
 }

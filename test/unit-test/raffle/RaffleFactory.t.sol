@@ -110,7 +110,8 @@ contract RaffleFactoryTest is Test, SetupUsers {
          nftIdOne,
          maxTicketSupply,
          ticketPrice,
-         ticketSaleDuration
+         ticketSaleDuration,
+         false
       );
       mockERC721.approve(address(factory), nftIdOne);
       raffle = factory.createNewRaffle(params);
@@ -137,7 +138,8 @@ contract RaffleFactoryTest is Test, SetupUsers {
          nftIdOne,
          maxTicketSupply,
          ticketPrice,
-         ticketSaleDuration
+         ticketSaleDuration,
+         false
       );
       mockERC721.approve(address(factory), nftIdOne);
       raffle = factory.createNewRaffle(params);
@@ -169,7 +171,8 @@ contract RaffleFactoryTest is Test, SetupUsers {
          nftIdOne,
          maxTicketSupply,
          ticketPrice,
-         ticketSaleDuration
+         ticketSaleDuration,
+         false
       );
       Raffle raffleOne = factory.createNewRaffle(params);
       
@@ -210,7 +213,8 @@ contract RaffleFactoryTest is Test, SetupUsers {
          nftIdOne,
          maxTicketSupply,
          ticketPrice,
-         ticketSaleDuration
+         ticketSaleDuration,
+         false
       );
       Raffle raffleOne = factory.createNewRaffle(params);
       

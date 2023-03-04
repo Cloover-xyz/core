@@ -34,6 +34,9 @@ library Errors {
     error EXCEED_MAX_VALUE_ALLOWED(); //'Value must be lower than max allowed'
     error WRONG_DURATION_LIMITS(); //'The min duration must be lower than the max one'
     error OUT_OF_RANGE(); //'The value is not in the allowed range'
+    error IS_ETH_RAFFLE(); //'Ticket can only be purchase with ETH'
+    error NOT_ETH_RAFFLE(); //'Ticket can not be purchase with ETH'
+    error TRANSFER_FAIL(); 
 }
 
  

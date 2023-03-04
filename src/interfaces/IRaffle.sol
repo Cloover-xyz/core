@@ -22,6 +22,13 @@ interface IRaffle {
     function purchaseTickets(uint256 nbOfTickets) external;
 
     /**
+     * @notice Allows users to purchase tickets with ETH
+     * @dev Only accessible if raffle still open to particpants
+     * @param nbOfTickets number of tickets purchased
+     */
+    function purchaseTicketsInEth(uint256 nbOfTickets) external payable;
+
+    /**
      * @notice Allows the winner to claim his price
      * @dev Ticket number must be draw and raffle close to new participants
      */
@@ -29,9 +36,17 @@ interface IRaffle {
     
     /**
      * @notice Allows the creator to claim the amount related to the ticket sales
+     * Only callable if tickets has been sold in ERC20
      * @dev The functions should send to the creator his part after fees
      */
-    function claimTicketSalesAmount() external;
+    function claimTokenTicketSalesAmount() external;
+
+    /**
+     * @notice Allows the creator to claim the amount related to the ticket sales
+     * Only callable if tickets has been sold in ETH
+     * @dev The functions should send to the creator his part after fees
+     */
+    function claimETHTicketSalesAmount() external;
     
     /**
      * @notice Request a random numbers
@@ -70,6 +85,12 @@ interface IRaffle {
     * @return The address of the ERC20
     */
     function purchaseCurrency() external view returns(IERC20);
+
+    /**
+    * @notice get if the raffle accept only ETH
+    * @return The True if ticket can only be purchase in ETH, False otherwise
+    */
+    function isETHTokenSales() external view returns(bool);
 
     /**
     * @notice get the price of one ticket

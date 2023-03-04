@@ -25,9 +25,10 @@ library RaffleDataTypes {
         uint256 ticketPrice;
         uint256 winningTicketNumber;
         uint64 endTicketSales;
+        bool isETHTokenSales;
         RaffleStatus status;
     }
-
+ 
     struct InitRaffleParams {
         IImplementationManager implementationManager;
         IERC20 purchaseCurrency;
@@ -37,5 +38,6 @@ library RaffleDataTypes {
         uint256 maxTicketSupply;
         uint256 ticketPrice;
         uint64 ticketSaleDuration;
+        bool isETHTokenSales;
     }
 }

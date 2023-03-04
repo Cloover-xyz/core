@@ -75,7 +75,8 @@ contract RaffleFactory is IRaffleFactory{
             params.nftId,
             params.maxTicketSupply,
             params.ticketPrice,
-            params.ticketSaleDuration
+            params.ticketSaleDuration,
+            params.isETHTokenSales
         );
     }
 
