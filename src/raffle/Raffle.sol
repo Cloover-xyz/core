@@ -132,10 +132,11 @@ contract Raffle is IRaffle, Initializable {
     function drawnTickets(uint256[] memory randomNumbers) external override onlyRandomProviderContract() drawnRequested() {
         if( randomNumbers[0] == 0 && randomNumbers.length == 0){
             _globalData.status = RaffleDataTypes.RaffleStatus.Init;
-        }
+        } else{
         _globalData.winningTicketNumber = (randomNumbers[0] % _globalData.ticketSupply) + 1;
         _globalData.status = RaffleDataTypes.RaffleStatus.WinningTicketsDrawned;
         emit WinningTicketDrawned(_globalData.winningTicketNumber );
+        }
     }
 
     /// @inheritdoc IRaffle
