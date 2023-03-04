@@ -38,10 +38,10 @@ contract Raffle is IRaffle, Initializable {
     // Events
     //----------------------------------------
 
-    event TicketPurchased(address indexed raffleContract, address indexed buyer, uint256[] ticketNumbers);
-    event WinnerClaimedPrice(address indexed raffleContract, address indexed winner, address indexed nftContract, uint256 nftId);
-    event CreatorClaimTicketSalesAmount(address indexed raffleContract, address indexed winner, uint256 amountReceived);
-    event WinningTicketDrawned(address indexed raffleContract, uint256 winningTicket);
+    event TicketPurchased(address indexed buyer, uint256[] ticketNumbers);
+    event WinnerClaimedPrice(address indexed winner, address indexed nftContract, uint256 nftId);
+    event CreatorClaimedTicketSalesAmount(address indexed winner, uint256 creatorAmountReceived, uint256 treasuryAmount);
+    event WinningTicketDrawned(uint256 winningTicket);
       
     //----------------------------------------
     // Modifier
@@ -118,7 +118,7 @@ contract Raffle is IRaffle, Initializable {
             }
         }
         _globalData.ticketSupply = ticketNumber;
-        emit TicketPurchased(address(this), msg.sender, ticketsPurchased);
+        emit TicketPurchased(msg.sender, ticketsPurchased);
     }
 
     /// @inheritdoc IRaffle
@@ -134,14 +134,14 @@ contract Raffle is IRaffle, Initializable {
         }
         _globalData.winningTicketNumber = (randomNumbers[0] % _globalData.ticketSupply) + 1;
         _globalData.status = RaffleDataTypes.RaffleStatus.WinningTicketsDrawned;
-        emit WinningTicketDrawned(address(this), _globalData.winningTicketNumber );
+        emit WinningTicketDrawned(_globalData.winningTicketNumber );
     }
 
     /// @inheritdoc IRaffle
     function claimPrice() external override ticketSalesClose() ticketHasBeDrawn(){
         if(msg.sender != winnerAddress()) revert Errors.MSG_SENDER_NOT_WINNER();
         _globalData.nftContract.safeTransferFrom(address(this), msg.sender,_globalData.nftId);
-        emit WinnerClaimedPrice(address(this), msg.sender, address(_globalData.nftContract), _globalData.nftId);
+        emit WinnerClaimedPrice(msg.sender, address(_globalData.nftContract), _globalData.nftId);
     }
 
     /// @inheritdoc IRaffle
@@ -153,7 +153,7 @@ contract Raffle is IRaffle, Initializable {
         uint256 creatorAmount = ticketSalesAmount-treasuryFeesAmount;
         _globalData.purchaseCurrency.transfer(_globalData.implementationManager.getImplementationAddress(ImplementationInterfaceNames.Treasury), treasuryFeesAmount);
         _globalData.purchaseCurrency.transfer(msg.sender, creatorAmount);
-        emit CreatorClaimTicketSalesAmount(address(this), msg.sender, creatorAmount);
+        emit CreatorClaimedTicketSalesAmount(msg.sender, creatorAmount, treasuryFeesAmount);
     }
 
     /// @inheritdoc IRaffle
