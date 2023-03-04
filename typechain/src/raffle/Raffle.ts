@@ -231,15 +231,15 @@ export interface RaffleInterface extends utils.Interface {
   ): Result;
 
   events: {
-    "CreatorClaimTicketSalesAmount(address,address,uint256)": EventFragment;
+    "CreatorClaimedTicketSalesAmount(address,uint256,uint256)": EventFragment;
     "Initialized(uint8)": EventFragment;
-    "TicketPurchased(address,address,uint256[])": EventFragment;
-    "WinnerClaimedPrice(address,address,address,uint256)": EventFragment;
-    "WinningTicketDrawned(address,uint256)": EventFragment;
+    "TicketPurchased(address,uint256[])": EventFragment;
+    "WinnerClaimedPrice(address,address,uint256)": EventFragment;
+    "WinningTicketDrawned(uint256)": EventFragment;
   };
 
   getEvent(
-    nameOrSignatureOrTopic: "CreatorClaimTicketSalesAmount"
+    nameOrSignatureOrTopic: "CreatorClaimedTicketSalesAmount"
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TicketPurchased"): EventFragment;
@@ -247,18 +247,18 @@ export interface RaffleInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "WinningTicketDrawned"): EventFragment;
 }
 
-export interface CreatorClaimTicketSalesAmountEventObject {
-  raffleContract: string;
+export interface CreatorClaimedTicketSalesAmountEventObject {
   winner: string;
-  amountReceived: BigNumber;
+  creatorAmountReceived: BigNumber;
+  treasuryAmount: BigNumber;
 }
-export type CreatorClaimTicketSalesAmountEvent = TypedEvent<
-  [string, string, BigNumber],
-  CreatorClaimTicketSalesAmountEventObject
+export type CreatorClaimedTicketSalesAmountEvent = TypedEvent<
+  [string, BigNumber, BigNumber],
+  CreatorClaimedTicketSalesAmountEventObject
 >;
 
-export type CreatorClaimTicketSalesAmountEventFilter =
-  TypedEventFilter<CreatorClaimTicketSalesAmountEvent>;
+export type CreatorClaimedTicketSalesAmountEventFilter =
+  TypedEventFilter<CreatorClaimedTicketSalesAmountEvent>;
 
 export interface InitializedEventObject {
   version: number;
@@ -268,25 +268,23 @@ export type InitializedEvent = TypedEvent<[number], InitializedEventObject>;
 export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
 
 export interface TicketPurchasedEventObject {
-  raffleContract: string;
   buyer: string;
   ticketNumbers: BigNumber[];
 }
 export type TicketPurchasedEvent = TypedEvent<
-  [string, string, BigNumber[]],
+  [string, BigNumber[]],
   TicketPurchasedEventObject
 >;
 
 export type TicketPurchasedEventFilter = TypedEventFilter<TicketPurchasedEvent>;
 
 export interface WinnerClaimedPriceEventObject {
-  raffleContract: string;
   winner: string;
   nftContract: string;
   nftId: BigNumber;
 }
 export type WinnerClaimedPriceEvent = TypedEvent<
-  [string, string, string, BigNumber],
+  [string, string, BigNumber],
   WinnerClaimedPriceEventObject
 >;
 
@@ -294,11 +292,10 @@ export type WinnerClaimedPriceEventFilter =
   TypedEventFilter<WinnerClaimedPriceEvent>;
 
 export interface WinningTicketDrawnedEventObject {
-  raffleContract: string;
   winningTicket: BigNumber;
 }
 export type WinningTicketDrawnedEvent = TypedEvent<
-  [string, BigNumber],
+  [BigNumber],
   WinningTicketDrawnedEventObject
 >;
 
@@ -519,52 +516,44 @@ export interface Raffle extends BaseContract {
   };
 
   filters: {
-    "CreatorClaimTicketSalesAmount(address,address,uint256)"(
-      raffleContract?: PromiseOrValue<string> | null,
+    "CreatorClaimedTicketSalesAmount(address,uint256,uint256)"(
       winner?: PromiseOrValue<string> | null,
-      amountReceived?: null
-    ): CreatorClaimTicketSalesAmountEventFilter;
-    CreatorClaimTicketSalesAmount(
-      raffleContract?: PromiseOrValue<string> | null,
+      creatorAmountReceived?: null,
+      treasuryAmount?: null
+    ): CreatorClaimedTicketSalesAmountEventFilter;
+    CreatorClaimedTicketSalesAmount(
       winner?: PromiseOrValue<string> | null,
-      amountReceived?: null
-    ): CreatorClaimTicketSalesAmountEventFilter;
+      creatorAmountReceived?: null,
+      treasuryAmount?: null
+    ): CreatorClaimedTicketSalesAmountEventFilter;
 
     "Initialized(uint8)"(version?: null): InitializedEventFilter;
     Initialized(version?: null): InitializedEventFilter;
 
-    "TicketPurchased(address,address,uint256[])"(
-      raffleContract?: PromiseOrValue<string> | null,
+    "TicketPurchased(address,uint256[])"(
       buyer?: PromiseOrValue<string> | null,
       ticketNumbers?: null
     ): TicketPurchasedEventFilter;
     TicketPurchased(
-      raffleContract?: PromiseOrValue<string> | null,
       buyer?: PromiseOrValue<string> | null,
       ticketNumbers?: null
     ): TicketPurchasedEventFilter;
 
-    "WinnerClaimedPrice(address,address,address,uint256)"(
-      raffleContract?: PromiseOrValue<string> | null,
+    "WinnerClaimedPrice(address,address,uint256)"(
       winner?: PromiseOrValue<string> | null,
       nftContract?: PromiseOrValue<string> | null,
       nftId?: null
     ): WinnerClaimedPriceEventFilter;
     WinnerClaimedPrice(
-      raffleContract?: PromiseOrValue<string> | null,
       winner?: PromiseOrValue<string> | null,
       nftContract?: PromiseOrValue<string> | null,
       nftId?: null
     ): WinnerClaimedPriceEventFilter;
 
-    "WinningTicketDrawned(address,uint256)"(
-      raffleContract?: PromiseOrValue<string> | null,
+    "WinningTicketDrawned(uint256)"(
       winningTicket?: null
     ): WinningTicketDrawnedEventFilter;
-    WinningTicketDrawned(
-      raffleContract?: PromiseOrValue<string> | null,
-      winningTicket?: null
-    ): WinningTicketDrawnedEventFilter;
+    WinningTicketDrawned(winningTicket?: null): WinningTicketDrawnedEventFilter;
   };
 
   estimateGas: {

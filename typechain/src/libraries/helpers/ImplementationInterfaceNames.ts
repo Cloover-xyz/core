@@ -27,6 +27,8 @@ export interface ImplementationInterfaceNamesInterface extends utils.Interface {
     "NFTWhitelist()": FunctionFragment;
     "RaffleFactory()": FunctionFragment;
     "RandomProvider()": FunctionFragment;
+    "TokenWhitelist()": FunctionFragment;
+    "Treasury()": FunctionFragment;
   };
 
   getFunction(
@@ -36,6 +38,8 @@ export interface ImplementationInterfaceNamesInterface extends utils.Interface {
       | "NFTWhitelist"
       | "RaffleFactory"
       | "RandomProvider"
+      | "TokenWhitelist"
+      | "Treasury"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -58,6 +62,11 @@ export interface ImplementationInterfaceNamesInterface extends utils.Interface {
     functionFragment: "RandomProvider",
     values?: undefined
   ): string;
+  encodeFunctionData(
+    functionFragment: "TokenWhitelist",
+    values?: undefined
+  ): string;
+  encodeFunctionData(functionFragment: "Treasury", values?: undefined): string;
 
   decodeFunctionResult(
     functionFragment: "AccessController",
@@ -79,6 +88,11 @@ export interface ImplementationInterfaceNamesInterface extends utils.Interface {
     functionFragment: "RandomProvider",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "TokenWhitelist",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "Treasury", data: BytesLike): Result;
 
   events: {};
 }
@@ -119,6 +133,10 @@ export interface ImplementationInterfaceNames extends BaseContract {
     RaffleFactory(overrides?: CallOverrides): Promise<[string]>;
 
     RandomProvider(overrides?: CallOverrides): Promise<[string]>;
+
+    TokenWhitelist(overrides?: CallOverrides): Promise<[string]>;
+
+    Treasury(overrides?: CallOverrides): Promise<[string]>;
   };
 
   AccessController(overrides?: CallOverrides): Promise<string>;
@@ -131,6 +149,10 @@ export interface ImplementationInterfaceNames extends BaseContract {
 
   RandomProvider(overrides?: CallOverrides): Promise<string>;
 
+  TokenWhitelist(overrides?: CallOverrides): Promise<string>;
+
+  Treasury(overrides?: CallOverrides): Promise<string>;
+
   callStatic: {
     AccessController(overrides?: CallOverrides): Promise<string>;
 
@@ -141,6 +163,10 @@ export interface ImplementationInterfaceNames extends BaseContract {
     RaffleFactory(overrides?: CallOverrides): Promise<string>;
 
     RandomProvider(overrides?: CallOverrides): Promise<string>;
+
+    TokenWhitelist(overrides?: CallOverrides): Promise<string>;
+
+    Treasury(overrides?: CallOverrides): Promise<string>;
   };
 
   filters: {};
@@ -155,6 +181,10 @@ export interface ImplementationInterfaceNames extends BaseContract {
     RaffleFactory(overrides?: CallOverrides): Promise<BigNumber>;
 
     RandomProvider(overrides?: CallOverrides): Promise<BigNumber>;
+
+    TokenWhitelist(overrides?: CallOverrides): Promise<BigNumber>;
+
+    Treasury(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -167,5 +197,9 @@ export interface ImplementationInterfaceNames extends BaseContract {
     RaffleFactory(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     RandomProvider(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    TokenWhitelist(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    Treasury(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }

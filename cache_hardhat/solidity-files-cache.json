@@ -35,7 +35,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363737353130373030323531"
+              "__CACHE_BREAKER__": "0x0000000000000031363737393336373733323236"
             }
           }
         }
@@ -84,7 +84,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363737353130373030323531"
+              "__CACHE_BREAKER__": "0x0000000000000031363737393336373733323236"
             }
           }
         }
@@ -136,7 +136,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363737353130373030323531"
+              "__CACHE_BREAKER__": "0x0000000000000031363737393336373733323236"
             }
           }
         }
@@ -183,7 +183,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363737353130373030323531"
+              "__CACHE_BREAKER__": "0x0000000000000031363737393336373733323236"
             }
           }
         }
@@ -230,7 +230,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363737353130373030323531"
+              "__CACHE_BREAKER__": "0x0000000000000031363737393336373733323236"
             }
           }
         }
@@ -280,7 +280,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363737353130373030323531"
+              "__CACHE_BREAKER__": "0x0000000000000031363737393336373733323236"
             }
           }
         }
@@ -329,7 +329,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363737353130373030323531"
+              "__CACHE_BREAKER__": "0x0000000000000031363737393336373733323236"
             }
           }
         }
@@ -376,7 +376,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363737353130373030323531"
+              "__CACHE_BREAKER__": "0x0000000000000031363737393336373733323236"
             }
           }
         }
@@ -423,7 +423,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363737353130373030323531"
+              "__CACHE_BREAKER__": "0x0000000000000031363737393336373733323236"
             }
           }
         }
@@ -470,7 +470,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363737353130373030323531"
+              "__CACHE_BREAKER__": "0x0000000000000031363737393336373733323236"
             }
           }
         }
@@ -519,7 +519,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363737353130373030323531"
+              "__CACHE_BREAKER__": "0x0000000000000031363737393336373733323236"
             }
           }
         }
@@ -568,7 +568,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363737353130373030323531"
+              "__CACHE_BREAKER__": "0x0000000000000031363737393336373733323236"
             }
           }
         }
@@ -623,7 +623,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363737353130373030323531"
+              "__CACHE_BREAKER__": "0x0000000000000031363737393336373733323236"
             }
           }
         }
@@ -670,7 +670,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363737353130373030323531"
+              "__CACHE_BREAKER__": "0x0000000000000031363737393336373733323236"
             }
           }
         }
@@ -717,7 +717,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363737353130373030323531"
+              "__CACHE_BREAKER__": "0x0000000000000031363737393336373733323236"
             }
           }
         }
@@ -768,7 +768,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363737353130373030323531"
+              "__CACHE_BREAKER__": "0x0000000000000031363737393336373733323236"
             }
           }
         }
@@ -815,7 +815,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363737353130373030323531"
+              "__CACHE_BREAKER__": "0x0000000000000031363737393336373733323236"
             }
           }
         }
@@ -864,7 +864,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363737353130373030323531"
+              "__CACHE_BREAKER__": "0x0000000000000031363737393336373733323236"
             }
           }
         }
@@ -882,8 +882,8 @@
       ]
     },
     "/Users/xutyr/Dev/Windzy/Contracts/src/raffle/Raffle.sol": {
-      "lastModificationDate": 1677507847238,
-      "contentHash": "469eb0bbec1f3403b02f28d7edf42164",
+      "lastModificationDate": 1677933102799,
+      "contentHash": "c75241205d76bc3ee81178f534d597fd",
       "sourceName": "src/raffle/Raffle.sol",
       "solcConfig": {
         "version": "0.8.17",
@@ -915,7 +915,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363737353130373030323531"
+              "__CACHE_BREAKER__": "0x0000000000000031363737393336373733323236"
             }
           }
         }
@@ -926,9 +926,11 @@
         "lib/openzeppelin-contracts/contracts/token/ERC721/IERC721.sol",
         "../libraries/helpers/ImplementationInterfaceNames.sol",
         "../libraries/helpers/Errors.sol",
+        "../libraries/math/PercentageMath.sol",
         "../interfaces/IRaffle.sol",
         "../interfaces/IRandomProvider.sol",
         "../interfaces/INFTCollectionWhitelist.sol",
+        "../interfaces/IConfigManager.sol",
         "./RaffleDataTypes.sol"
       ],
       "versionPragmas": [
@@ -939,8 +941,8 @@
       ]
     },
     "/Users/xutyr/Dev/Windzy/Contracts/src/libraries/helpers/Errors.sol": {
-      "lastModificationDate": 1677507847237,
-      "contentHash": "338bebbd566561a6b82eecabd652d3b0",
+      "lastModificationDate": 1677933665313,
+      "contentHash": "e8ffc9d655f289368c9efeb9a5195029",
       "sourceName": "src/libraries/helpers/Errors.sol",
       "solcConfig": {
         "version": "0.8.17",
@@ -972,7 +974,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363737353130373030323531"
+              "__CACHE_BREAKER__": "0x0000000000000031363737393336373733323236"
             }
           }
         }
@@ -1019,7 +1021,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363737353130373030323531"
+              "__CACHE_BREAKER__": "0x0000000000000031363737393336373733323236"
             }
           }
         }
@@ -1070,7 +1072,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363737353130373030323531"
+              "__CACHE_BREAKER__": "0x0000000000000031363737393336373733323236"
             }
           }
         }
@@ -1119,7 +1121,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363737353130373030323531"
+              "__CACHE_BREAKER__": "0x0000000000000031363737393336373733323236"
             }
           }
         }
@@ -1171,7 +1173,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363737353130373030323531"
+              "__CACHE_BREAKER__": "0x0000000000000031363737393336373733323236"
             }
           }
         }
@@ -1220,7 +1222,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363737353130373030323531"
+              "__CACHE_BREAKER__": "0x0000000000000031363737393336373733323236"
             }
           }
         }
@@ -1234,8 +1236,8 @@
       ]
     },
     "/Users/xutyr/Dev/Windzy/Contracts/src/libraries/helpers/ImplementationInterfaceNames.sol": {
-      "lastModificationDate": 1677507847237,
-      "contentHash": "08283613f72c504e2dc971a5a1c8195e",
+      "lastModificationDate": 1677933990440,
+      "contentHash": "b13a9c14d5a6a74e242fd93cd806c012",
       "sourceName": "src/libraries/helpers/ImplementationInterfaceNames.sol",
       "solcConfig": {
         "version": "0.8.17",
@@ -1267,7 +1269,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363737353130373030323531"
+              "__CACHE_BREAKER__": "0x0000000000000031363737393336373733323236"
             }
           }
         }
@@ -1314,7 +1316,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363737353130373030323531"
+              "__CACHE_BREAKER__": "0x0000000000000031363737393336373733323236"
             }
           }
         }
@@ -1363,7 +1365,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363737353130373030323531"
+              "__CACHE_BREAKER__": "0x0000000000000031363737393336373733323236"
             }
           }
         }
@@ -1412,7 +1414,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363737353130373030323531"
+              "__CACHE_BREAKER__": "0x0000000000000031363737393336373733323236"
             }
           }
         }
@@ -1459,7 +1461,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363737353130373030323531"
+              "__CACHE_BREAKER__": "0x0000000000000031363737393336373733323236"
             }
           }
         }
@@ -1512,7 +1514,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363737353130373030323531"
+              "__CACHE_BREAKER__": "0x0000000000000031363737393336373733323236"
             }
           }
         }
@@ -1569,7 +1571,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363737353130373030323531"
+              "__CACHE_BREAKER__": "0x0000000000000031363737393336373733323236"
             }
           }
         }
@@ -1616,7 +1618,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363737353130373030323531"
+              "__CACHE_BREAKER__": "0x0000000000000031363737393336373733323236"
             }
           }
         }
@@ -1663,7 +1665,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363737353130373030323531"
+              "__CACHE_BREAKER__": "0x0000000000000031363737393336373733323236"
             }
           }
         }
@@ -1720,7 +1722,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363737353130373030323531"
+              "__CACHE_BREAKER__": "0x0000000000000031363737393336373733323236"
             }
           }
         }
@@ -1772,7 +1774,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363737353130373030323531"
+              "__CACHE_BREAKER__": "0x0000000000000031363737393336373733323236"
             }
           }
         }
@@ -1819,7 +1821,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363737353130373030323531"
+              "__CACHE_BREAKER__": "0x0000000000000031363737393336373733323236"
             }
           }
         }
@@ -1866,7 +1868,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363737353130373030323531"
+              "__CACHE_BREAKER__": "0x0000000000000031363737393336373733323236"
             }
           }
         }
@@ -1920,7 +1922,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363737353130373030323531"
+              "__CACHE_BREAKER__": "0x0000000000000031363737393336373733323236"
             }
           }
         }
@@ -1967,7 +1969,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363737353130373030323531"
+              "__CACHE_BREAKER__": "0x0000000000000031363737393336373733323236"
             }
           }
         }
@@ -2022,7 +2024,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363737353130373030323531"
+              "__CACHE_BREAKER__": "0x0000000000000031363737393336373733323236"
             }
           }
         }
@@ -2069,7 +2071,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363737353130373030323531"
+              "__CACHE_BREAKER__": "0x0000000000000031363737393336373733323236"
             }
           }
         }
@@ -2116,7 +2118,7 @@
           },
           "libraries": {
             "": {
-              "__CACHE_BREAKER__": "0x0000000000000031363737353130373030323531"
+              "__CACHE_BREAKER__": "0x0000000000000031363737393336373733323236"
             }
           }
         }
@@ -2127,6 +2129,107 @@
       ],
       "artifacts": [
         "ConfiguratorInputTypes"
+      ]
+    },
+    "/Users/xutyr/Dev/Windzy/Contracts/src/core/TokenWhitelist.sol": {
+      "lastModificationDate": 1677934275843,
+      "contentHash": "2b19440b114a2c5a953f5e7f8b4aa057",
+      "sourceName": "src/core/TokenWhitelist.sol",
+      "solcConfig": {
+        "version": "0.8.17",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "devdoc",
+                "userdoc",
+                "storageLayout",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          },
+          "libraries": {
+            "": {
+              "__CACHE_BREAKER__": "0x0000000000000031363737393336373733323236"
+            }
+          }
+        }
+      },
+      "imports": [
+        "lib/openzeppelin-contracts/contracts/utils/structs/EnumerableSet.sol",
+        "../interfaces/IAccessController.sol",
+        "../interfaces/IImplementationManager.sol",
+        "../interfaces/ITokenWhitelist.sol",
+        "../libraries/helpers/ImplementationInterfaceNames.sol",
+        "../libraries/helpers/Errors.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "TokenWhitelist"
+      ]
+    },
+    "/Users/xutyr/Dev/Windzy/Contracts/src/interfaces/ITokenWhitelist.sol": {
+      "lastModificationDate": 1677933490584,
+      "contentHash": "8e81a655b0a8718326e3bc38f566b5c3",
+      "sourceName": "src/interfaces/ITokenWhitelist.sol",
+      "solcConfig": {
+        "version": "0.8.17",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "devdoc",
+                "userdoc",
+                "storageLayout",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          },
+          "libraries": {
+            "": {
+              "__CACHE_BREAKER__": "0x0000000000000031363737393336373733323236"
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "ITokenWhitelist"
       ]
     }
   }

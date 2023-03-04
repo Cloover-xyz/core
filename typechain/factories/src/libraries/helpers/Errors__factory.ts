@@ -52,6 +52,11 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "EXCEED_MAX_VALUE_ALLOWED",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "IMPLEMENTATION_NOT_FOUND",
     type: "error",
   },
@@ -102,6 +107,11 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "OUT_OF_RANGE",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "RAFFLE_CLOSE",
     type: "error",
   },
@@ -127,13 +137,23 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "TOKEN_ALREADY_WHITELISTED",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "TOKEN_NOT_WHITELISTED",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "WRONG_DURATION_LIMITS",
     type: "error",
   },
 ] as const;
 
 const _bytecode =
-  "0x60566037600b82828239805160001a607314602a57634e487b7160e01b600052600060045260246000fd5b30600052607381538281f3fe73000000000000000000000000000000000000000030146080604052600080fdfea2646970667358221220586fad7aba9fd8a0e212e753772f70722e603bba2aab67d313c34bca38e64c6364736f6c63430008110033";
+  "0x60566037600b82828239805160001a607314602a57634e487b7160e01b600052600060045260246000fd5b30600052607381538281f3fe73000000000000000000000000000000000000000030146080604052600080fdfea264697066735822122053409e376e464229e42bf1bed3593cc2e4f943137d3c08d64482df8f5f41d81364736f6c63430008110033";
 
 type ErrorsConstructorParams =
   | [signer?: Signer]

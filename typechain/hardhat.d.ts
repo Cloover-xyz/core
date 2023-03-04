@@ -89,6 +89,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.RandomProvider__factory>;
     getContractFactory(
+      name: "TokenWhitelist",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.TokenWhitelist__factory>;
+    getContractFactory(
       name: "IAccessController",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IAccessController__factory>;
@@ -116,6 +120,10 @@ declare module "hardhat/types/runtime" {
       name: "IRandomProvider",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IRandomProvider__factory>;
+    getContractFactory(
+      name: "ITokenWhitelist",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ITokenWhitelist__factory>;
     getContractFactory(
       name: "Errors",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -241,6 +249,11 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.RandomProvider>;
     getContractAt(
+      name: "TokenWhitelist",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.TokenWhitelist>;
+    getContractAt(
       name: "IAccessController",
       address: string,
       signer?: ethers.Signer
@@ -275,6 +288,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.IRandomProvider>;
+    getContractAt(
+      name: "ITokenWhitelist",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ITokenWhitelist>;
     getContractAt(
       name: "Errors",
       address: string,

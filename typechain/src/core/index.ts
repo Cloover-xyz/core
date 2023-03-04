@@ -6,3 +6,4 @@ export type { ConfigManager } from "./ConfigManager";
 export type { ImplementationManager } from "./ImplementationManager";
 export type { NFTCollectionWhitelist } from "./NFTCollectionWhitelist";
 export type { RandomProvider } from "./RandomProvider";
+export type { TokenWhitelist } from "./TokenWhitelist";
