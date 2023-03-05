@@ -8,15 +8,13 @@ import {IERC721} from "openzeppelin-contracts/contracts/token/ERC721/IERC721.sol
 import {ImplementationInterfaceNames} from "../libraries/helpers/ImplementationInterfaceNames.sol";
 import {Errors} from "../libraries/helpers/Errors.sol";
 import {PercentageMath} from "../libraries/math/PercentageMath.sol";
+import {RaffleDataTypes} from "../libraries/types/RaffleDataTypes.sol";
 
 import {IRaffle} from "../interfaces/IRaffle.sol";
 import {IRandomProvider} from "../interfaces/IRandomProvider.sol";
 import {INFTCollectionWhitelist} from "../interfaces/INFTCollectionWhitelist.sol";
 import {ITokenWhitelist} from "../interfaces/ITokenWhitelist.sol";
 import {IConfigManager} from "../interfaces/IConfigManager.sol";
-
-import {RaffleDataTypes} from "./RaffleDataTypes.sol";
-
  
 contract Raffle is IRaffle, Initializable {
 

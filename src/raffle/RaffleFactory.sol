@@ -11,8 +11,8 @@ import {IImplementationManager} from "../interfaces/IImplementationManager.sol";
 import {IRaffleFactory} from "../interfaces/IRaffleFactory.sol";
 
 import {ImplementationInterfaceNames} from "../libraries/helpers/ImplementationInterfaceNames.sol";
+import {RaffleDataTypes} from "../libraries/types/RaffleDataTypes.sol";
 
-import {RaffleDataTypes} from "./RaffleDataTypes.sol";
 import {Raffle} from "./Raffle.sol";
  
 contract RaffleFactory is IRaffleFactory{

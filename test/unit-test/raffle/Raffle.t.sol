@@ -17,11 +17,11 @@ import {TokenWhitelist} from "../../../src/core/TokenWhitelist.sol";
 import {ConfigManager} from "../../../src/core/ConfigManager.sol";
 
 import {Raffle} from "../../../src/raffle/Raffle.sol";
-import {RaffleDataTypes} from "../../../src/raffle/RaffleDataTypes.sol";
 
 import {Errors} from "../../../src/libraries/helpers/Errors.sol";
 import {ImplementationInterfaceNames} from "../../../src/libraries/helpers/ImplementationInterfaceNames.sol";
 import {ConfiguratorInputTypes} from "../../../src/libraries/types/ConfiguratorInputTypes.sol";
+import {RaffleDataTypes} from "../../../src/libraries/types/RaffleDataTypes.sol";
 import {PercentageMath} from "../../../src/libraries/math/PercentageMath.sol";
 
 import {SetupUsers} from "../../utils/SetupUsers.sol";
