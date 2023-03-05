@@ -22,6 +22,7 @@ contract ConfigManager is IConfigManager {
         uint256 maxTicketSupplyAllowed;
         uint256 minTicketSalesDuration;
         uint256 maxTicketSalesDuration;
+        uint256 insuranceSalesPercentage;
     }
     
     //----------------------------------------
@@ -40,6 +41,7 @@ contract ConfigManager is IConfigManager {
     event MaxTicketSupplyAllowedUpdated(uint256 newMaxTicketSupplyAllowed);
     event MinTicketSalesDurationUpdated(uint256 newMinTicketSalesDuration);
     event MaxTicketSalesDurationUpdated(uint256 newMaxTicketSalesDuration);
+    event InsuranceSalesPercentageUpdated(uint256 newInsuranceSalesPercentage);
 
     //----------------------------------------
     // Modifiers
@@ -55,10 +57,17 @@ contract ConfigManager is IConfigManager {
     //----------------------------------------
     constructor(IImplementationManager implManager, ConfiguratorInputTypes.InitConfigManagerInput memory _data){
         if(_data.protocolFeesPercentage > PercentageMath.PERCENTAGE_FACTOR) revert Errors.EXCEED_MAX_PERCENTAGE();
+        if(_data.insuranceSalesPercentage > PercentageMath.PERCENTAGE_FACTOR) revert Errors.EXCEED_MAX_PERCENTAGE();
         if(_data.minTicketSalesDuration > _data.maxTicketSalesDuration) revert Errors.WRONG_DURATION_LIMITS();
         if(_data.maxTicketSupplyAllowed == 0) revert Errors.CANT_BE_ZERO();
         _implementationManager = implManager;
-        _raffleConfigData = RaffleConfigData(_data.protocolFeesPercentage, _data.maxTicketSupplyAllowed, _data.minTicketSalesDuration, _data.maxTicketSalesDuration);
+        _raffleConfigData = RaffleConfigData(
+            _data.protocolFeesPercentage,
+            _data.maxTicketSupplyAllowed,
+            _data.minTicketSalesDuration,
+            _data.maxTicketSalesDuration, 
+            _data.insuranceSalesPercentage
+        );
     }
 
     //----------------------------------------
@@ -73,6 +82,16 @@ contract ConfigManager is IConfigManager {
 
     function procolFeesPercentage() external view override returns(uint256) {
         return _raffleConfigData.protocolFeesPercentage;
+    }
+    
+    function setInsuranceSalesPercentage(uint256 newInsuranceSalesPercentage) external onlyMaintainer{
+        if(newInsuranceSalesPercentage > PercentageMath.PERCENTAGE_FACTOR) revert Errors.EXCEED_MAX_PERCENTAGE();
+        _raffleConfigData.insuranceSalesPercentage = newInsuranceSalesPercentage;
+        emit InsuranceSalesPercentageUpdated(newInsuranceSalesPercentage);
+    }
+
+    function insuranceSalesPercentage() external view override returns(uint256) {
+        return _raffleConfigData.insuranceSalesPercentage;
     }
 
     function setMinTicketSalesDuration(uint256 newMinTicketSalesDuration) external onlyMaintainer{

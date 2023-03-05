@@ -52,6 +52,8 @@ contract RaffleFactoryTest is Test, SetupUsers {
    uint256 MAX_SALE_DURATION = 2 weeks;
    uint256 MAX_TICKET_SUPPLY = 10000;
    uint256 FEE_PERCENTAGE = 1e2;
+   uint256 INSURANCE_SALES_PERCENTAGE = 5e2; //5%
+
     function setUp() public virtual override {
       SetupUsers.setUp();
 
@@ -73,7 +75,8 @@ contract RaffleFactoryTest is Test, SetupUsers {
          FEE_PERCENTAGE,
          MAX_TICKET_SUPPLY,
          MIN_SALE_DURATION,
-         MAX_SALE_DURATION
+         MAX_SALE_DURATION,
+         INSURANCE_SALES_PERCENTAGE
       );
       configManager = new ConfigManager(implementationManager, configData);
       changePrank(maintainer);

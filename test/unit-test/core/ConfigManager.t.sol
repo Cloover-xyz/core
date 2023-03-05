@@ -22,6 +22,7 @@ contract ConfigManagerTest is Test, SetupUsers {
     ConfigManager configManager;
 
     uint256 baseFeePercentage = 1e2; // 1%
+    uint256 baseInsuranceSalePercentage = 5e2; // 5%
     uint256 baseMaxTicketSupplyAllowed = 10000; 
     uint256 baseMinTicketSaleDuration = 86400; // 1 days
     uint256 baseMaxTicketSaleDuration = 8 weeks; // 2 months
@@ -37,7 +38,8 @@ contract ConfigManagerTest is Test, SetupUsers {
             baseFeePercentage,
             baseMaxTicketSupplyAllowed,
             baseMinTicketSaleDuration,
-            baseMaxTicketSaleDuration
+            baseMaxTicketSaleDuration,
+            baseInsuranceSalePercentage
         );
         configManager = new ConfigManager(implementationManager, data);
 
@@ -60,13 +62,27 @@ contract ConfigManagerTest is Test, SetupUsers {
         assertEq(max, baseMaxTicketSaleDuration);
     }
     
-    function test_RevertIf_BasePercentageExceed100PercentOnDeployment() external {
+    function test_RevertIf_BaseFeePercentageExceed100PercentOnDeployment() external {
         uint256 wrongBaseFeePercentage = 1.1e4; //110%
         ConfiguratorInputTypes.InitConfigManagerInput memory data = ConfiguratorInputTypes.InitConfigManagerInput(
             wrongBaseFeePercentage,
             baseMaxTicketSupplyAllowed,
             baseMinTicketSaleDuration,
-            baseMaxTicketSaleDuration
+            baseMaxTicketSaleDuration,
+            baseInsuranceSalePercentage
+        );
+        vm.expectRevert(Errors.EXCEED_MAX_PERCENTAGE.selector);
+        configManager = new ConfigManager(implementationManager, data);
+    }
+
+    function test_RevertIf_BaseInsurancePercentageExceed100PercentOnDeployment() external {
+        uint256 wrongBaseInsuranceSalePercentage = 1.1e4; //110%
+        ConfiguratorInputTypes.InitConfigManagerInput memory data = ConfiguratorInputTypes.InitConfigManagerInput(
+            baseFeePercentage,
+            baseMaxTicketSupplyAllowed,
+            baseMinTicketSaleDuration,
+            baseMaxTicketSaleDuration,
+            wrongBaseInsuranceSalePercentage
         );
         vm.expectRevert(Errors.EXCEED_MAX_PERCENTAGE.selector);
         configManager = new ConfigManager(implementationManager, data);
@@ -78,7 +94,8 @@ contract ConfigManagerTest is Test, SetupUsers {
             baseFeePercentage,
             baseMaxTicketSupplyAllowed,
             wrongMinDuration,
-            baseMaxTicketSaleDuration
+            baseMaxTicketSaleDuration,
+            baseInsuranceSalePercentage
         );
         vm.expectRevert(Errors.WRONG_DURATION_LIMITS.selector);
         configManager = new ConfigManager(implementationManager, data);
@@ -90,7 +107,8 @@ contract ConfigManagerTest is Test, SetupUsers {
             baseFeePercentage,
             0,
             baseMinTicketSaleDuration,
-            baseMaxTicketSaleDuration
+            baseMaxTicketSaleDuration,
+            baseInsuranceSalePercentage
         );
         vm.expectRevert(Errors.CANT_BE_ZERO.selector);
         configManager = new ConfigManager(implementationManager, data);
@@ -110,13 +128,35 @@ contract ConfigManagerTest is Test, SetupUsers {
         configManager.setProcolFeesPercentage(newFeePercentage);
     }
 
-    function test_RevertIf_NotMaintainerUpdateFeePercentage() external{
+  function test_RevertIf_NotMaintainerUpdateFeePercentage() external{
         changePrank(alice);
         uint256 newFeePercentage = 2.5e2; //2.5%
         vm.expectRevert(Errors.NOT_MAINTAINER.selector);
         configManager.setProcolFeesPercentage(newFeePercentage);
     }
 
+    function test_CorrectlySetInsuranceSalesPercentage() external{
+        changePrank(maintainer);
+        uint256 newInsuranceSalePercentage = 2.5e2; //2.5%
+        configManager.setInsuranceSalesPercentage(newInsuranceSalePercentage);
+        assertEq(configManager.insuranceSalesPercentage(), newInsuranceSalePercentage);
+    }
+
+    function test_RevertIf_NewInsuranceSalesPercentageExceed100Percent() external{
+        changePrank(maintainer);
+        uint256 newInsuranceSalePercentage = 1.1e4; //110%
+        vm.expectRevert(Errors.EXCEED_MAX_PERCENTAGE.selector);
+        configManager.setInsuranceSalesPercentage(newInsuranceSalePercentage);
+    }
+
+  function test_RevertIf_NotMaintainerUpdateInsuranceSalesPercentage() external{
+        changePrank(alice);
+        uint256 newInsuranceSalePercentage = 2.5e2; //2.5%
+        vm.expectRevert(Errors.NOT_MAINTAINER.selector);
+        configManager.setInsuranceSalesPercentage(newInsuranceSalePercentage);
+    }
+
+  
     function test_CorrectlySetMinTicketSalesDuration() external{
         changePrank(maintainer);
         uint256 newMinTicketSalesDuration = 1 weeks;

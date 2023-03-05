@@ -8,6 +8,7 @@ library ConfiguratorInputTypes {
         uint256 maxTicketSupplyAllowed;
         uint256 minTicketSalesDuration;
         uint256 maxTicketSalesDuration;
+        uint256 insuranceSalesPercentage;
     }
     
 }
