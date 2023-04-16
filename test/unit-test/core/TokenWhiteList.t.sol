@@ -32,6 +32,7 @@ contract TokenWhitelistTest is Test, SetupUsers {
         accessController = new AccessController(maintainer);
         implementationManager = new ImplementationManager(address(accessController));
         tokenWhitelist = new TokenWhitelist(implementationManager);
+        
         changePrank(maintainer);
         implementationManager.changeImplementationAddress(
               ImplementationInterfaceNames.TokenWhitelist,

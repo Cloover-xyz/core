@@ -9,14 +9,17 @@ import {Errors} from "../libraries/helpers/Errors.sol";
 
 import {IImplementationManager} from "../interfaces/IImplementationManager.sol";
 import {IRaffleFactory} from "../interfaces/IRaffleFactory.sol";
+import {IConfigManager} from "../interfaces/IConfigManager.sol";
 
 import {ImplementationInterfaceNames} from "../libraries/helpers/ImplementationInterfaceNames.sol";
 import {RaffleDataTypes} from "../libraries/types/RaffleDataTypes.sol";
+import {InsuranceLogic} from "../libraries/logic/InsuranceLogic.sol";
 
 import {Raffle} from "./Raffle.sol";
  
 contract RaffleFactory is IRaffleFactory{
     using Clones for address;
+    using InsuranceLogic for uint;
 
     //----------------------------------------
     // Storage
@@ -49,10 +52,11 @@ contract RaffleFactory is IRaffleFactory{
     //----------------------------------------
 
     /// @inheritdoc IRaffleFactory
-    function createNewRaffle(Params memory params) external override returns(Raffle newRaffle){
+    function createNewRaffle(Params memory params) external override payable returns(Raffle newRaffle){
         newRaffle = Raffle(raffleImplementation.clone());
         params.nftContract.transferFrom(msg.sender, address(newRaffle), params.nftId);
-        newRaffle.initialize(_convertParams(params));
+        _handleInsurance(params, address(newRaffle));
+        newRaffle.initialize{value: msg.value}(_convertParams(params));
         isRegisteredRaffle[address(newRaffle)] = true;
         emit NewRaffle(address(newRaffle), params);
     }
@@ -66,6 +70,19 @@ contract RaffleFactory is IRaffleFactory{
     //----------------------------------------
     // Internal functions
     //----------------------------------------
+
+    function _handleInsurance(Params memory params, address newRaffle) internal {
+        if(params.minTicketSalesInsurance > 0 && !params.isETHTokenSales){
+            IConfigManager configManager = IConfigManager(
+                implementationManager.getImplementationAddress(
+                    ImplementationInterfaceNames.ConfigManager
+                )
+            );
+            uint256 insuranceCost = params.minTicketSalesInsurance.calculateInsuranceCost(params.ticketPrice,  configManager.insuranceSalesPercentage());
+            params.purchaseCurrency.transferFrom(msg.sender, newRaffle, insuranceCost);
+        }
+    }
+    
     function _convertParams(Params memory params) internal view returns(RaffleDataTypes.InitRaffleParams memory raffleParams){
         raffleParams = RaffleDataTypes.InitRaffleParams(
             implementationManager,
@@ -75,6 +92,7 @@ contract RaffleFactory is IRaffleFactory{
             params.nftId,
             params.maxTicketSupply,
             params.ticketPrice,
+            params.minTicketSalesInsurance,
             params.ticketSaleDuration,
             params.isETHTokenSales
         );

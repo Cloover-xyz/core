@@ -14,6 +14,7 @@ interface IRaffleFactory {
         uint256 nftId;
         uint256 maxTicketSupply;
         uint256 ticketPrice;
+        uint256 minTicketSalesInsurance;
         uint64 ticketSaleDuration;
         bool isETHTokenSales;
     }
@@ -24,7 +25,7 @@ interface IRaffleFactory {
      * @param params used for initialization (see Params struct in RaffleFactory.sol)
      * @return newRaffle the instance of the raffle contract
      */
-    function createNewRaffle(Params memory params) external returns(Raffle newRaffle);
+    function createNewRaffle(Params memory params) external payable returns(Raffle newRaffle);
 
 
     /**

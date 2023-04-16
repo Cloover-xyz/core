@@ -8,7 +8,6 @@ import {Utils} from "./Utils.sol";
 contract SetupUsers is Test {
     Utils internal utils;
  
-
     address payable[] internal users;
     address internal deployer;
     address internal admin;
@@ -16,10 +15,11 @@ contract SetupUsers is Test {
     address internal maintainer;
     address internal alice;
     address internal bob;
+    address internal carole;
 
     function setUp() public virtual{
         utils = new Utils();
-        users = utils.createUsers(6);
+        users = utils.createUsers(7);
 
         deployer = users[0];
         vm.label(deployer, "Deployer");
@@ -33,6 +33,8 @@ contract SetupUsers is Test {
         vm.label(alice, "Alice");
         bob = users[5];
         vm.label(bob, "Bob");
+        carole = users[6];
+        vm.label(carole, "Carole");
     
     }
     

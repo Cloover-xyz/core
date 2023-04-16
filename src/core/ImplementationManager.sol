@@ -7,7 +7,7 @@ import {IImplementationManager} from "../interfaces/IImplementationManager.sol";
 import {ImplementationInterfaceNames} from "../libraries/helpers/ImplementationInterfaceNames.sol";
 import {Errors} from "../libraries/helpers/Errors.sol";
 
-contract ImplementationManager is IImplementationManager{
+contract ImplementationManager is IImplementationManager {
 
   //----------------------------------------
   // Storage

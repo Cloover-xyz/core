@@ -11,7 +11,8 @@ library RaffleDataTypes {
     enum RaffleStatus {
         Init,
         DrawnRequested,
-        WinningTicketsDrawned
+        WinningTicketsDrawned,
+        InsuranceMode
     }
 
     struct RaffleData {
@@ -24,8 +25,9 @@ library RaffleDataTypes {
         uint256 ticketSupply;
         uint256 ticketPrice;
         uint256 winningTicketNumber;
+        uint256 minTicketSalesInsurance;
         uint64 endTicketSales;
-        bool isETHTokenSales;
+        bool isEthTokenSales;
         RaffleStatus status;
     }
  
@@ -37,7 +39,8 @@ library RaffleDataTypes {
         uint256 nftId;
         uint256 maxTicketSupply;
         uint256 ticketPrice;
+        uint256 minTicketSalesInsurance;
         uint64 ticketSaleDuration;
-        bool isETHTokenSales;
+        bool isEthTokenSales;
     }
 }
