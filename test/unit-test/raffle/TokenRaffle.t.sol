@@ -409,7 +409,7 @@ contract TokenRaffleTest is Test, SetupUsers {
 
     function test_RevertIf_UserNotHaveEnoughBalanceForPurchaseWithToken() external{
         changePrank(alice);
-        vm.expectRevert(Errors.NOT_ENOUGH_BALANCE.selector);
+        vm.expectRevert("ERC20: insufficient allowance");
         tokenRaffle.purchaseTickets(1);
     }
 
@@ -519,7 +519,7 @@ contract TokenRaffleTest is Test, SetupUsers {
         tokenRaffle.winnerClaimPrice();
     }
 
-    function test_CorrectlyClaimTokenTicketSalesAmount() external{
+    function test_CorrectlyclaimTicketSalesAmount() external{
         changePrank(bob);
         mockERC20.approve(address(tokenRaffle), 100e6);
         tokenRaffle.purchaseTickets(2);
@@ -531,7 +531,7 @@ contract TokenRaffleTest is Test, SetupUsers {
         uint256 aliceBalanceBefore = mockERC20.balanceOf(alice);
         uint256 treasuryBalanceBefore = mockERC20.balanceOf(treasury);
         uint256 totalSalesAmount = 2e7;
-        tokenRaffle.claimTokenTicketSalesAmount();
+        tokenRaffle.claimTicketSalesAmount();
         assertEq(mockERC20.balanceOf(treasury), treasuryBalanceBefore + totalSalesAmount.percentMul(FEE_PERCENTAGE));
         assertEq(mockERC20.balanceOf(alice), aliceBalanceBefore + totalSalesAmount - totalSalesAmount.percentMul(FEE_PERCENTAGE));
         assertEq(mockERC20.balanceOf(address(tokenRaffle)), 0);
@@ -550,7 +550,7 @@ contract TokenRaffleTest is Test, SetupUsers {
         tokenRaffle.claimEthTicketSalesAmount();
     }
 
-    function test_RevertIf_NotCreatorClaimTokenTicketSalesAmount() external{
+    function test_RevertIf_NotCreatorclaimTicketSalesAmount() external{
         changePrank(bob);
         mockERC20.approve(address(tokenRaffle), 100e6);
         tokenRaffle.purchaseTickets(2);
@@ -559,7 +559,7 @@ contract TokenRaffleTest is Test, SetupUsers {
         uint256 requestId = mockRamdomProvider.callerToRequestId(address(tokenRaffle));
         mockRamdomProvider.generateRandomNumbers(requestId);
         vm.expectRevert(Errors.NOT_CREATOR.selector);
-        tokenRaffle.claimTokenTicketSalesAmount();
+        tokenRaffle.claimTicketSalesAmount();
     }
 
     function test_RevertIf_WinningTicketNotDrawnBeforeClaimingTicketSalesAmount() external{
@@ -569,14 +569,23 @@ contract TokenRaffleTest is Test, SetupUsers {
         vm.warp(uint64(block.timestamp) + ticketSaleDuration + 1);
         changePrank(alice);
         vm.expectRevert(Errors.TICKET_NOT_DRAWN.selector);
-        tokenRaffle.claimTokenTicketSalesAmount();
+        tokenRaffle.claimTicketSalesAmount();
     }
 
-    function test_CreatorCanCallInsuranceAndGetPartOfInsuranceIfNotTicketHasBeenSold() external{
+
+    function test_CreatorCanCallRefundAndGetBackHisNFTWhenNoInsuranceWasPaidAndNoTicketSold() external {
+        changePrank(alice);
+        vm.warp(uint64(block.timestamp) + ticketSaleDuration + 1);
+        tokenRaffle.creatorExerciseRefund();
+        assertEq(mockERC721.ownerOf(tokenNftId), alice);
+    }
+
+
+    function test_CreatorCanCallRefundAndGetBackPartOfInsuranceIfNoTicketHasBeenSold() external{
         changePrank(carole);
         uint256 caroleBalanceBefore = mockERC20.balanceOf(carole);
         vm.warp(uint64(block.timestamp) + ticketSaleDuration + 1);
-        tokenRaffleWithInsurance.creatorExerciseTokenInsurance();
+        tokenRaffleWithInsurance.creatorExerciseRefund();
         assertEq(mockERC721.ownerOf(tokenWithAssuranceNftId), carole);
         uint256 insurancePaid = tokenRaffleWithInsurance.insurancePaid();
         uint256 treasuryAmount = insurancePaid.percentMul(FEE_PERCENTAGE);
@@ -585,12 +594,12 @@ contract TokenRaffleTest is Test, SetupUsers {
         assertEq(mockERC20.balanceOf(carole),expectedCaroleBalance);
     }
 
-    function test_CreatorCanCallInsuranceAfterDrawnTicketCall() external{
+    function test_CreatorCanCallRefundAfterDrawnTicketCall() external{
         changePrank(carole);
         uint256 caroleBalanceBefore = mockERC20.balanceOf(carole);
         vm.warp(uint64(block.timestamp) + ticketSaleDuration + 1);
         tokenRaffleWithInsurance.drawnTickets();
-        tokenRaffleWithInsurance.creatorExerciseTokenInsurance();
+        tokenRaffleWithInsurance.creatorExerciseRefund();
         assertEq(mockERC721.ownerOf(tokenWithAssuranceNftId), carole);
         uint256 insurancePaid = tokenRaffleWithInsurance.insurancePaid();
         uint256 treasuryAmount = insurancePaid.percentMul(FEE_PERCENTAGE);
@@ -599,14 +608,14 @@ contract TokenRaffleTest is Test, SetupUsers {
         assertEq(mockERC20.balanceOf(carole),expectedCaroleBalance);
     }
 
-    function test_CreatorCanCallInsuranceAndDontGetPartOfInsuranceIfTicketHasBeenSold() external{
+    function test_CreatorCanCallRefundAndDontGetBackInsurancePaidIfTicketHasBeenSold() external{
         changePrank(bob);
         mockERC20.approve(address(tokenRaffleWithInsurance), 100e6);
         tokenRaffleWithInsurance.purchaseTickets(2);
         changePrank(carole);
         uint256 caroleBalanceBefore = mockERC20.balanceOf(carole);
         vm.warp(uint64(block.timestamp) + ticketSaleDuration + 1);
-        tokenRaffleWithInsurance.creatorExerciseTokenInsurance();
+        tokenRaffleWithInsurance.creatorExerciseRefund();
         assertEq(mockERC721.ownerOf(tokenWithAssuranceNftId), carole);
         uint256 insurancePaid = tokenRaffleWithInsurance.insurancePaid();
         uint256 treasuryAmount = insurancePaid.percentMul(FEE_PERCENTAGE);
@@ -614,29 +623,29 @@ contract TokenRaffleTest is Test, SetupUsers {
         assertEq(mockERC20.balanceOf(carole),caroleBalanceBefore);
     }
 
-    function test_RevertIf_CreatorCallExerciceEthInsuranceWhenItsTokenRaffe() external{
+    function test_RevertIf_CreatorCallExerciceRefundInEthWhenItsTokenRaffe() external{
         changePrank(carole);
         vm.warp(uint64(block.timestamp) + ticketSaleDuration + 1);
         vm.expectRevert(Errors.NOT_ETH_RAFFLE.selector);
-        tokenRaffleWithInsurance.creatorExerciseEthInsurance();
+        tokenRaffleWithInsurance.creatorExerciseRefundInEth();
     }
 
-    function test_RevertIf_CreatorAlreadyExerciceInsurance() external{
+    function test_RevertIf_CreatorAlreadyExerciceRefund() external{
         changePrank(carole);
         vm.warp(uint64(block.timestamp) + ticketSaleDuration + 1);
-        tokenRaffleWithInsurance.creatorExerciseTokenInsurance();
+        tokenRaffleWithInsurance.creatorExerciseRefund();
         vm.expectRevert();
-        tokenRaffleWithInsurance.creatorExerciseTokenInsurance();
+        tokenRaffleWithInsurance.creatorExerciseRefund();
     }
 
-    function test_RevertIf_NotCreatorCallExerciseTokenInsurance() external{
+    function test_RevertIf_NotCreatorCallExerciseRefund() external{
         changePrank(bob);
         vm.warp(uint64(block.timestamp) + ticketSaleDuration + 1);
         vm.expectRevert(Errors.NOT_CREATOR.selector);
-        tokenRaffleWithInsurance.creatorExerciseTokenInsurance();
+        tokenRaffleWithInsurance.creatorExerciseRefund();
     }
 
-    function test_RevertIf_CreatorExerciseTokenInsuranceWhereTicketSalesAreEqualOrHigherThanInsurance() external{
+    function test_RevertIf_CreatorExerciseRefundWhereTicketSalesAreEqualOrHigherThanInsurance() external{
         changePrank(bob);
         mockERC20.approve(address(tokenRaffleWithInsurance), 100e6);
         tokenRaffleWithInsurance.purchaseTickets(5);
@@ -644,16 +653,16 @@ contract TokenRaffleTest is Test, SetupUsers {
         changePrank(carole);
         vm.warp(uint64(block.timestamp) + ticketSaleDuration + 1);
         vm.expectRevert(Errors.SALES_EXCEED_INSURANCE_LIMIT.selector);
-        tokenRaffleWithInsurance.creatorExerciseTokenInsurance();
+        tokenRaffleWithInsurance.creatorExerciseRefund();
     }
     
-    function test_UserCanGetRefundsWithInsurancePart() external {
+    function test_UserCanGetRefundWithInsurancePart() external {
         changePrank(bob);
         mockERC20.approve(address(tokenRaffleWithInsurance), 100e6);
         tokenRaffleWithInsurance.purchaseTickets(2);
         vm.warp(uint64(block.timestamp) + ticketSaleDuration + 1);
         uint256 bobPrevBalance = mockERC20.balanceOf(bob);
-        tokenRaffleWithInsurance.userExerciseTokenInsuranceRefund();
+        tokenRaffleWithInsurance.userExerciseRefund();
 
         (,uint256 insurancePartPerTicket) = InsuranceLogic.calculateInsuranceSplit(
             INSURANCE_SALES_PERCENTAGE, 
@@ -666,38 +675,38 @@ contract TokenRaffleTest is Test, SetupUsers {
         assertEq(mockERC20.balanceOf(bob),bobPrevBalance+ expectedBobRefunds );
     }
 
-    function test_RevertWhen_UserClaimEthInsuranceRefundOnATokenRaffle() external{
+    function test_RevertWhen_UserClaimEthRefundOnATokenRaffle() external{
         changePrank(bob);
         mockERC20.approve(address(tokenRaffleWithInsurance), 100e6);
         tokenRaffleWithInsurance.purchaseTickets(2);
         vm.warp(uint64(block.timestamp) + ticketSaleDuration + 1);
         vm.expectRevert(Errors.NOT_ETH_RAFFLE.selector);
-        tokenRaffleWithInsurance.userExerciseEthInsuranceRefund();
+        tokenRaffleWithInsurance.userExerciseRefundInEth();
     }
 
-    function test_RevertWhen_UserClaimTokenInsuranceRefundOnTicketSupplyGreaterThanMinInsuranceSales() external{
+    function test_RevertWhen_UserClaimRefundOnTicketSupplyGreaterThanMinInsuranceSales() external{
         changePrank(bob);
         mockERC20.approve(address(tokenRaffleWithInsurance), 100e6);
         tokenRaffleWithInsurance.purchaseTickets(5);
         vm.warp(uint64(block.timestamp) + ticketSaleDuration + 1);
         vm.expectRevert(Errors.SALES_EXCEED_INSURANCE_LIMIT.selector);
-        tokenRaffleWithInsurance.userExerciseTokenInsuranceRefund();
+        tokenRaffleWithInsurance.userExerciseRefund();
     }
 
-    function test_RevertWhen_UserAlreadyClaimRefundsWithInsurancePart() external {
+    function test_RevertWhen_UserAlreadyClaimRefund() external {
         changePrank(bob);
         mockERC20.approve(address(tokenRaffleWithInsurance), 100e6);
         tokenRaffleWithInsurance.purchaseTickets(2);
         vm.warp(uint64(block.timestamp) + ticketSaleDuration + 1);
-        tokenRaffleWithInsurance.userExerciseTokenInsuranceRefund();
+        tokenRaffleWithInsurance.userExerciseRefund();
         vm.expectRevert(Errors.ALREADY_CLAIMED.selector);
-        tokenRaffleWithInsurance.userExerciseTokenInsuranceRefund();
+        tokenRaffleWithInsurance.userExerciseRefund();
     }
 
     function test_RevertWhen_UserDidntPurchaseTicketAndClaimRefund() external {
         changePrank(bob);
         vm.warp(uint64(block.timestamp) + ticketSaleDuration + 1);
         vm.expectRevert(Errors.NOTHING_TO_CLAIM.selector);
-        tokenRaffleWithInsurance.userExerciseTokenInsuranceRefund();
+        tokenRaffleWithInsurance.userExerciseRefund();
     }
 }

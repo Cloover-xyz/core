@@ -12,7 +12,7 @@ library RaffleDataTypes {
         Init,
         DrawnRequested,
         WinningTicketsDrawned,
-        InsuranceMode
+        RefundMode
     }
 
     struct RaffleData {

@@ -46,20 +46,20 @@ interface IRaffle {
      * @notice Allows the creator to excerce his insurance and claim back his nft
      * @dev Only callable if ticket sales is close and amount of ticket sold is lower than raffle insurance
      */
-    function creatorExerciseTokenInsurance() external;
+    function creatorExerciseRefund() external;
 
     /**
      * @notice Allows the creator to excerce his insurance and claim back his nft
      * @dev Only callable if ticket sales is close and amount of ticket sold is lower than raffle insurance
      */
-    function creatorExerciseEthInsurance() external;
+    function creatorExerciseRefundInEth() external;
 
     /**
      * @notice Allows the creator to claim the amount related to the ticket sales
      * @dev The functions should send to the creator his part after fees + insurance paid
      * Only callable if tickets has been sold in ERC20
      */
-    function claimTokenTicketSalesAmount() external;
+    function claimTicketSalesAmount() external;
 
     /**
      * @notice Allows the creator to claim the amount related to the ticket sales
@@ -79,14 +79,14 @@ interface IRaffle {
      * @dev Only callable if ticket sales is close and amount of ticket sold is lower than raffle insurance
      * Only callable if tickets has been sold in Tokens 
     */
-    function userExerciseTokenInsuranceRefund() external;
+    function userExerciseRefund() external;
 
    /**
      * @notice Allows tickets owner to claim refund if raffle in insurance mode
      * @dev Only callable if ticket sales is close and amount of ticket sold is lower than raffle insurance
      * Only callable if tickets has been sold in Tokens 
     */
-    function userExerciseEthInsuranceRefund() external;
+    function userExerciseRefundInEth() external;
 
     /**
     * @notice get the total amount of tickets sold

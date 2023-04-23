@@ -88,9 +88,9 @@ contract Raffle is IRaffle, Initializable {
         _;
     }
 
-    modifier notInsuranceMode() {
-        if (raffleStatus() == RaffleDataTypes.RaffleStatus.InsuranceMode)
-            revert Errors.IN_INSURANCE_MODE();
+    modifier notRefundMode() {
+        if (raffleStatus() == RaffleDataTypes.RaffleStatus.RefundMode)
+            revert Errors.IN_REFUND_MODE();
         _;
     }
 
@@ -136,10 +136,6 @@ contract Raffle is IRaffle, Initializable {
         if (totalSupply() + nbOfTickets > _globalData.maxTicketSupply)
             revert Errors.MAX_TICKET_SUPPLY_EXCEEDED();
         uint256 ticketCost =  _calculateTicketsCost(nbOfTickets);
-        if (
-            ticketCost >
-            _globalData.purchaseCurrency.balanceOf(msg.sender)
-        ) revert Errors.NOT_ENOUGH_BALANCE(); 
 
         _globalData.purchaseCurrency.transferFrom(
             msg.sender,
@@ -172,13 +168,13 @@ contract Raffle is IRaffle, Initializable {
         override
         ticketSalesClose
         ticketHasNotBeDrawn
-        notInsuranceMode
+        notRefundMode
     {
-        if (_globalData.ticketSupply < _globalData.minTicketSalesInsurance) {
-            _globalData.status = RaffleDataTypes.RaffleStatus.InsuranceMode;
-        } else {
+        if (_globalData.ticketSupply > 0 && _globalData.ticketSupply >= _globalData.minTicketSalesInsurance){
             _globalData.status = RaffleDataTypes.RaffleStatus.DrawnRequested;
             IRandomProvider(randomProvider()).requestRandomNumbers(1);
+        } else {
+            _globalData.status = RaffleDataTypes.RaffleStatus.RefundMode;
         }
     }
 
@@ -200,79 +196,7 @@ contract Raffle is IRaffle, Initializable {
     }
 
     /// @inheritdoc IRaffle
-    function creatorExerciseTokenInsurance()
-        external
-        override
-        ticketSalesClose
-        ticketHasNotBeDrawn
-    {
-        if (_globalData.isEthTokenSales) revert Errors.IS_ETH_RAFFLE();
-        if (msg.sender != creator()) revert Errors.NOT_CREATOR();
-        if (_globalData.ticketSupply >= _globalData.minTicketSalesInsurance)
-            revert Errors.SALES_EXCEED_INSURANCE_LIMIT();
-        if (raffleStatus() != RaffleDataTypes.RaffleStatus.InsuranceMode) {
-            _globalData.status = RaffleDataTypes.RaffleStatus.InsuranceMode;
-        }
-        (uint256 treasuryFeesAmount, ) = _calculateInsuranceSplit();
-        address treasuryAddress = _globalData
-            .implementationManager
-            .getImplementationAddress(ImplementationInterfaceNames.Treasury);
-        _globalData.purchaseCurrency.transfer(
-            treasuryAddress,
-            treasuryFeesAmount
-        );
-
-        if(_globalData.ticketSupply == 0) {
-            _globalData.purchaseCurrency.transfer(
-                creator(),
-                insurancePaid() - treasuryFeesAmount
-            );
-        }
-
-        _globalData.nftContract.safeTransferFrom(
-            address(this),
-            creator(),
-            _globalData.nftId
-        );
-        emit CreatorExerciseInsurance(creator());
-    }
-      
-    /// @inheritdoc IRaffle
-    function creatorExerciseEthInsurance()
-        external
-        override
-        ticketSalesClose
-        ticketHasNotBeDrawn
-    {
-        if (!_globalData.isEthTokenSales) revert Errors.NOT_ETH_RAFFLE();
-        if (msg.sender != creator()) revert Errors.NOT_CREATOR();
-        if (_globalData.ticketSupply >= _globalData.minTicketSalesInsurance)
-            revert Errors.SALES_EXCEED_INSURANCE_LIMIT();
-        if (raffleStatus() != RaffleDataTypes.RaffleStatus.InsuranceMode) {
-            _globalData.status = RaffleDataTypes.RaffleStatus.InsuranceMode;
-        }
-        (uint256 treasuryFeesAmount, ) = _calculateInsuranceSplit();
-        address treasuryAddress = _globalData
-            .implementationManager
-            .getImplementationAddress(ImplementationInterfaceNames.Treasury);
-        _safeTransferETH(treasuryAddress, treasuryFeesAmount);
-
-        if(_globalData.ticketSupply == 0) {
-            _safeTransferETH(
-                creator(),
-                insurancePaid() - treasuryFeesAmount
-            );
-        }
-        _globalData.nftContract.safeTransferFrom(
-            address(this),
-            creator(),
-            _globalData.nftId
-        );
-        emit CreatorExerciseInsurance(creator());
-    }
-
-    /// @inheritdoc IRaffle
-    function claimTokenTicketSalesAmount()
+    function claimTicketSalesAmount()
         external
         override
         ticketSalesClose
@@ -352,7 +276,7 @@ contract Raffle is IRaffle, Initializable {
     }
 
     /// @inheritdoc IRaffle
-    function userExerciseTokenInsuranceRefund()
+    function userExerciseRefund()
         external
         override
         ticketSalesClose
@@ -376,7 +300,7 @@ contract Raffle is IRaffle, Initializable {
     }
 
     /// @inheritdoc IRaffle
-    function userExerciseEthInsuranceRefund()
+    function userExerciseRefundInEth()
         external
         override
         ticketSalesClose
@@ -395,6 +319,86 @@ contract Raffle is IRaffle, Initializable {
         _safeTransferETH(msg.sender, totalRefundAmount);       
         emit UserClaimedRefundInvestment(msg.sender, totalRefundAmount);
     }
+
+    /// @inheritdoc IRaffle
+    function creatorExerciseRefund()
+        external
+        override
+        ticketSalesClose
+        ticketHasNotBeDrawn
+    {
+        if (_globalData.isEthTokenSales) revert Errors.IS_ETH_RAFFLE();
+        if (msg.sender != creator()) revert Errors.NOT_CREATOR();
+        if(_globalData.ticketSupply > 0){
+            if (_globalData.ticketSupply >= _globalData.minTicketSalesInsurance)
+                revert Errors.SALES_EXCEED_INSURANCE_LIMIT();
+            if (raffleStatus() != RaffleDataTypes.RaffleStatus.RefundMode) {
+                _globalData.status = RaffleDataTypes.RaffleStatus.RefundMode;
+            }
+        }
+        if(_globalData.minTicketSalesInsurance > 0){
+            (uint256 treasuryFeesAmount, ) = _calculateInsuranceSplit();
+            address treasuryAddress = _globalData
+                .implementationManager
+                .getImplementationAddress(ImplementationInterfaceNames.Treasury);
+            _globalData.purchaseCurrency.transfer(
+                treasuryAddress,
+                treasuryFeesAmount
+            );
+
+            if(_globalData.ticketSupply == 0) {
+                _globalData.purchaseCurrency.transfer(
+                    creator(),
+                    insurancePaid() - treasuryFeesAmount
+                );
+            }
+        }
+        _globalData.nftContract.safeTransferFrom(
+            address(this),
+            creator(),
+            _globalData.nftId
+        );
+        emit CreatorExerciseInsurance(creator());
+    }
+      
+    /// @inheritdoc IRaffle
+    function creatorExerciseRefundInEth()
+        external
+        override
+        ticketSalesClose
+        ticketHasNotBeDrawn
+    {
+        if (!_globalData.isEthTokenSales) revert Errors.NOT_ETH_RAFFLE();
+        if (msg.sender != creator()) revert Errors.NOT_CREATOR();
+        if(_globalData.ticketSupply > 0){
+            if (_globalData.ticketSupply >= _globalData.minTicketSalesInsurance)
+                revert Errors.SALES_EXCEED_INSURANCE_LIMIT();
+            if (raffleStatus() != RaffleDataTypes.RaffleStatus.RefundMode) {
+                _globalData.status = RaffleDataTypes.RaffleStatus.RefundMode;
+            }
+        }
+        if(_globalData.minTicketSalesInsurance > 0){
+            (uint256 treasuryFeesAmount, ) = _calculateInsuranceSplit();
+            address treasuryAddress = _globalData
+                .implementationManager
+                .getImplementationAddress(ImplementationInterfaceNames.Treasury);
+            _safeTransferETH(treasuryAddress, treasuryFeesAmount);
+
+            if(_globalData.ticketSupply == 0) {
+                _safeTransferETH(
+                    creator(),
+                    insurancePaid() - treasuryFeesAmount
+                );
+            }
+        }
+        _globalData.nftContract.safeTransferFrom(
+            address(this),
+            creator(),
+            _globalData.nftId
+        );
+        emit CreatorExerciseInsurance(creator());
+    }
+
     /// @inheritdoc IRaffle
     function totalSupply() public view override returns (uint256) {
         return _globalData.ticketSupply;
