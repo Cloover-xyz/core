@@ -35,7 +35,5 @@ contract SetupUsers is Test {
         vm.label(bob, "Bob");
         carole = users[6];
         vm.label(carole, "Carole");
-    
     }
-    
 }

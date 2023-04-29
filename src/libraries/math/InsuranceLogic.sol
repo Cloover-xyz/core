@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 
 import {PercentageMath} from '../math/PercentageMath.sol';
 
-library InsuranceLogic{
+library InsuranceLogic {
     
     using PercentageMath for uint256;
 
@@ -17,7 +17,6 @@ library InsuranceLogic{
                 insurancePercentage
         );
     }
-
 
      function calculateInsuranceSplit(
         uint256 insuranceSalesPercentage,

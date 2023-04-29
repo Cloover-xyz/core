@@ -14,7 +14,7 @@ import {IConfigManager} from "../interfaces/IConfigManager.sol";
 import {ImplementationInterfaceNames} from "../libraries/helpers/ImplementationInterfaceNames.sol";
 import {Errors} from "../libraries/helpers/Errors.sol";
 import {RaffleDataTypes} from "../libraries/types/RaffleDataTypes.sol";
-import {InsuranceLogic} from "../libraries/logic/InsuranceLogic.sol";
+import {InsuranceLogic} from "../libraries/math/InsuranceLogic.sol";
 
 import {Raffle} from "./Raffle.sol";
  

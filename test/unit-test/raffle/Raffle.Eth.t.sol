@@ -25,7 +25,7 @@ import {ImplementationInterfaceNames} from "../../../src/libraries/helpers/Imple
 import {ConfiguratorInputTypes} from "../../../src/libraries/types/ConfiguratorInputTypes.sol";
 import {RaffleDataTypes} from "../../../src/libraries/types/RaffleDataTypes.sol";
 import {PercentageMath} from "../../../src/libraries/math/PercentageMath.sol";
-import {InsuranceLogic} from "../../../src/libraries/logic/InsuranceLogic.sol";
+import {InsuranceLogic} from "../../../src/libraries/math/InsuranceLogic.sol";
 
 import {SetupUsers} from "../../utils/SetupUsers.sol";
 
