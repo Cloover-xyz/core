@@ -17,6 +17,7 @@ import {NFTCollectionWhitelist} from "../../../src/core/NFTCollectionWhitelist.s
 import {TokenWhitelist} from "../../../src/core/TokenWhitelist.sol";
 import {ConfigManager} from "../../../src/core/ConfigManager.sol";
 
+import {RaffleFactory} from "../../../src/raffle/RaffleFactory.sol";
 import {Raffle} from "../../../src/raffle/Raffle.sol";
 
 import {Errors} from "../../../src/libraries/helpers/Errors.sol";
@@ -37,7 +38,7 @@ contract EthRaffleTest is Test, SetupUsers {
     MockRandomProvider mockRamdomProvider;
 
     ConfigManager configManager;
-    
+    RaffleFactory raffleFactory;
     Raffle ethRaffle;
     Raffle ethRaffleWithInsurance;
     ImplementationManager implementationManager;
@@ -69,6 +70,7 @@ contract EthRaffleTest is Test, SetupUsers {
         mockERC20 = new MockERC20("MockERC20", "M20", 18);
         accessController = new AccessController(maintainer);
         implementationManager = new ImplementationManager(address(accessController));
+        raffleFactory = new RaffleFactory(implementationManager);
         nftCollectionWhitelist = new NFTCollectionWhitelist(implementationManager);
         tokenWhitelist = new TokenWhitelist(implementationManager);
         ConfiguratorInputTypes.InitConfigManagerInput memory configData = ConfiguratorInputTypes.InitConfigManagerInput(
@@ -84,7 +86,7 @@ contract EthRaffleTest is Test, SetupUsers {
         changePrank(maintainer);
         implementationManager.changeImplementationAddress(
                 ImplementationInterfaceNames.RaffleFactory,
-                deployer
+                address(raffleFactory)
         );
         implementationManager.changeImplementationAddress(
                 ImplementationInterfaceNames.ConfigManager,
@@ -342,6 +344,36 @@ contract EthRaffleTest is Test, SetupUsers {
         newRaffle.initialize(data);
     }
 
+    function test_CancelRaffle() external{
+        changePrank(alice);
+        ethRaffle.cancelRaffle();
+        assertEq(address(ethRaffle).balance, 0);
+        assertEq(mockERC721.ownerOf(ethNftId), alice);
+    }
+
+    function test_CancelRaffle_RevertWhen_NotCreatorCalling() external{
+        changePrank(bob);
+        vm.expectRevert(Errors.NOT_CREATOR.selector);
+        ethRaffle.cancelRaffle();
+    }
+
+    function test_CancelRaffle_RevertWhen_AtLeastOneTicketHasBeenSold() external{
+        changePrank(bob);
+        ethRaffle.purchaseTicketsInEth{value: 1e18}(1);
+
+        changePrank(alice);
+        vm.expectRevert(Errors.SALES_ALREADY_STARTED.selector);
+        ethRaffle.cancelRaffle();
+    }
+
+    function test_CancelRaffle_RefundInsurancePaid() external{
+        changePrank(carole);
+        ethRaffleWithInsurance.cancelRaffle();
+        assertEq(address(ethRaffleWithInsurance).balance, 0);
+        assertEq(carole.balance, 100e18);
+        assertEq(mockERC721.ownerOf(ethWithAssuranceNftId), carole);
+    }
+
     function test_PurchaseTicketsInEth() external{
         changePrank(bob);
         ethRaffle.purchaseTicketsInEth{value: 1e18}(1);
@@ -587,6 +619,7 @@ contract EthRaffleTest is Test, SetupUsers {
         tokenRaffle.drawnTickets();
         uint256 requestId = mockRamdomProvider.callerToRequestId(address(tokenRaffle));
         mockRamdomProvider.generateRandomNumbers(requestId);
+        changePrank(alice);
         vm.expectRevert(Errors.NOT_ETH_RAFFLE.selector);
         tokenRaffle.claimEthTicketSalesAmount();
     }
@@ -683,7 +716,6 @@ contract EthRaffleTest is Test, SetupUsers {
         mockERC721.transferFrom(alice, address(tokenRaffle), 3);
         tokenRaffle.initialize(raffleData);
         
-        changePrank(bob);
         utils.goForward(ticketSaleDuration + 1);
         vm.expectRevert(Errors.NOT_ETH_RAFFLE.selector);
         tokenRaffle.creatorExerciseRefundInEth();

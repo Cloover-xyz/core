@@ -48,7 +48,7 @@ contract RandomProvider is VRFConsumerBaseV2, IRandomProvider {
     //----------------------------------------
 
     modifier onlyRaffleContract(){
-        if(!IRaffleFactory(getRaffleFactory()).isRegisteredRaffle(msg.sender)) revert Errors.NOT_RAFFLE_CONTRACT();
+        if(!IRaffleFactory(getRaffleFactory()).isRegisteredRaffle(msg.sender)) revert Errors.NOT_REGISTERED_RAFFLE();
         _;
     }
 

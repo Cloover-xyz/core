@@ -12,7 +12,8 @@ library RaffleDataTypes {
         Init,
         DrawnRequested,
         WinningTicketsDrawned,
-        RefundMode
+        RefundMode,
+        Cancelled
     }
 
     struct RaffleData {

@@ -55,7 +55,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "NOT_RAFFLE_CONTRACT",
+    name: "NOT_REGISTERED_RAFFLE",
     type: "error",
   },
   {

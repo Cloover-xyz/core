@@ -166,7 +166,7 @@ contract RaffleFactoryTest is Test, SetupUsers {
       assertEq(id ,nftIdOne);
       assertEq(contractAddress.ownerOf(nftIdOne) ,address(insuranceRaffle));
       assertEq(mockERC20.balanceOf(address(insuranceRaffle)) , insuranceCost);
-    }
+   }
 
    function test_insuranceEthRaffleCorrecltyInitialize() external {
       changePrank(alice);
@@ -348,5 +348,25 @@ contract RaffleFactoryTest is Test, SetupUsers {
       raffleContract[1] = address(raffleTwo);
       vm.expectRevert(Errors.TICKET_ALREADY_DRAWN.selector);
       factory.batchRaffleDrawnTickets(raffleContract);
+   }
+
+   function test_DeregisterRaffle() external{
+      changePrank(alice);
+      IRaffleFactory.Params memory params = IRaffleFactory.Params(
+         IERC20(address(0)),
+         mockERC721,
+         nftIdOne,
+         maxTicketSupply,
+         ticketPrice,
+         0,
+         ticketSaleDuration,
+         true,
+         0
+      );
+      mockERC721.approve(address(factory), nftIdOne);
+      Raffle ethRaffle = factory.createNewRaffle(params);
+      assertTrue(factory.isRegisteredRaffle(address(ethRaffle)));
+      ethRaffle.cancelRaffle();
+      assertFalse(factory.isRegisteredRaffle(address(ethRaffle)));
    }
 }

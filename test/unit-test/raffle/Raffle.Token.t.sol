@@ -17,6 +17,7 @@ import {NFTCollectionWhitelist} from "../../../src/core/NFTCollectionWhitelist.s
 import {TokenWhitelist} from "../../../src/core/TokenWhitelist.sol";
 import {ConfigManager} from "../../../src/core/ConfigManager.sol";
 
+import {RaffleFactory} from "../../../src/raffle/RaffleFactory.sol";
 import {Raffle} from "../../../src/raffle/Raffle.sol";
 
 import {Errors} from "../../../src/libraries/helpers/Errors.sol";
@@ -37,6 +38,7 @@ contract TokenRaffleTest is Test, SetupUsers {
     MockRandomProvider mockRamdomProvider;
 
     ConfigManager configManager;
+    RaffleFactory raffleFactory;
     Raffle tokenRaffle;
     Raffle tokenRaffleWithInsurance;
     ImplementationManager implementationManager;
@@ -70,6 +72,7 @@ contract TokenRaffleTest is Test, SetupUsers {
 
         accessController = new AccessController(maintainer);
         implementationManager = new ImplementationManager(address(accessController));
+        raffleFactory = new RaffleFactory(implementationManager);
         nftCollectionWhitelist = new NFTCollectionWhitelist(implementationManager);
         tokenWhitelist = new TokenWhitelist(implementationManager);
         ConfiguratorInputTypes.InitConfigManagerInput memory configData = ConfiguratorInputTypes.InitConfigManagerInput(
@@ -84,28 +87,28 @@ contract TokenRaffleTest is Test, SetupUsers {
 
         changePrank(maintainer);
         implementationManager.changeImplementationAddress(
-                ImplementationInterfaceNames.RaffleFactory,
-                deployer
+            ImplementationInterfaceNames.RaffleFactory,
+            address(raffleFactory)
         );
         implementationManager.changeImplementationAddress(
-                ImplementationInterfaceNames.ConfigManager,
-                address(configManager)
+            ImplementationInterfaceNames.ConfigManager,
+            address(configManager)
         );
         implementationManager.changeImplementationAddress(
-                ImplementationInterfaceNames.NFTWhitelist,
-                address(nftCollectionWhitelist)
+            ImplementationInterfaceNames.NFTWhitelist,
+            address(nftCollectionWhitelist)
         );
         implementationManager.changeImplementationAddress(
-                ImplementationInterfaceNames.TokenWhitelist,
-                address(tokenWhitelist)
+            ImplementationInterfaceNames.TokenWhitelist,
+            address(tokenWhitelist)
         );
         implementationManager.changeImplementationAddress(
-                ImplementationInterfaceNames.RandomProvider,
-                address(mockRamdomProvider)
+            ImplementationInterfaceNames.RandomProvider,
+            address(mockRamdomProvider)
         );
         implementationManager.changeImplementationAddress(
-                ImplementationInterfaceNames.Treasury,
-                treasury
+            ImplementationInterfaceNames.Treasury,
+            treasury
         );
         nftCollectionWhitelist.addToWhitelist(address(mockERC721), admin);
         tokenWhitelist.addToWhitelist(address(mockERC20));
@@ -178,7 +181,6 @@ contract TokenRaffleTest is Test, SetupUsers {
         assertEq(id ,tokenWithAssuranceNftId);
         assertEq(contractAddress.ownerOf(tokenWithAssuranceNftId) ,address(tokenRaffleWithInsurance));
     }
-
 
     function test_Initialize_RevertWhen_RaffleAlreadyInitialize() external{
         RaffleDataTypes.InitRaffleParams memory data = RaffleDataTypes.InitRaffleParams(
@@ -359,6 +361,37 @@ contract TokenRaffleTest is Test, SetupUsers {
         newRaffle.initialize(data);
     }
 
+    function test_CancelRaffle() external{
+        changePrank(alice);
+        tokenRaffle.cancelRaffle();
+        assertEq(mockERC20.balanceOf(address(tokenRaffle)), 0);
+        assertEq(mockERC721.ownerOf(tokenNftId), alice);
+    }
+
+    function test_CancelRaffle_RevertWhen_NotCreatorCalling() external{
+        changePrank(bob);
+        vm.expectRevert(Errors.NOT_CREATOR.selector);
+        tokenRaffle.cancelRaffle();
+    }
+
+    function test_CancelRaffle_RevertWhen_AtLeastOneTicketHasBeenSold() external{
+        changePrank(bob);
+        mockERC20.approve(address(tokenRaffle), 100e6);
+        tokenRaffle.purchaseTickets(1);
+
+        changePrank(alice);
+        vm.expectRevert(Errors.SALES_ALREADY_STARTED.selector);
+        tokenRaffle.cancelRaffle();
+    }
+
+    function test_CancelRaffle_RefundInsurancePaid() external{
+        changePrank(carole);
+        tokenRaffleWithInsurance.cancelRaffle();
+        assertEq(mockERC20.balanceOf(address(tokenRaffleWithInsurance)), 0);
+        assertEq(mockERC20.balanceOf(carole), 100e7);
+        assertEq(mockERC721.ownerOf(tokenWithAssuranceNftId), carole);
+    }
+
     function test_PurchaseTickets() external{
         changePrank(bob);
 
@@ -392,7 +425,6 @@ contract TokenRaffleTest is Test, SetupUsers {
         assertEq(mockERC20.balanceOf(address(tokenRaffle)), 100e6);
     }
 
-
     function test_PurchaseTickets_RevertWhen_NewPurchaseMakeTicketSupplyExceedMaxSupply() external{
         changePrank(bob);
         vm.expectRevert(Errors.MAX_TICKET_SUPPLY_EXCEEDED.selector);
@@ -405,14 +437,13 @@ contract TokenRaffleTest is Test, SetupUsers {
         tokenRaffle.purchaseTickets(1);
     }
 
-
     function test_PurchaseTickets_RevertWhen_UserPurchaseZeroTicket() external{
         changePrank(bob);
         vm.expectRevert(Errors.CANT_BE_ZERO.selector);
         tokenRaffle.purchaseTickets(0);
     }
 
-function test_PurchaseTickets_RevertWhen_UserTicketPurchaseExceedLimitAllowed() external{
+    function test_PurchaseTickets_RevertWhen_UserTicketPurchaseExceedLimitAllowed() external{
         changePrank(alice);
         mockERC721.mint(alice, 3);
         Raffle raffleLimit = new Raffle();
@@ -601,6 +632,7 @@ function test_PurchaseTickets_RevertWhen_UserTicketPurchaseExceedLimitAllowed() 
         ethRaffle.drawnTickets();
         uint256 requestId = mockRamdomProvider.callerToRequestId(address(ethRaffle));
         mockRamdomProvider.generateRandomNumbers(requestId);
+        changePrank(alice);
         vm.expectRevert(Errors.IS_ETH_RAFFLE.selector);
         ethRaffle.claimTicketSalesAmount();
     }
@@ -697,9 +729,8 @@ function test_PurchaseTickets_RevertWhen_UserTicketPurchaseExceedLimitAllowed() 
         );
         mockERC721.transferFrom(alice, address(ethRaffle), 3);
         ethRaffle.initialize(raffleData);
-        changePrank(bob);
-        utils.goForward(ticketSaleDuration + 1);
 
+        utils.goForward(ticketSaleDuration + 1);
         vm.expectRevert(Errors.IS_ETH_RAFFLE.selector);
         ethRaffle.creatorExerciseRefund();
     }

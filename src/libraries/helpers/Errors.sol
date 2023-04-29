@@ -8,6 +8,7 @@ pragma solidity ^0.8.0;
 library Errors {
     error BE_ADDRESS_0(); // 'Address must be address(0)'
     error NOT_ADDRESS_0(); // 'Address must not be address(0)'
+    error SALES_ALREADY_STARTED(); // 'At least one ticket has already been sold'
     error RAFFLE_CLOSE(); // 'Current timestamps greater or equal than the close time'
     error RAFFLE_STILL_OPEN(); // 'Current timestamps lesser or equal than the close time'
     error CANT_BE_ZERO(); // 'Value can't must be higher than 0'
@@ -22,7 +23,7 @@ library Errors {
     error IN_REFUND_MODE(); // 'raffle is in insurance mode'
     error NOT_MAINTAINER(); // 'Caller is not the maintainer'
     error IMPLEMENTATION_NOT_FOUND(); // 'Implementation interfaces is not registered'
-    error NOT_RAFFLE_CONTRACT(); // 'Caller is not a raffle contract'
+    error NOT_REGISTERED_RAFFLE(); // 'Caller is not a raffle contract registered'
     error NOT_RANDOM_PROVIDER_CONTRACT(); // 'Caller is not the random provider contract'
     error NOT_NFT_OWNER(); // 'Address not the nft owner'
     error ARRAYS_LENGTH_NOT_EQUAL(); // 'Arrays doesn't have the same size'
