@@ -8,6 +8,7 @@ pragma solidity ^0.8.0;
 library Errors {
     error BE_ADDRESS_0(); // 'Address must be address(0)'
     error NOT_ADDRESS_0(); // 'Address must not be address(0)'
+    error SALES_ALREADY_STARTED(); // 'At least one ticket has already been sold'
     error RAFFLE_CLOSE(); // 'Current timestamps greater or equal than the close time'
     error RAFFLE_STILL_OPEN(); // 'Current timestamps lesser or equal than the close time'
     error CANT_BE_ZERO(); // 'Value can't must be higher than 0'
