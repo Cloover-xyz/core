@@ -33,4 +33,8 @@ contract Utils is Test {
         uint256 targetBlock = block.number + numBlocks;
         vm.roll(targetBlock);
     }
+
+    function goForward(uint256 timestampToAdd) external {
+         vm.warp(uint64(block.timestamp) + timestampToAdd);
+    }
 }

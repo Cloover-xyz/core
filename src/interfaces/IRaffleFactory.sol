@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import {IERC20} from "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 import {IERC721} from "openzeppelin-contracts/contracts/token/ERC721/IERC721.sol";
 
-import {RaffleDataTypes} from '../raffle/RaffleDataTypes.sol';
+import {RaffleDataTypes} from '../libraries/types/RaffleDataTypes.sol';
 import {Raffle} from '../raffle/Raffle.sol';
 
 interface IRaffleFactory {
@@ -14,6 +14,7 @@ interface IRaffleFactory {
         uint256 nftId;
         uint256 maxTicketSupply;
         uint256 ticketPrice;
+        uint256 minTicketSalesInsurance;
         uint64 ticketSaleDuration;
         bool isETHTokenSales;
     }
@@ -24,7 +25,7 @@ interface IRaffleFactory {
      * @param params used for initialization (see Params struct in RaffleFactory.sol)
      * @return newRaffle the instance of the raffle contract
      */
-    function createNewRaffle(Params memory params) external returns(Raffle newRaffle);
+    function createNewRaffle(Params memory params) external payable returns(Raffle newRaffle);
 
 
     /**

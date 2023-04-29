@@ -6,7 +6,11 @@ interface IConfigManager{
 
     /// @notice Get the fees percentage to apply on ticket sales amount
     /// @return The fees percentage
-    function procolFeesPercentage() external view returns(uint256);
+    function protocolFeesPercentage() external view returns(uint256);
+
+    /// @notice Get the percentage that creator will have to pay as insurance on the min sales defined
+    /// @return The insurance percentage
+    function insuranceSalesPercentage() external view returns(uint256);
 
     /// @notice Get the max ticket supply allowed for a raffle
     /// @return The max amount of ticket allowed

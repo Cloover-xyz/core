@@ -18,16 +18,18 @@ import {ConfigManager} from "../../../src/core/ConfigManager.sol";
 
 import {Raffle} from "../../../src/raffle/Raffle.sol";
 import {RaffleFactory} from "../../../src/raffle/RaffleFactory.sol";
-import {RaffleDataTypes} from "../../../src/raffle/RaffleDataTypes.sol";
 import {IRaffleFactory} from "../../../src/interfaces/IRaffleFactory.sol";
 
 import {Errors} from "../../../src/libraries/helpers/Errors.sol";
 import {ImplementationInterfaceNames} from "../../../src/libraries/helpers/ImplementationInterfaceNames.sol";
 import {ConfiguratorInputTypes} from "../../../src/libraries/types/ConfiguratorInputTypes.sol";
+import {RaffleDataTypes} from "../../../src/libraries/types/RaffleDataTypes.sol";
+import {InsuranceLogic} from "../../../src/libraries/logic/InsuranceLogic.sol";
 
 import {SetupUsers} from "../../utils/SetupUsers.sol";
 
 contract RaffleFactoryTest is Test, SetupUsers {
+   using InsuranceLogic for uint;
 
     MockERC20  mockERC20;
     MockERC721 mockERC721;
@@ -35,6 +37,7 @@ contract RaffleFactoryTest is Test, SetupUsers {
 
     RaffleFactory factory;
     Raffle raffle;
+
     ImplementationManager implementationManager;
     NFTCollectionWhitelist nftCollectionWhitelist;
     TokenWhitelist tokenWhitelist;
@@ -52,30 +55,32 @@ contract RaffleFactoryTest is Test, SetupUsers {
    uint256 MAX_SALE_DURATION = 2 weeks;
    uint256 MAX_TICKET_SUPPLY = 10000;
    uint256 FEE_PERCENTAGE = 1e2;
-    function setUp() public virtual override {
-      SetupUsers.setUp();
+   uint256 INSURANCE_SALES_PERCENTAGE = 5e2; //5%
 
+   function setUp() public virtual override {
+      SetupUsers.setUp();
+      
+      vm.startPrank(deployer);
       mockERC20 = new MockERC20("Mocked USDC", "USDC", 6);
       mockERC20.mint(bob, 1000e6);
+      mockERC20.mint(alice, 100e6);
       mockERC721 = new MockERC721("Mocked NFT", "NFT");
       mockERC721.mint(alice, nftIdOne);
-
-      
-      changePrank(deployer);
       accessController = new AccessController(maintainer);
       implementationManager = new ImplementationManager(address(accessController));
       nftCollectionWhitelist = new NFTCollectionWhitelist(implementationManager);
       tokenWhitelist = new TokenWhitelist(implementationManager);
       factory = new RaffleFactory(implementationManager);
       mockRamdomProvider = new MockRandomProvider(implementationManager);
-             
       ConfiguratorInputTypes.InitConfigManagerInput memory configData = ConfiguratorInputTypes.InitConfigManagerInput(
          FEE_PERCENTAGE,
          MAX_TICKET_SUPPLY,
          MIN_SALE_DURATION,
-         MAX_SALE_DURATION
+         MAX_SALE_DURATION,
+         INSURANCE_SALES_PERCENTAGE
       );
       configManager = new ConfigManager(implementationManager, configData);
+
       changePrank(maintainer);
       implementationManager.changeImplementationAddress(
          ImplementationInterfaceNames.ConfigManager,
@@ -94,22 +99,22 @@ contract RaffleFactoryTest is Test, SetupUsers {
          address(tokenWhitelist)
       );
       implementationManager.changeImplementationAddress(
-              ImplementationInterfaceNames.RandomProvider,
-              address(mockRamdomProvider)
+               ImplementationInterfaceNames.RandomProvider,
+               address(mockRamdomProvider)
       );
       nftCollectionWhitelist.addToWhitelist(address(mockERC721), admin);
       tokenWhitelist.addToWhitelist(address(mockERC20));
-    }
+   }
 
-    function test_RaffleCorrecltyInitialize() external {
+   function test_TokenRaffleCorrecltyInitialize() external {
       changePrank(alice);
-
       IRaffleFactory.Params memory params = IRaffleFactory.Params(
          mockERC20,
          mockERC721,
          nftIdOne,
          maxTicketSupply,
          ticketPrice,
+         0,
          ticketSaleDuration,
          false
       );
@@ -127,7 +132,100 @@ contract RaffleFactoryTest is Test, SetupUsers {
       assertEq(address(contractAddress) ,address(mockERC721));
       assertEq(id ,nftIdOne);
       assertEq(contractAddress.ownerOf(nftIdOne) ,address(raffle));
+   }
+
+   function test_insuranceTokenRaffleCorrecltyInitialize() external {
+      changePrank(alice);
+      uint256 minTicketSalesInsurance = 5;
+      IRaffleFactory.Params memory params = IRaffleFactory.Params(
+         mockERC20,
+         mockERC721,
+         nftIdOne,
+         maxTicketSupply,
+         ticketPrice,
+         minTicketSalesInsurance,
+         ticketSaleDuration,
+         false
+      );
+      uint256 insuranceCost = minTicketSalesInsurance.calculateInsuranceCost(ticketPrice, INSURANCE_SALES_PERCENTAGE);
+      mockERC721.approve(address(factory), nftIdOne);
+      mockERC20.approve(address(factory), insuranceCost);
+      Raffle insuranceRaffle = factory.createNewRaffle(params);
+      
+      assertTrue(factory.isRegisteredRaffle(address(insuranceRaffle)));
+      assertEq(insuranceRaffle.creator(), alice);
+      assertEq(insuranceRaffle.ticketPrice(), ticketPrice);
+      assertEq(insuranceRaffle.endTicketSales(), uint64(block.timestamp) + ticketSaleDuration);
+      assertEq(insuranceRaffle.totalSupply(), 0);
+      assertEq(insuranceRaffle.maxSupply(), maxTicketSupply);
+      assertEq(address(insuranceRaffle.purchaseCurrency()), address(mockERC20));
+      (IERC721 contractAddress, uint256 id )= insuranceRaffle.nftToWin();
+      assertEq(address(contractAddress) ,address(mockERC721));
+      assertEq(id ,nftIdOne);
+      assertEq(contractAddress.ownerOf(nftIdOne) ,address(insuranceRaffle));
+      assertEq(mockERC20.balanceOf(address(insuranceRaffle)) , insuranceCost);
     }
+
+   function test_insuranceEthRaffleCorrecltyInitialize() external {
+      changePrank(alice);
+      uint256 minTicketSalesInsurance = 5;
+      IRaffleFactory.Params memory params = IRaffleFactory.Params(
+         IERC20(address(0)),
+         mockERC721,
+         nftIdOne,
+         maxTicketSupply,
+         ticketPrice,
+         minTicketSalesInsurance,
+         ticketSaleDuration,
+         true
+      );
+      uint256 insuranceCost = minTicketSalesInsurance.calculateInsuranceCost(ticketPrice, INSURANCE_SALES_PERCENTAGE);
+      mockERC721.approve(address(factory), nftIdOne);
+      Raffle ethRaffle = factory.createNewRaffle{value: insuranceCost}(params);
+      
+      assertTrue(factory.isRegisteredRaffle(address(ethRaffle)));
+      assertEq(ethRaffle.creator(), alice);
+      assertEq(ethRaffle.ticketPrice(), ticketPrice);
+      assertEq(ethRaffle.endTicketSales(), uint64(block.timestamp) + ticketSaleDuration);
+      assertEq(ethRaffle.totalSupply(), 0);
+      assertEq(ethRaffle.maxSupply(), maxTicketSupply);
+      assertEq(ethRaffle.isEthTokenSales(), true);
+      assertEq(address(ethRaffle.purchaseCurrency()), address(0));
+      (IERC721 contractAddress, uint256 id )= ethRaffle.nftToWin();
+      assertEq(address(contractAddress) ,address(mockERC721));
+      assertEq(id ,nftIdOne);
+      assertEq(contractAddress.ownerOf(nftIdOne) ,address(ethRaffle));
+      assertEq(address(ethRaffle).balance, insuranceCost);
+   }
+
+   function test_EthRaffleCorrecltyInitialize() external {
+      changePrank(alice);
+      IRaffleFactory.Params memory params = IRaffleFactory.Params(
+         IERC20(address(0)),
+         mockERC721,
+         nftIdOne,
+         maxTicketSupply,
+         ticketPrice,
+         0,
+         ticketSaleDuration,
+         true
+      );
+      mockERC721.approve(address(factory), nftIdOne);
+      Raffle ethRaffle = factory.createNewRaffle(params);
+      
+      assertTrue(factory.isRegisteredRaffle(address(ethRaffle)));
+      assertEq(ethRaffle.creator(), alice);
+      assertEq(ethRaffle.ticketPrice(), ticketPrice);
+      assertEq(ethRaffle.endTicketSales(), uint64(block.timestamp) + ticketSaleDuration);
+      assertEq(ethRaffle.totalSupply(), 0);
+      assertEq(ethRaffle.maxSupply(), maxTicketSupply);
+      assertEq(ethRaffle.isEthTokenSales(), true);
+      assertEq(address(ethRaffle.purchaseCurrency()), address(0));
+      (IERC721 contractAddress, uint256 id )= ethRaffle.nftToWin();
+      assertEq(address(contractAddress) ,address(mockERC721));
+      assertEq(id ,nftIdOne);
+      assertEq(contractAddress.ownerOf(nftIdOne) ,address(ethRaffle));
+   }
 
    function test_CorrectlyRequestRandomNumberForARaffle() external {
       changePrank(alice);
@@ -138,6 +236,7 @@ contract RaffleFactoryTest is Test, SetupUsers {
          nftIdOne,
          maxTicketSupply,
          ticketPrice,
+         0,
          ticketSaleDuration,
          false
       );
@@ -147,7 +246,7 @@ contract RaffleFactoryTest is Test, SetupUsers {
       changePrank(bob);
       mockERC20.approve(address(raffle), 100e6);
       raffle.purchaseTickets(2);
-      vm.warp(uint64(block.timestamp) + ticketSaleDuration + 1);
+      utils.goForward(ticketSaleDuration + 1);
       assertFalse(raffle.raffleStatus() == RaffleDataTypes.RaffleStatus.WinningTicketsDrawned);
   
       address[] memory raffleContract = new address[](1);
@@ -171,6 +270,7 @@ contract RaffleFactoryTest is Test, SetupUsers {
          nftIdOne,
          maxTicketSupply,
          ticketPrice,
+         0,
          ticketSaleDuration,
          false
       );
@@ -184,7 +284,7 @@ contract RaffleFactoryTest is Test, SetupUsers {
       raffleOne.purchaseTickets(2);
       mockERC20.approve(address(raffleTwo), 100e6);
       raffleTwo.purchaseTickets(1);
-      vm.warp(uint64(block.timestamp) + ticketSaleDuration + 1);
+      utils.goForward(ticketSaleDuration + 1);
       assertFalse(raffleOne.raffleStatus() == RaffleDataTypes.RaffleStatus.WinningTicketsDrawned);
       assertFalse(raffleTwo.raffleStatus() == RaffleDataTypes.RaffleStatus.WinningTicketsDrawned);
   
@@ -213,6 +313,7 @@ contract RaffleFactoryTest is Test, SetupUsers {
          nftIdOne,
          maxTicketSupply,
          ticketPrice,
+         0,
          ticketSaleDuration,
          false
       );
@@ -227,7 +328,7 @@ contract RaffleFactoryTest is Test, SetupUsers {
       mockERC20.approve(address(raffleTwo), 100e6);
       raffleTwo.purchaseTickets(2);
 
-      vm.warp(uint64(block.timestamp) + ticketSaleDuration + 1);
+      utils.goForward(ticketSaleDuration + 1);
       raffleOne.drawnTickets();
       uint256 requestId = mockRamdomProvider.callerToRequestId(address(raffleOne));
       mockRamdomProvider.generateRandomNumbers(requestId);

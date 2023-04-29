@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import {IERC20} from "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 import {IERC721} from "openzeppelin-contracts/contracts/token/ERC721/IERC721.sol";
 
-import {RaffleDataTypes} from '../raffle/RaffleDataTypes.sol';
+import {RaffleDataTypes} from '../libraries/types/RaffleDataTypes.sol';
 
 interface IRaffle {
     /**
@@ -12,7 +12,7 @@ interface IRaffle {
      * @dev must be tag by the initializer function 
      * @param params used for initialization (see InitRaffleParams struct)
      */
-    function initialize(RaffleDataTypes.InitRaffleParams memory params) external;
+    function initialize(RaffleDataTypes.InitRaffleParams memory params) external payable;
 
     /**
      * @notice Allows users to purchase tickets
@@ -27,26 +27,6 @@ interface IRaffle {
      * @param nbOfTickets number of tickets purchased
      */
     function purchaseTicketsInEth(uint256 nbOfTickets) external payable;
-
-    /**
-     * @notice Allows the winner to claim his price
-     * @dev Ticket number must be draw and raffle close to new participants
-     */
-    function claimPrice() external;
-    
-    /**
-     * @notice Allows the creator to claim the amount related to the ticket sales
-     * Only callable if tickets has been sold in ERC20
-     * @dev The functions should send to the creator his part after fees
-     */
-    function claimTokenTicketSalesAmount() external;
-
-    /**
-     * @notice Allows the creator to claim the amount related to the ticket sales
-     * Only callable if tickets has been sold in ETH
-     * @dev The functions should send to the creator his part after fees
-     */
-    function claimETHTicketSalesAmount() external;
     
     /**
      * @notice Request a random numbers
@@ -57,12 +37,58 @@ interface IRaffle {
     /**
      * @notice Select the winning tickets number received from the RandomProvider contract
      * @dev must be only called by the RandomProvider contract or the RaffleFactory
-     * @dev function must not revert to avoid multi drawn to be reverted
+     * function must not revert to avoid multi drawn to revert
      * @param randomNumbers random numbers requested in array
      */
     function drawnTickets(uint256[] memory randomNumbers) external;
+    
+    /**
+     * @notice Allows the creator to excerce his insurance and claim back his nft
+     * @dev Only callable if ticket sales is close and amount of ticket sold is lower than raffle insurance
+     */
+    function creatorExerciseRefund() external;
 
-      /**
+    /**
+     * @notice Allows the creator to excerce his insurance and claim back his nft
+     * @dev Only callable if ticket sales is close and amount of ticket sold is lower than raffle insurance
+     */
+    function creatorExerciseRefundInEth() external;
+
+    /**
+     * @notice Allows the creator to claim the amount related to the ticket sales
+     * @dev The functions should send to the creator his part after fees + insurance paid
+     * Only callable if tickets has been sold in ERC20
+     */
+    function claimTicketSalesAmount() external;
+
+    /**
+     * @notice Allows the creator to claim the amount related to the ticket sales
+     * @dev The functions should send to the creator his part after fees + insurance paid
+     * Only callable if tickets has been sold in Eth
+     */
+    function claimEthTicketSalesAmount() external;
+
+    /**
+     * @notice Allows the winner to claim his price(s)
+     * @dev Ticket(s) must be draw and raffle close to new participants
+     */
+    function winnerClaimPrice() external;
+
+   /**
+     * @notice Allows tickets owner to claim refund if raffle in insurance mode
+     * @dev Only callable if ticket sales is close and amount of ticket sold is lower than raffle insurance
+     * Only callable if tickets has been sold in Tokens 
+    */
+    function userExerciseRefund() external;
+
+   /**
+     * @notice Allows tickets owner to claim refund if raffle in insurance mode
+     * @dev Only callable if ticket sales is close and amount of ticket sold is lower than raffle insurance
+     * Only callable if tickets has been sold in Tokens 
+    */
+    function userExerciseRefundInEth() external;
+
+    /**
     * @notice get the total amount of tickets sold
     * @return The total amount of tickets sold
     */
@@ -90,7 +116,7 @@ interface IRaffle {
     * @notice get if the raffle accept only ETH
     * @return The True if ticket can only be purchase in ETH, False otherwise
     */
-    function isETHTokenSales() external view returns(bool);
+    function isEthTokenSales() external view returns(bool);
 
     /**
     * @notice get the price of one ticket
