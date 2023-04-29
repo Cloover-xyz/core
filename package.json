@@ -4,6 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "build": "forge build",
+    "compile": "forge compile",
     "remap": "forge remappings > remappings.txt",
     "test": "forge test -vvv",
     "gas": "forge test -vvv --gas-report",
