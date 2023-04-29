@@ -101,6 +101,12 @@ contract Raffle is IRaffle, Initializable {
         _;
     }
 
+    modifier onlyCreator(){
+        if (creator() != msg.sender)
+            revert Errors.NOT_CREATOR();
+        _;
+    }
+
     //----------------------------------------
     // Initialize function
     //----------------------------------------
@@ -208,9 +214,9 @@ contract Raffle is IRaffle, Initializable {
         override
         ticketSalesClose
         ticketHasBeDrawn
+        onlyCreator
     {
         if (_globalData.isEthTokenSales) revert Errors.IS_ETH_RAFFLE();
-        if (msg.sender != creator()) revert Errors.NOT_CREATOR();
         uint256 insuranceCost = insurancePaid();
         uint256 totalBalance = _globalData.purchaseCurrency.balanceOf(
             address(this)
@@ -241,9 +247,9 @@ contract Raffle is IRaffle, Initializable {
         override
         ticketSalesClose
         ticketHasBeDrawn
+        onlyCreator
     {
         if (!_globalData.isEthTokenSales) revert Errors.NOT_ETH_RAFFLE();
-        if (msg.sender != creator()) revert Errors.NOT_CREATOR();
         uint256 insuranceCost = insurancePaid();
         uint256 totalBalance = address(this).balance;
         uint256 ticketSalesAmount = totalBalance - insuranceCost;
@@ -333,9 +339,9 @@ contract Raffle is IRaffle, Initializable {
         override
         ticketSalesClose
         ticketHasNotBeDrawn
+        onlyCreator
     {
         if (_globalData.isEthTokenSales) revert Errors.IS_ETH_RAFFLE();
-        if (msg.sender != creator()) revert Errors.NOT_CREATOR();
         if(_globalData.ticketSupply > 0){
             if (_globalData.ticketSupply >= _globalData.minTicketSalesInsurance)
                 revert Errors.SALES_EXCEED_INSURANCE_LIMIT();
@@ -375,9 +381,9 @@ contract Raffle is IRaffle, Initializable {
         override
         ticketSalesClose
         ticketHasNotBeDrawn
+        onlyCreator
     {
-        if (!_globalData.isEthTokenSales) revert Errors.NOT_ETH_RAFFLE();
-        if (msg.sender != creator()) revert Errors.NOT_CREATOR();       
+        if (!_globalData.isEthTokenSales) revert Errors.NOT_ETH_RAFFLE();  
         if(_globalData.ticketSupply > 0){
             if (_globalData.ticketSupply >= _globalData.minTicketSalesInsurance)
                 revert Errors.SALES_EXCEED_INSURANCE_LIMIT();
