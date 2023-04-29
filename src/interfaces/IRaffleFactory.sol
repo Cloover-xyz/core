@@ -17,6 +17,7 @@ interface IRaffleFactory {
         uint256 minTicketSalesInsurance;
         uint64 ticketSaleDuration;
         bool isETHTokenSales;
+        uint256 maxTicketAllowedToPurchase;
     }
 
     /**

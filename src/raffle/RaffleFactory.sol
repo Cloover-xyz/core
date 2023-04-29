@@ -17,7 +17,7 @@ import {InsuranceLogic} from "../libraries/logic/InsuranceLogic.sol";
 
 import {Raffle} from "./Raffle.sol";
  
-contract RaffleFactory is IRaffleFactory{
+contract RaffleFactory is IRaffleFactory {
     using Clones for address;
     using InsuranceLogic for uint;
 
@@ -94,7 +94,8 @@ contract RaffleFactory is IRaffleFactory{
             params.ticketPrice,
             params.minTicketSalesInsurance,
             params.ticketSaleDuration,
-            params.isETHTokenSales
+            params.isETHTokenSales,
+            params.maxTicketAllowedToPurchase
         );
     }
 
