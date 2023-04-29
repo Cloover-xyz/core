@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+import "forge-std/console2.sol";
 import {Initializable} from "openzeppelin-contracts/contracts/proxy/utils/Initializable.sol";
 import {IERC20} from "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 import {IERC721} from "openzeppelin-contracts/contracts/token/ERC721/IERC721.sol";
@@ -353,6 +354,7 @@ contract Raffle is IRaffle, Initializable {
                 );
             }
         }
+
         _globalData.nftContract.safeTransferFrom(
             address(this),
             creator(),
@@ -369,7 +371,7 @@ contract Raffle is IRaffle, Initializable {
         ticketHasNotBeDrawn
     {
         if (!_globalData.isEthTokenSales) revert Errors.NOT_ETH_RAFFLE();
-        if (msg.sender != creator()) revert Errors.NOT_CREATOR();
+        if (msg.sender != creator()) revert Errors.NOT_CREATOR();       
         if(_globalData.ticketSupply > 0){
             if (_globalData.ticketSupply >= _globalData.minTicketSalesInsurance)
                 revert Errors.SALES_EXCEED_INSURANCE_LIMIT();
@@ -636,7 +638,7 @@ contract Raffle is IRaffle, Initializable {
             )
         );
         treasuryFeesAmount = ticketSalesAmount.percentMul(
-            configManager.procolFeesPercentage()
+            configManager.protocolFeesPercentage()
         );
         creatorAmount = ticketSalesAmount - treasuryFeesAmount;
     }
@@ -665,7 +667,7 @@ contract Raffle is IRaffle, Initializable {
             configManager.insuranceSalesPercentage()
         );
 
-        treasuryAmount = insuranceCost.percentMul(configManager.procolFeesPercentage());
+        treasuryAmount = insuranceCost.percentMul(configManager.protocolFeesPercentage());
         if(_globalData.ticketSupply == 0) {
             return(treasuryAmount, 0);
         }

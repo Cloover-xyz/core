@@ -13,7 +13,7 @@ import {Errors} from "../../../src/libraries/helpers/Errors.sol";
 contract AccessControllerTest is Test, SetupUsers {
     AccessController public accessController;
 
-    function test_AccessControllerCorrectlySetup() external {
+    function test_ContractInitialization() external {
         vm.startPrank(admin);
         accessController = new AccessController(maintainer);
         assertTrue(accessController.hasRole(accessController.DEFAULT_ADMIN_ROLE(), admin));

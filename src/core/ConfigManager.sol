@@ -74,13 +74,13 @@ contract ConfigManager is IConfigManager {
     // External function
     //----------------------------------------
 
-    function setProcolFeesPercentage(uint256 newFeePercentage) external onlyMaintainer{
+    function setProtocolFeesPercentage(uint256 newFeePercentage) external onlyMaintainer{
         if(newFeePercentage > PercentageMath.PERCENTAGE_FACTOR) revert Errors.EXCEED_MAX_PERCENTAGE();
         _raffleConfigData.protocolFeesPercentage = newFeePercentage;
         emit ProtocolFeesPercentageUpdated(newFeePercentage);
     }
 
-    function procolFeesPercentage() external view override returns(uint256) {
+    function protocolFeesPercentage() external view override returns(uint256) {
         return _raffleConfigData.protocolFeesPercentage;
     }
     

@@ -9,7 +9,7 @@ import {IERC721} from "openzeppelin-contracts/contracts/token/ERC721/IERC721.sol
 import {MockERC20} from "../../../src/mocks/MockERC20.sol";
 import {MockRandomProvider} from "../../../src/mocks/MockRandomProvider.sol";
 import {MockERC721} from "../../../src/mocks/MockERC721.sol";
-import {MockERC721} from "../../../src/mocks/MockERC721.sol";
+import {MockERC20} from "../../../src/mocks/MockERC20.sol";
 
 import {AccessController} from "../../../src/core/AccessController.sol";
 import {ImplementationManager} from "../../../src/core/ImplementationManager.sol";
@@ -28,12 +28,12 @@ import {InsuranceLogic} from "../../../src/libraries/logic/InsuranceLogic.sol";
 
 import {SetupUsers} from "../../utils/SetupUsers.sol";
 
-
 contract EthRaffleTest is Test, SetupUsers {
     using InsuranceLogic for uint;
     using PercentageMath for uint;
 
     MockERC721 mockERC721;
+    MockERC20 mockERC20;
     MockRandomProvider mockRamdomProvider;
 
     ConfigManager configManager;
@@ -62,11 +62,11 @@ contract EthRaffleTest is Test, SetupUsers {
     function setUp() public virtual override {
         SetupUsers.setUp();
 
-        changePrank(deployer);
+        vm.startPrank(deployer);
         mockERC721 = new MockERC721("Mocked NFT", "NFT");
         mockERC721.mint(alice, ethNftId);
         mockERC721.mint(carole, ethWithAssuranceNftId);
-
+        mockERC20 = new MockERC20("MockERC20", "M20", 18);
         accessController = new AccessController(maintainer);
         implementationManager = new ImplementationManager(address(accessController));
         nftCollectionWhitelist = new NFTCollectionWhitelist(implementationManager);
@@ -107,6 +107,7 @@ contract EthRaffleTest is Test, SetupUsers {
                 treasury
         );
         nftCollectionWhitelist.addToWhitelist(address(mockERC721), admin);
+        tokenWhitelist.addToWhitelist(address(mockERC20));
 
         changePrank(alice);
 
@@ -146,7 +147,7 @@ contract EthRaffleTest is Test, SetupUsers {
 
     }
 
-    function test_raffleCorrecltyInitialize() external{
+    function test_Initialize_EthRaffle() external{
         // Without insurance
         assertEq(ethRaffle.creator(), alice);
         assertEq(ethRaffle.ticketPrice(), ticketPrice);
@@ -176,7 +177,7 @@ contract EthRaffleTest is Test, SetupUsers {
         assertEq(contractAddress.ownerOf(ethWithAssuranceNftId) ,address(ethRaffleWithInsurance));
     }
 
-    function test_RevertIf_RaffleAlreadyInitialize() external{
+    function test_Initialize_RevertWhen_RaffleAlreadyInitialize() external{
         RaffleDataTypes.InitRaffleParams memory data = RaffleDataTypes.InitRaffleParams(
             implementationManager,
             IERC20(address(0)),
@@ -193,7 +194,7 @@ contract EthRaffleTest is Test, SetupUsers {
         ethRaffle.initialize(data);
     }
 
-    function test_RevertIf_RaffleInitializeDataNotCorrect() external{
+    function test_Initialize_RevertWhen_RaffleDataNotCorrect() external{
         changePrank(alice);
         uint _nftId = 3;
         Raffle newRaffle = new Raffle();
@@ -331,21 +332,36 @@ contract EthRaffleTest is Test, SetupUsers {
 
     }
 
-    function test_UserCanPurchaseTicket() external{
+    function test_PurchaseTicketsInEth() external{
         changePrank(bob);
-        ethRaffle.purchaseTicketsInEth{value: 2e18}(2);
+        ethRaffle.purchaseTicketsInEth{value: 1e18}(1);
 
         assertEq(ethRaffle.ownerOf(0), address(0));
         assertEq(ethRaffle.ownerOf(1), bob);
-        assertEq(ethRaffle.ownerOf(2), bob);
         uint256[] memory bobTickets = ethRaffle.balanceOf(bob);
-        assertEq(bobTickets.length, 2);
+        assertEq(bobTickets.length, 1);
         assertEq(bobTickets[0], 1);
-        assertEq(ethRaffle.totalSupply(), 2);
-        assertEq(address(ethRaffle).balance, 2e18);
+        assertEq(ethRaffle.totalSupply(), 1);
+        assertEq(address(ethRaffle).balance, 1e18);
     }
 
-    function test_UserCanPurchaseSeveralTickets() external{
+    function test_PurchaseTicketsInEth_SeveralTimes() external{
+        changePrank(bob);
+        ethRaffle.purchaseTicketsInEth{value: 1e18}(1);
+        ethRaffle.purchaseTicketsInEth{value: 9e18}(9);
+
+        assertEq(ethRaffle.ownerOf(0), address(0));
+        assertEq(ethRaffle.ownerOf(1), bob);
+        assertEq(ethRaffle.ownerOf(10), bob);
+        uint256[] memory bobTickets = ethRaffle.balanceOf(bob);
+        assertEq(bobTickets.length, 10);
+        assertEq(bobTickets[0], 1);
+        assertEq(bobTickets[9], 10);
+        assertEq(ethRaffle.totalSupply(), 10);
+        assertEq(address(ethRaffle).balance, 1e19);
+    }
+
+    function test_PurchaseTicketsInEth_SeveralTickets() external{
         changePrank(bob);
         ethRaffle.purchaseTicketsInEth{value: 1e19}(10);
 
@@ -360,41 +376,59 @@ contract EthRaffleTest is Test, SetupUsers {
         assertEq(address(ethRaffle).balance, 1e19);
     }
 
-    function test_RevertWhen_UserPurchaseMakeTicketSupplyExceedMaxSupply() external{
+    function test_PurchaseTicketsInEth_RevertWhen_NewPurchaseMakeTicketSupplyExceedMaxSupply() external{
         changePrank(bob);
         vm.expectRevert(Errors.MAX_TICKET_SUPPLY_EXCEEDED.selector);
         ethRaffle.purchaseTicketsInEth{value: 11e18}(11);
     }
 
-    function test_RevertIf_UserSentWrongAmountOfEthForPurchase() external{
+    function test_PurchaseTicketsInEth_RevertWhen_UserSendWrongAmountOfEthForPurchase() external{
         changePrank(alice);
         vm.expectRevert(Errors.WRONG_MSG_VALUE.selector);
         ethRaffle.purchaseTicketsInEth{value: 1e19}(1);
     }
 
-    function test_RevertIf_UserPurchaseZeroTicket() external{
+    function test_PurchaseTicketsInEth_RevertWhen_UserPurchaseZeroTicket() external{
         changePrank(bob);
         vm.expectRevert(Errors.CANT_BE_ZERO.selector);
         ethRaffle.purchaseTicketsInEth(0);
     }
 
-    function test_RevertIf_UserPurchaseTicketInTokenInsteadOfEth() external{
+    function test_PurchaseTicketsInEth_RevertWhen_NotEthRaffle() external{
+        changePrank(alice);
+        Raffle tokenRaffle = new Raffle();
+        mockERC721.mint(alice, 3);
+        RaffleDataTypes.InitRaffleParams memory raffleData = RaffleDataTypes.InitRaffleParams(
+                implementationManager,
+                mockERC20,
+                mockERC721,
+                alice,
+                3,
+                maxTicketSupply,
+                ticketPrice,
+                0,
+                ticketSaleDuration,
+                false
+        );
+        mockERC721.transferFrom(alice, address(tokenRaffle), 3);
+        tokenRaffle.initialize(raffleData);
+        
         changePrank(bob);
-        vm.expectRevert(Errors.IS_ETH_RAFFLE.selector);
-        ethRaffle.purchaseTickets(1);
+        vm.expectRevert(Errors.NOT_ETH_RAFFLE.selector);
+        tokenRaffle.purchaseTicketsInEth(1);
     }
 
-    function test_RevertIf_UserPurchaseTicketsAfterTicketSalesEnd() external{
+    function test_PurchaseTicketsInEth_RevertWhen_TicketSalesClose() external{
         changePrank(bob);
         vm.warp(uint64(block.timestamp) + ticketSaleDuration);
         vm.expectRevert(Errors.RAFFLE_CLOSE.selector);
         ethRaffle.purchaseTicketsInEth{value: 1e18}(1);
     }
 
-    function test_CorrectlyDrawnWinningTickets() external{
+    function test_DrawnTickets() external{
         changePrank(bob);
         ethRaffle.purchaseTicketsInEth{value: 2e18}(2);
-        vm.warp(uint64(block.timestamp) + ticketSaleDuration + 1);
+        utils.goForward(ticketSaleDuration + 1);
         ethRaffle.drawnTickets();
         uint256 requestId = mockRamdomProvider.callerToRequestId(address(ethRaffle));
         mockRamdomProvider.generateRandomNumbers(requestId);
@@ -402,28 +436,28 @@ contract EthRaffleTest is Test, SetupUsers {
         assertTrue(ethRaffle.winnerAddress() == bob);
     }
 
-    function test_RevertWhen_DrawnATicketCalledOnRaffleNotEnded() external{
+    function test_DrawnTickets_RevertWhen_TicketSalesStillOpen() external{
         changePrank(bob);
         ethRaffle.purchaseTicketsInEth{value: 2e18}(2);
         vm.expectRevert(Errors.RAFFLE_STILL_OPEN.selector);
         ethRaffle.drawnTickets();
     }
 
-    function test_StatusBackToInitRandomNumberTicketDrawnedIsZero() external{
+    function test_DrawnTickets_StatusBackToInitWhenRandomNumberTicketDrawnedIsZero() external{
         changePrank(bob);
         
         ethRaffle.purchaseTicketsInEth{value: 2e18}(2);
-        vm.warp(uint64(block.timestamp) + ticketSaleDuration + 1);
+        utils.goForward(ticketSaleDuration + 1);
         ethRaffle.drawnTickets();
         uint256 requestId = mockRamdomProvider.callerToRequestId(address(ethRaffle));
         mockRamdomProvider.requestRandomNumberReturnZero(requestId);
         assertTrue(ethRaffle.raffleStatus() == RaffleDataTypes.RaffleStatus.Init);
     }
 
-    function test_RevertWhen_DrawnATicketCalledButAlreadyDrawn() external{
+    function test_DrawnTickets_RevertWhen_TicketAlreadyDrawn() external{
         changePrank(bob);
         ethRaffle.purchaseTicketsInEth{value: 2e18}(2);
-        vm.warp(uint64(block.timestamp) + ticketSaleDuration + 1);
+        utils.goForward(ticketSaleDuration + 1);
         ethRaffle.drawnTickets();
         uint256 requestId = mockRamdomProvider.callerToRequestId(address(ethRaffle));
         mockRamdomProvider.generateRandomNumbers(requestId);
@@ -431,10 +465,10 @@ contract EthRaffleTest is Test, SetupUsers {
         ethRaffle.drawnTickets();
     }
 
-    function test_UserCanClaimHisPrice() external{
+    function test_WinnerClaimPrice() external{
         changePrank(bob);
         ethRaffle.purchaseTicketsInEth{value: 2e18}(2);
-        vm.warp(uint64(block.timestamp) + ticketSaleDuration + 1);
+        utils.goForward(ticketSaleDuration + 1);
         ethRaffle.drawnTickets();
         uint256 requestId = mockRamdomProvider.callerToRequestId(address(ethRaffle));
         mockRamdomProvider.generateRandomNumbers(requestId);
@@ -446,15 +480,15 @@ contract EthRaffleTest is Test, SetupUsers {
         assertEq(ethRaffle.winnerAddress(), bob);
     }
 
-    function test_RevertIf_UserCallClaimPriceWhenRaffleStillOpen() external{
+    function test_WinnerClaimPrice_RevertWhen_RaffleStillOpen() external{
         vm.expectRevert(Errors.RAFFLE_STILL_OPEN.selector);
         ethRaffle.winnerClaimPrice();
     }
 
-    function test_RevertWhen_NotWinnerTryToCallWinnerClaimPrice() external{
+    function test_WinnerClaimPrice_RevertWhen_NotWinnerTryToClaimPrice() external{
         changePrank(bob);
         ethRaffle.purchaseTicketsInEth{value: 10e18}(10);
-        vm.warp(uint64(block.timestamp) + ticketSaleDuration + 1);
+        utils.goForward(ticketSaleDuration + 1);
         ethRaffle.drawnTickets();
         uint256 requestId = mockRamdomProvider.callerToRequestId(address(ethRaffle));
         mockRamdomProvider.generateRandomNumbers(requestId);
@@ -463,18 +497,18 @@ contract EthRaffleTest is Test, SetupUsers {
         ethRaffle.winnerClaimPrice();
     }
 
-    function test_RevertWhen_UserClaimPriceButDrawnHasNotBeDone() external{
+    function test_WinnerClaimPrice_RevertWhen_DrawnHasNotBeDone() external{
         changePrank(bob);
         ethRaffle.purchaseTicketsInEth{value: 2e18}(2);
-        vm.warp(uint64(block.timestamp) + ticketSaleDuration + 1);
+        utils.goForward(ticketSaleDuration + 1);
         vm.expectRevert(Errors.TICKET_NOT_DRAWN.selector);
         ethRaffle.winnerClaimPrice();
     }
 
-    function test_CorrectlyClaimTicketSalesAmount() external{
+    function test_ClaimEthTicketSalesAmount() external{
         changePrank(bob);
         ethRaffle.purchaseTicketsInEth{value: 2e18}(2);
-        vm.warp(uint64(block.timestamp) + ticketSaleDuration + 1);
+        utils.goForward(ticketSaleDuration + 1);
         ethRaffle.drawnTickets();
         uint256 requestId = mockRamdomProvider.callerToRequestId(address(ethRaffle));
         mockRamdomProvider.generateRandomNumbers(requestId);
@@ -488,22 +522,41 @@ contract EthRaffleTest is Test, SetupUsers {
         assertEq(address(ethRaffle).balance, 0);
     }
 
-    function test_RevertIf_CreatorclaimTicketSalesAmountInsteadOfEth() external{
-        changePrank(bob);
-        ethRaffle.purchaseTicketsInEth{value: 2e18}(2);
-        vm.warp(uint64(block.timestamp) + ticketSaleDuration + 1);
-        ethRaffle.drawnTickets();
-        uint256 requestId = mockRamdomProvider.callerToRequestId(address(ethRaffle));
-        mockRamdomProvider.generateRandomNumbers(requestId);
+    function test_ClaimEthTicketSalesAmount_RevertWhen_NotEthRaffle() external{
         changePrank(alice);
-        vm.expectRevert(Errors.IS_ETH_RAFFLE.selector);
-        ethRaffle.claimTicketSalesAmount();
+        Raffle tokenRaffle = new Raffle();
+        mockERC721.mint(alice, 3);
+        mockERC20.mint(bob, 100e18);
+        RaffleDataTypes.InitRaffleParams memory raffleData = RaffleDataTypes.InitRaffleParams(
+                implementationManager,
+                mockERC20,
+                mockERC721,
+                alice,
+                3,
+                maxTicketSupply,
+                ticketPrice,
+                0,
+                ticketSaleDuration,
+                false
+        );
+        mockERC721.transferFrom(alice, address(tokenRaffle), 3);
+        tokenRaffle.initialize(raffleData);
+        
+        changePrank(bob);
+        mockERC20.approve(address(tokenRaffle), 100e18);
+        tokenRaffle.purchaseTickets(2);
+        utils.goForward(ticketSaleDuration + 1);
+        tokenRaffle.drawnTickets();
+        uint256 requestId = mockRamdomProvider.callerToRequestId(address(tokenRaffle));
+        mockRamdomProvider.generateRandomNumbers(requestId);
+        vm.expectRevert(Errors.NOT_ETH_RAFFLE.selector);
+        tokenRaffle.claimEthTicketSalesAmount();
     }
 
-    function test_RevertIf_NotCreatorClaimEthTicketSalesAmount() external{
+    function test_ClaimEthTicketSalesAmount_RevertWhen_NotCreatorCalling() external{
         changePrank(bob);
         ethRaffle.purchaseTicketsInEth{value: 2e18}(2);
-        vm.warp(uint64(block.timestamp) + ticketSaleDuration + 1);
+        utils.goForward(ticketSaleDuration + 1);
         ethRaffle.drawnTickets();
         uint256 requestId = mockRamdomProvider.callerToRequestId(address(ethRaffle));
         mockRamdomProvider.generateRandomNumbers(requestId);
@@ -511,27 +564,27 @@ contract EthRaffleTest is Test, SetupUsers {
         ethRaffle.claimEthTicketSalesAmount();
     }
 
-    function test_RevertIf_WinningTicketNotDrawnBeforeClaimingEthTicketSalesAmount() external{
+    function test_ClaimEthTicketSalesAmount_RevertWhen_WinningTicketNotDrawn() external{
         changePrank(bob);
         ethRaffle.purchaseTicketsInEth{value: 2e18}(2);
-        vm.warp(uint64(block.timestamp) + ticketSaleDuration + 1);
+        utils.goForward(ticketSaleDuration + 1);
         changePrank(alice);
         vm.expectRevert(Errors.TICKET_NOT_DRAWN.selector);
         ethRaffle.claimEthTicketSalesAmount();
     }
 
-    function test_CreatorCanCallRefundInEthAndGetBackHisNFTWhenNoInsuranceWasPaidAndNoTicketSold() external {
+    function test_CreatorExerciseRefundInEth_GetBackHisNFTWhenNoInsuranceWasPaidAndNoTicketSold() external {
         changePrank(alice);
-        vm.warp(uint64(block.timestamp) + ticketSaleDuration + 1);
+        utils.goForward(ticketSaleDuration + 1);
         ethRaffle.creatorExerciseRefundInEth();
         assertEq(mockERC721.ownerOf(ethNftId), alice);
     }
 
-    function test_CreatorCanCallRefundInEthAndGetBackPartOfInsuranceIfNoTicketHasBeenSold() external{
+    function test_CreatorExerciseRefundInEth_GetBackPartOfInsuranceIfNoTicketHasBeenSold() external{
         changePrank(carole);
         uint256 caroleBalanceBefore = address(carole).balance;
         uint256 treasuryBalanceBefore = address(treasury).balance;
-        vm.warp(uint64(block.timestamp) + ticketSaleDuration + 1);
+        utils.goForward(ticketSaleDuration + 1);
         ethRaffleWithInsurance.creatorExerciseRefundInEth();
         assertEq(mockERC721.ownerOf(ethWithAssuranceNftId), carole);
         uint256 insurancePaid = ethRaffleWithInsurance.insurancePaid();
@@ -541,29 +594,15 @@ contract EthRaffleTest is Test, SetupUsers {
         assertEq(address(carole).balance, expectedCaroleBalance);
     }
 
-    function test_CreatorCanCallRefundInEthAfterDrawnTicketCall() external{
-        changePrank(carole);
-        uint256 caroleBalanceBefore = address(carole).balance;
-        uint256 treasuryBalanceBefore = address(treasury).balance;
-        vm.warp(uint64(block.timestamp) + ticketSaleDuration + 1);
-        ethRaffleWithInsurance.drawnTickets();
-        ethRaffleWithInsurance.creatorExerciseRefundInEth();
-        assertEq(mockERC721.ownerOf(ethWithAssuranceNftId), carole);
-        uint256 insurancePaid = ethRaffleWithInsurance.insurancePaid();
-        uint256 treasuryAmount = insurancePaid.percentMul(FEE_PERCENTAGE);
-        assertEq(address(treasury).balance, treasuryAmount + treasuryBalanceBefore);
-        uint256 expectedCaroleBalance = caroleBalanceBefore + insurancePaid - treasuryAmount;
-        assertEq(address(carole).balance, expectedCaroleBalance);
-    }
-
-    function test_CreatorCanCallRefundInEthAndDontGetBackInsurancePaidIfTicketHasBeenSold() external{
+    function test_CreatorExerciseRefundInEth_CanBeCallAfterDrawnTicketCallSetStatusToRefundMode() external{
         changePrank(bob);
         ethRaffleWithInsurance.purchaseTicketsInEth{value: 2e18}(2);
         changePrank(carole);
         uint256 caroleBalanceBefore = address(carole).balance;
         uint256 treasuryBalanceBefore = address(treasury).balance;
-        vm.warp(uint64(block.timestamp) + ticketSaleDuration + 1);
-         ethRaffleWithInsurance.creatorExerciseRefundInEth();
+        utils.goForward(ticketSaleDuration + 1);
+        ethRaffleWithInsurance.drawnTickets();
+        ethRaffleWithInsurance.creatorExerciseRefundInEth();
         assertEq(mockERC721.ownerOf(ethWithAssuranceNftId), carole);
         uint256 insurancePaid = ethRaffleWithInsurance.insurancePaid();
         uint256 treasuryAmount = insurancePaid.percentMul(FEE_PERCENTAGE);
@@ -571,42 +610,75 @@ contract EthRaffleTest is Test, SetupUsers {
         assertEq(address(carole).balance, caroleBalanceBefore);
     }
 
-    function test_RevertIf_CreatorCallExerciceRefundWhenItsEthRaffe() external{
+    function test_CreatorExerciseRefundInEth_DontGetBackInsurancePaidIfTicketHasBeenSold() external{
+        changePrank(bob);
+        ethRaffleWithInsurance.purchaseTicketsInEth{value: 2e18}(2);
         changePrank(carole);
-        vm.warp(uint64(block.timestamp) + ticketSaleDuration + 1);
-        vm.expectRevert(Errors.IS_ETH_RAFFLE.selector);
-        ethRaffleWithInsurance.creatorExerciseRefund();
+        uint256 caroleBalanceBefore = address(carole).balance;
+        uint256 treasuryBalanceBefore = address(treasury).balance;
+        utils.goForward(ticketSaleDuration + 1);
+        ethRaffleWithInsurance.creatorExerciseRefundInEth();
+        assertEq(mockERC721.ownerOf(ethWithAssuranceNftId), carole);
+        uint256 insurancePaid = ethRaffleWithInsurance.insurancePaid();
+        uint256 treasuryAmount = insurancePaid.percentMul(FEE_PERCENTAGE);
+        assertEq(address(treasury).balance, treasuryAmount + treasuryBalanceBefore);
+        assertEq(address(carole).balance, caroleBalanceBefore);
     }
 
-    function test_RevertIf_CreatorAlreadyExerciceRefund() external{
+    function test_CreatorExerciseRefundInEth_RevertWhen_NotEthRaffe() external{
+        changePrank(alice);
+        Raffle tokenRaffle = new Raffle();
+        mockERC721.mint(alice, 3);
+        RaffleDataTypes.InitRaffleParams memory raffleData = RaffleDataTypes.InitRaffleParams(
+                implementationManager,
+                mockERC20,
+                mockERC721,
+                alice,
+                3,
+                maxTicketSupply,
+                ticketPrice,
+                0,
+                ticketSaleDuration,
+                false
+        );
+        mockERC721.transferFrom(alice, address(tokenRaffle), 3);
+        tokenRaffle.initialize(raffleData);
+        
+        changePrank(bob);
+        utils.goForward(ticketSaleDuration + 1);
+        vm.expectRevert(Errors.NOT_ETH_RAFFLE.selector);
+        tokenRaffle.creatorExerciseRefundInEth();
+    }
+
+    function test_CreatorExerciseRefundInEth_RevertWhen_CreatorAlreadyExerciceRefund() external{
         changePrank(carole);
-        vm.warp(uint64(block.timestamp) + ticketSaleDuration + 1);
+        utils.goForward(ticketSaleDuration + 1);
         ethRaffleWithInsurance.creatorExerciseRefundInEth();
         vm.expectRevert();
         ethRaffleWithInsurance.creatorExerciseRefundInEth();
     }
 
-    function test_RevertIf_NotCreatorCallExerciseRefundInEth() external{
+    function test_CreatorExerciseRefundInEth_RevertWhen_NotCreatorCalling() external{
         changePrank(bob);
-        vm.warp(uint64(block.timestamp) + ticketSaleDuration + 1);
+        utils.goForward(ticketSaleDuration + 1);
         vm.expectRevert(Errors.NOT_CREATOR.selector);
         ethRaffleWithInsurance.creatorExerciseRefundInEth();
     }
 
-    function test_RevertIf_creatorExerciseRefundInEthWhereTicketSalesAreEqualOrHigherThanInsurance() external{
+    function test_CreatorExerciseRefundInEth_RevertWhen_TicketSalesAreEqualOrHigherThanInsurance() external{
         changePrank(bob);
         ethRaffleWithInsurance.purchaseTicketsInEth{value: 5e18}(5);
 
         changePrank(carole);
-        vm.warp(uint64(block.timestamp) + ticketSaleDuration + 1);
+        utils.goForward(ticketSaleDuration + 1);
         vm.expectRevert(Errors.SALES_EXCEED_INSURANCE_LIMIT.selector);
         ethRaffleWithInsurance.creatorExerciseRefundInEth();
     }
 
-    function test_UserCanGetRefundsWithInsurancePart() external {
+    function test_UserExerciseRefundInEth() external {
         changePrank(bob);
         ethRaffleWithInsurance.purchaseTicketsInEth{value: 2e18}(2);
-        vm.warp(uint64(block.timestamp) + ticketSaleDuration + 1);
+        utils.goForward(ticketSaleDuration + 1);
         uint256 bobPrevBalance = address(bob).balance;
         ethRaffleWithInsurance.userExerciseRefundInEth();
 
@@ -621,34 +693,49 @@ contract EthRaffleTest is Test, SetupUsers {
         assertEq(address(bob).balance,bobPrevBalance+ expectedBobRefunds);
     }
 
-    function test_RevertWhen_UserCallExerciseRefundOnAnEthRaffle() external{
-        changePrank(bob);
-        ethRaffleWithInsurance.purchaseTicketsInEth{value: 2e18}(2);
-        vm.warp(uint64(block.timestamp) + ticketSaleDuration + 1);
-        vm.expectRevert(Errors.IS_ETH_RAFFLE.selector);
-        ethRaffleWithInsurance.userExerciseRefund();
+    function test_UserExerciseRefundInEth_RevertWhen_NotEthRaffle() external{
+        changePrank(alice);
+        Raffle tokenRaffle = new Raffle();
+        mockERC721.mint(alice, 3);
+        RaffleDataTypes.InitRaffleParams memory raffleData = RaffleDataTypes.InitRaffleParams(
+                implementationManager,
+                mockERC20,
+                mockERC721,
+                alice,
+                3,
+                maxTicketSupply,
+                ticketPrice,
+                0,
+                ticketSaleDuration,
+                false
+        );
+        mockERC721.transferFrom(alice, address(tokenRaffle), 3);
+        tokenRaffle.initialize(raffleData);
+        utils.goForward(ticketSaleDuration + 1);
+        vm.expectRevert(Errors.NOT_ETH_RAFFLE.selector);
+        tokenRaffle.userExerciseRefundInEth();
     }
 
-    function test_RevertWhen_UserClaimRefundInEthOnTicketSupplyGreaterThanMinInsuranceSales() external{
+    function test_UserExerciseRefundInEth_RevertWhen_TicketSupplyGreaterThanMinInsuranceSales() external{
         changePrank(bob);
         ethRaffleWithInsurance.purchaseTicketsInEth{value: 5e18}(5);
-        vm.warp(uint64(block.timestamp) + ticketSaleDuration + 1);
+        utils.goForward(ticketSaleDuration + 1);
         vm.expectRevert(Errors.SALES_EXCEED_INSURANCE_LIMIT.selector);
         ethRaffleWithInsurance.userExerciseRefundInEth();
     }
 
-    function test_RevertWhen_UserAlreadyClaimRefundsWithInsurancePart() external {
+    function test_UserExerciseRefundInEth_RevertWhen_UserAlreadyClaimedRefund() external {
         changePrank(bob);
        ethRaffleWithInsurance.purchaseTicketsInEth{value: 2e18}(2);
-        vm.warp(uint64(block.timestamp) + ticketSaleDuration + 1);
+        utils.goForward(ticketSaleDuration + 1);
         ethRaffleWithInsurance.userExerciseRefundInEth();
         vm.expectRevert(Errors.ALREADY_CLAIMED.selector);
         ethRaffleWithInsurance.userExerciseRefundInEth();
     }
 
-    function test_RevertWhen_UserDidntPurchaseTicketAndClaimRefund() external {
+    function test_UserExerciseRefundInEth_RevertWhen_CallerDidntPurchaseTicket() external {
         changePrank(bob);
-        vm.warp(uint64(block.timestamp) + ticketSaleDuration + 1);
+        utils.goForward(ticketSaleDuration + 1);
         vm.expectRevert(Errors.NOTHING_TO_CLAIM.selector);
         ethRaffleWithInsurance.userExerciseRefundInEth();
     }

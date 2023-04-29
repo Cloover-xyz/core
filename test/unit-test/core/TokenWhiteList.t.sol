@@ -26,7 +26,7 @@ contract TokenWhitelistTest is Test, SetupUsers {
     function setUp() public virtual override {
         SetupUsers.setUp();
 
-        changePrank(deployer);
+        vm.startPrank(deployer);
         tokenA = new MockERC20("Token A", "A", 18);
         tokenB = new MockERC20("Token B", "B", 18);
         accessController = new AccessController(maintainer);
@@ -41,46 +41,46 @@ contract TokenWhitelistTest is Test, SetupUsers {
        
     }
 
-    function test_CorrecltySetup() external {
+    function test_ContractInitialization() external {
         assertEq(address(tokenWhitelist.implementationManager()), address(implementationManager));
     }
 
-    function test_CorrectlyWhitelistAToken() external{
+    function test_AddToWhitelist() external{
         tokenWhitelist.addToWhitelist(address(tokenA));
         assertTrue(tokenWhitelist.isWhitelisted(address(tokenA)));
     }
     
-    function test_RevertIf_TokenAlreadyWhitelisted() external{
+    function test_AddToWhitelist_RevertWhen_TokenAlreadyWhitelisted() external{
         tokenWhitelist.addToWhitelist(address(tokenA));
         vm.expectRevert(Errors.TOKEN_ALREADY_WHITELISTED.selector);
         tokenWhitelist.addToWhitelist(address(tokenA));
     }
 
-    function test_RevertIf_NotMaintainerAddToWhitelist() external{
+    function test_AddToWhitelist_RevertWhen_NotMaintainerCalling() external{
         changePrank(deployer);
         vm.expectRevert(Errors.NOT_MAINTAINER.selector);
         tokenWhitelist.addToWhitelist(address(tokenA));
     }
 
-    function test_CorrectlyRemoveAToken() external{
+    function test_RemoveFromWhitelist() external{
         tokenWhitelist.addToWhitelist(address(tokenA));
         tokenWhitelist.removeFromWhitelist(address(tokenA));
         assertFalse(tokenWhitelist.isWhitelisted(address(tokenA)));
     }
 
-    function test_RevertIf_RemoveTokenNotWhitelisted() external{
+    function test_RemoveFromWhitelist_RevertWhen_TokenNotWhitelisted() external{
         vm.expectRevert(Errors.TOKEN_NOT_WHITELISTED.selector);
         tokenWhitelist.removeFromWhitelist(address(tokenA));
     }
 
-    function test_RevertIf_NotMaintainerRemoveToWhitelist() external{
+    function test_RemoveFromWhitelist_RevertWhen_NotMaintainerCalling() external{
         tokenWhitelist.addToWhitelist(address(tokenA));
         changePrank(deployer);
         vm.expectRevert(Errors.NOT_MAINTAINER.selector);
         tokenWhitelist.removeFromWhitelist(address(tokenA));
     }
 
-    function test_CorrecltyGetAllTokenWhitelisted() external {
+    function test_GetWhitelist() external {
         tokenWhitelist.addToWhitelist(address(tokenA));
         tokenWhitelist.addToWhitelist(address(tokenB));
         address[] memory whitelist = tokenWhitelist.getWhitelist();
