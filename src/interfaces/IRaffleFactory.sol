@@ -41,5 +41,10 @@ interface IRaffleFactory {
      * @param raffleContracts the array of raffle addresses to call drawnTickets()
      */
     function batchRaffleDrawnTickets(address[] memory raffleContracts) external;
+
+    /**
+     * @notice remove msg.sender from the list of registered raffles
+     */
+    function deregisterRaffle() external;
     
 }

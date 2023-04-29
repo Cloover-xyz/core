@@ -12,6 +12,7 @@ import {PercentageMath} from "../libraries/math/PercentageMath.sol";
 import {RaffleDataTypes} from "../libraries/types/RaffleDataTypes.sol";
 
 import {IRaffle} from "../interfaces/IRaffle.sol";
+import {IRaffleFactory} from "../interfaces/IRaffleFactory.sol";
 import {IRandomProvider} from "../interfaces/IRandomProvider.sol";
 import {INFTCollectionWhitelist} from "../interfaces/INFTCollectionWhitelist.sol";
 import {ITokenWhitelist} from "../interfaces/ITokenWhitelist.sol";
@@ -53,6 +54,7 @@ contract Raffle is IRaffle, Initializable {
     event WinningTicketDrawned(uint256 winningTicket);
     event CreatorExerciseInsurance(address creator);
     event UserClaimedRefundInvestment(address user, uint256 amountReceived);
+    event RaffleCancelled(address creator);
 
     //----------------------------------------
     // Modifier
@@ -411,6 +413,39 @@ contract Raffle is IRaffle, Initializable {
             _globalData.nftId
         );
         emit CreatorExerciseInsurance(creator());
+    }
+
+    /// @inheritdoc IRaffle
+    function cancelRaffle() external override onlyCreator {
+        if(_globalData.ticketSupply > 0)
+                revert Errors.SALES_ALREADY_STARTED();
+
+        IRaffleFactory(
+            _globalData.implementationManager.getImplementationAddress(
+                ImplementationInterfaceNames.RaffleFactory
+            )
+        ).deregisterRaffle();
+            
+        if(_globalData.minTicketSalesInsurance > 0){
+            if(_globalData.isEthTokenSales) {
+                _safeTransferETH(
+                    creator(),
+                    insurancePaid()
+                );
+            } else {
+                _globalData.purchaseCurrency.transfer(
+                    creator(),
+                    insurancePaid()
+                );
+            }
+        }
+        
+        _globalData.nftContract.safeTransferFrom(
+            address(this),
+            creator(),
+            _globalData.nftId
+        );
+        emit RaffleCancelled(creator());
     }
 
     /// @inheritdoc IRaffle

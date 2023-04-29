@@ -89,6 +89,14 @@ interface IRaffle {
     function userExerciseRefundInEth() external;
 
     /**
+     * @notice Allows the creator to cancel the raffle
+     * @dev Only callable if no ticket has been sold
+     * must refund the creator insurance if paid
+     * must remove the raffle from the RaffleFactory whitelist
+     */
+    function cancelRaffle() external;
+
+    /**
     * @notice get the total amount of tickets sold
     * @return The total amount of tickets sold
     */

@@ -23,7 +23,7 @@ library Errors {
     error IN_REFUND_MODE(); // 'raffle is in insurance mode'
     error NOT_MAINTAINER(); // 'Caller is not the maintainer'
     error IMPLEMENTATION_NOT_FOUND(); // 'Implementation interfaces is not registered'
-    error NOT_RAFFLE_CONTRACT(); // 'Caller is not a raffle contract'
+    error NOT_REGISTERED_RAFFLE(); // 'Caller is not a raffle contract registered'
     error NOT_RANDOM_PROVIDER_CONTRACT(); // 'Caller is not the random provider contract'
     error NOT_NFT_OWNER(); // 'Address not the nft owner'
     error ARRAYS_LENGTH_NOT_EQUAL(); // 'Arrays doesn't have the same size'

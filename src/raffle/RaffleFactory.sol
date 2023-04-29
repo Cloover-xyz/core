@@ -12,6 +12,7 @@ import {IRaffleFactory} from "../interfaces/IRaffleFactory.sol";
 import {IConfigManager} from "../interfaces/IConfigManager.sol";
 
 import {ImplementationInterfaceNames} from "../libraries/helpers/ImplementationInterfaceNames.sol";
+import {Errors} from "../libraries/helpers/Errors.sol";
 import {RaffleDataTypes} from "../libraries/types/RaffleDataTypes.sol";
 import {InsuranceLogic} from "../libraries/logic/InsuranceLogic.sol";
 
@@ -67,6 +68,10 @@ contract RaffleFactory is IRaffleFactory {
         }
     }
 
+    function deregisterRaffle() external override{
+        isRegisteredRaffle[msg.sender] = false;
+    }
+    
     //----------------------------------------
     // Internal functions
     //----------------------------------------
