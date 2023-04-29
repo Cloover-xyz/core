@@ -29,6 +29,7 @@ library RaffleDataTypes {
         uint64 endTicketSales;
         bool isEthTokenSales;
         RaffleStatus status;
+        uint256 maxTicketAllowedToPurchase;
     }
  
     struct InitRaffleParams {
@@ -42,5 +43,6 @@ library RaffleDataTypes {
         uint256 minTicketSalesInsurance;
         uint64 ticketSaleDuration;
         bool isEthTokenSales;
+        uint256 maxTicketAllowedToPurchase;
     }
 }

@@ -43,6 +43,7 @@ library Errors {
     error SALES_EXCEED_INSURANCE_LIMIT();  //'Ticket sales exceed min ticket sales covered by the insurance'
     error ALREADY_CLAIMED();  //'User already claimed his part'
     error NOTHING_TO_CLAIM();  //'User has nothing to claim'
+    error EXCEED_MAX_TICKET_ALLOWED_TO_PURCHASE();  //'User exceed allowed ticket to purchase limit'
 }
 
  

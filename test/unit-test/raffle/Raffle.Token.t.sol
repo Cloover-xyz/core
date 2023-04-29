@@ -122,7 +122,8 @@ contract TokenRaffleTest is Test, SetupUsers {
                 ticketPrice,
                 0,
                 ticketSaleDuration,
-                false
+                false,
+                0
         );
         mockERC721.transferFrom(alice, address(tokenRaffle), tokenNftId);
         tokenRaffle.initialize(raffleData);
@@ -139,7 +140,8 @@ contract TokenRaffleTest is Test, SetupUsers {
                 ticketPrice,
                 minTicketSalesInsurance,
                 ticketSaleDuration,
-                false
+                false,
+                0
         );
         mockERC721.transferFrom(carole, address(tokenRaffleWithInsurance), tokenWithAssuranceNftId);
         uint256 insuranceCost = minTicketSalesInsurance.calculateInsuranceCost(ticketPrice, INSURANCE_SALES_PERCENTAGE);
@@ -189,7 +191,8 @@ contract TokenRaffleTest is Test, SetupUsers {
             ticketPrice,
             0,
             ticketSaleDuration,
-            false
+            false,
+                0
         );
         vm.expectRevert("Initializable: contract is already initialized");
         tokenRaffle.initialize(data);
@@ -212,7 +215,8 @@ contract TokenRaffleTest is Test, SetupUsers {
             ticketPrice,
             0,
             ticketSaleDuration,
-            false
+            false,
+                0
         );
         vm.expectRevert(Errors.NOT_ADDRESS_0.selector);
         newRaffle.initialize(data);
@@ -228,7 +232,8 @@ contract TokenRaffleTest is Test, SetupUsers {
             ticketPrice,
             0,
             ticketSaleDuration,
-            false
+            false,
+                0
         );
         vm.expectRevert(Errors.TOKEN_NOT_WHITELISTED.selector);
         newRaffle.initialize(data);
@@ -245,7 +250,8 @@ contract TokenRaffleTest is Test, SetupUsers {
             ticketPrice,
             0,
             ticketSaleDuration,
-            false
+            false,
+                0
         );
         vm.expectRevert(Errors.COLLECTION_NOT_WHITELISTED.selector);
         newRaffle.initialize(data);
@@ -261,7 +267,8 @@ contract TokenRaffleTest is Test, SetupUsers {
             0,
             0,
             ticketSaleDuration,
-            false
+            false,
+                0
         );
         vm.expectRevert(Errors.CANT_BE_ZERO.selector);
         newRaffle.initialize(data);
@@ -277,7 +284,8 @@ contract TokenRaffleTest is Test, SetupUsers {
             ticketPrice,
             0,
             ticketSaleDuration,
-            false
+            false,
+                0
         );
         vm.expectRevert(Errors.CANT_BE_ZERO.selector);
         newRaffle.initialize(data);
@@ -293,7 +301,8 @@ contract TokenRaffleTest is Test, SetupUsers {
             ticketPrice,
             0,
             ticketSaleDuration,
-            false
+            false,
+                0
         );
         vm.expectRevert(Errors.EXCEED_MAX_VALUE_ALLOWED.selector);
         newRaffle.initialize(data);
@@ -309,7 +318,8 @@ contract TokenRaffleTest is Test, SetupUsers {
             ticketPrice,
             0,
             uint64(MIN_SALE_DURATION) - 1,
-            false
+            false,
+                0
         );
         vm.expectRevert(Errors.OUT_OF_RANGE.selector);
         newRaffle.initialize(data);
@@ -325,7 +335,8 @@ contract TokenRaffleTest is Test, SetupUsers {
             ticketPrice,
             0,
             uint64(MAX_SALE_DURATION) + 1,
-            false
+            false,
+                0
         );
         vm.expectRevert(Errors.OUT_OF_RANGE.selector);
         newRaffle.initialize(data);
@@ -341,7 +352,8 @@ contract TokenRaffleTest is Test, SetupUsers {
             ticketPrice,
             1,
             ticketSaleDuration,
-            false
+            false,
+                0
         );
         vm.expectRevert(Errors.INSURANCE_AMOUNT.selector);
         newRaffle.initialize(data);
@@ -400,6 +412,32 @@ contract TokenRaffleTest is Test, SetupUsers {
         tokenRaffle.purchaseTickets(0);
     }
 
+function test_PurchaseTickets_RevertWhen_UserTicketPurchaseExceedLimitAllowed() external{
+        changePrank(alice);
+        mockERC721.mint(alice, 3);
+        Raffle raffleLimit = new Raffle();
+        RaffleDataTypes.InitRaffleParams memory ethData = RaffleDataTypes.InitRaffleParams(
+                implementationManager,
+                mockERC20,
+                mockERC721,
+                alice,
+                3,
+                maxTicketSupply,
+                ticketPrice,
+                0,
+                ticketSaleDuration,
+                false,
+                5
+        );
+        mockERC721.transferFrom(alice, address(raffleLimit), 3);
+        raffleLimit.initialize(ethData);
+
+        changePrank(bob);
+        mockERC20.approve(address(raffleLimit), 100e6);
+        raffleLimit.purchaseTickets(4);
+        vm.expectRevert(Errors.EXCEED_MAX_TICKET_ALLOWED_TO_PURCHASE.selector);
+        raffleLimit.purchaseTickets(5);
+    }
 
     function test_PurchaseTickets_RevertWhen_IsEthRaffle() external{
         changePrank(alice);
@@ -415,7 +453,8 @@ contract TokenRaffleTest is Test, SetupUsers {
                 ticketPrice,
                 0,
                 ticketSaleDuration,
-                true
+                true,
+                0
         );
         mockERC721.transferFrom(alice, address(ethRaffle), 3);
         ethRaffle.initialize(raffleData);
@@ -550,7 +589,8 @@ contract TokenRaffleTest is Test, SetupUsers {
                 ticketPrice,
                 0,
                 ticketSaleDuration,
-                true
+                true,
+                0
         );
         mockERC721.transferFrom(alice, address(ethRaffle), 3);
         ethRaffle.initialize(raffleData);
@@ -652,7 +692,8 @@ contract TokenRaffleTest is Test, SetupUsers {
                 ticketPrice,
                 0,
                 ticketSaleDuration,
-                true
+                true,
+                0
         );
         mockERC721.transferFrom(alice, address(ethRaffle), 3);
         ethRaffle.initialize(raffleData);
@@ -722,7 +763,8 @@ contract TokenRaffleTest is Test, SetupUsers {
                 ticketPrice,
                 0,
                 ticketSaleDuration,
-                true
+                true,
+                0
         );
                 mockERC721.transferFrom(alice, address(ethRaffle), 3);
         ethRaffle.initialize(raffleData);

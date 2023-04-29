@@ -122,6 +122,8 @@ contract Raffle is IRaffle, Initializable {
         _globalData.endTicketSales =
             uint64(block.timestamp) +
             params.ticketSaleDuration;
+        _globalData.maxTicketAllowedToPurchase = params
+            .maxTicketAllowedToPurchase;
     }
 
     //----------------------------------------
@@ -134,6 +136,8 @@ contract Raffle is IRaffle, Initializable {
     ) external override ticketSalesOpen {
         if (_globalData.isEthTokenSales) revert Errors.IS_ETH_RAFFLE();
         if (nbOfTickets == 0) revert Errors.CANT_BE_ZERO();
+         if( _globalData.maxTicketAllowedToPurchase > 0 && balanceOf(msg.sender).length + nbOfTickets > _globalData.maxTicketAllowedToPurchase)
+            revert Errors.EXCEED_MAX_TICKET_ALLOWED_TO_PURCHASE();
         if (totalSupply() + nbOfTickets > _globalData.maxTicketSupply)
             revert Errors.MAX_TICKET_SUPPLY_EXCEEDED();
         uint256 ticketCost =  _calculateTicketsCost(nbOfTickets);
@@ -155,6 +159,8 @@ contract Raffle is IRaffle, Initializable {
     ) external payable override ticketSalesOpen {
         if (!_globalData.isEthTokenSales) revert Errors.NOT_ETH_RAFFLE();
         if (nbOfTickets == 0) revert Errors.CANT_BE_ZERO();
+        if( _globalData.maxTicketAllowedToPurchase > 0 && balanceOf(msg.sender).length + nbOfTickets > _globalData.maxTicketAllowedToPurchase)
+            revert Errors.EXCEED_MAX_TICKET_ALLOWED_TO_PURCHASE();
         if (totalSupply() + nbOfTickets > _globalData.maxTicketSupply)
             revert Errors.MAX_TICKET_SUPPLY_EXCEEDED();
         if (_calculateTicketsCost(nbOfTickets) != msg.value)

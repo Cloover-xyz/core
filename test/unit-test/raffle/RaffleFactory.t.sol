@@ -116,7 +116,8 @@ contract RaffleFactoryTest is Test, SetupUsers {
          ticketPrice,
          0,
          ticketSaleDuration,
-         false
+         false,
+         0
       );
       mockERC721.approve(address(factory), nftIdOne);
       raffle = factory.createNewRaffle(params);
@@ -145,7 +146,8 @@ contract RaffleFactoryTest is Test, SetupUsers {
          ticketPrice,
          minTicketSalesInsurance,
          ticketSaleDuration,
-         false
+         false,
+         0
       );
       uint256 insuranceCost = minTicketSalesInsurance.calculateInsuranceCost(ticketPrice, INSURANCE_SALES_PERCENTAGE);
       mockERC721.approve(address(factory), nftIdOne);
@@ -177,7 +179,8 @@ contract RaffleFactoryTest is Test, SetupUsers {
          ticketPrice,
          minTicketSalesInsurance,
          ticketSaleDuration,
-         true
+         true,
+         0
       );
       uint256 insuranceCost = minTicketSalesInsurance.calculateInsuranceCost(ticketPrice, INSURANCE_SALES_PERCENTAGE);
       mockERC721.approve(address(factory), nftIdOne);
@@ -208,7 +211,8 @@ contract RaffleFactoryTest is Test, SetupUsers {
          ticketPrice,
          0,
          ticketSaleDuration,
-         true
+         true,
+         0
       );
       mockERC721.approve(address(factory), nftIdOne);
       Raffle ethRaffle = factory.createNewRaffle(params);
@@ -238,7 +242,8 @@ contract RaffleFactoryTest is Test, SetupUsers {
          ticketPrice,
          0,
          ticketSaleDuration,
-         false
+         false,
+         0
       );
       mockERC721.approve(address(factory), nftIdOne);
       raffle = factory.createNewRaffle(params);
@@ -272,7 +277,8 @@ contract RaffleFactoryTest is Test, SetupUsers {
          ticketPrice,
          0,
          ticketSaleDuration,
-         false
+         false,
+         0
       );
       Raffle raffleOne = factory.createNewRaffle(params);
       
@@ -315,7 +321,8 @@ contract RaffleFactoryTest is Test, SetupUsers {
          ticketPrice,
          0,
          ticketSaleDuration,
-         false
+         false,
+         0
       );
       Raffle raffleOne = factory.createNewRaffle(params);
       
