@@ -6,10 +6,9 @@ libs = ['lib']
 gas_reports = ["Raffle", "AccessController", "ImplementationManager", "RaffleFactory", "ConfigManager", "TokenWhitelist", "NFTCollectionWhitelist"]
 
 [rpc_endpoints]
-goerli = "${GOERLI_RPC_URL}"
-
+sepolia = "${MUMBAI_RPC_URL}"
 [etherscan]
 mainnet = { key = "${ETHERSCAN_KEY}" }
-goerli = {key = "${ETHERSCAN_KEY}" }
+sepolia = {key = "${ETHERSCAN_KEY}" }
 
 # See more config options https://github.com/foundry-rs/foundry/tree/master/config

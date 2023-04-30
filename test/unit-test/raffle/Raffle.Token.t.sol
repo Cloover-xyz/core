@@ -502,47 +502,47 @@ contract TokenRaffleTest is Test, SetupUsers {
         tokenRaffle.purchaseTickets(1);
     }
 
-    function test_DrawnTickets() external{
+    function test_draw() external{
         changePrank(bob);
         mockERC20.approve(address(tokenRaffle), 100e6);
         tokenRaffle.purchaseTickets(2);
         utils.goForward(ticketSaleDuration + 1);
-        tokenRaffle.drawnTickets();
+        tokenRaffle.draw();
         uint256 requestId = mockRamdomProvider.callerToRequestId(address(tokenRaffle));
         mockRamdomProvider.generateRandomNumbers(requestId);
         assertFalse(tokenRaffle.winnerAddress() == address(0));
         assertTrue(tokenRaffle.winnerAddress() == bob);
     }
 
-    function test_DrawnTickets_RevertWhen_TicketSalesStillOpen() external{
+    function test_draw_RevertWhen_TicketSalesStillOpen() external{
         changePrank(bob);
         mockERC20.approve(address(tokenRaffle), 100e6);
         tokenRaffle.purchaseTickets(2);
         vm.expectRevert(Errors.RAFFLE_STILL_OPEN.selector);
-        tokenRaffle.drawnTickets();
+        tokenRaffle.draw();
     }
 
-    function test_DrawnTickets_StatusBackToInitWhenRandomNumberTicketDrawnedIsZero() external{
+    function test_draw_StatusBackToInitWhenRandomNumberTicketDrawnedIsZero() external{
         changePrank(bob);
         mockERC20.approve(address(tokenRaffle), 100e6);
         tokenRaffle.purchaseTickets(2);
         utils.goForward(ticketSaleDuration + 1);
-        tokenRaffle.drawnTickets();
+        tokenRaffle.draw();
         uint256 requestId = mockRamdomProvider.callerToRequestId(address(tokenRaffle));
         mockRamdomProvider.requestRandomNumberReturnZero(requestId);
         assertTrue(tokenRaffle.raffleStatus() == RaffleDataTypes.RaffleStatus.Init);
     }
 
-    function test_DrawnTickets_RevertWhen_TicketAlreadyDrawn() external{
+    function test_draw_RevertWhen_TicketAlreadyDrawn() external{
         changePrank(bob);
         mockERC20.approve(address(tokenRaffle), 100e6);
         tokenRaffle.purchaseTickets(2);
         utils.goForward(ticketSaleDuration + 1);
-        tokenRaffle.drawnTickets();
+        tokenRaffle.draw();
         uint256 requestId = mockRamdomProvider.callerToRequestId(address(tokenRaffle));
         mockRamdomProvider.generateRandomNumbers(requestId);
         vm.expectRevert(Errors.TICKET_ALREADY_DRAWN.selector);
-        tokenRaffle.drawnTickets();
+        tokenRaffle.draw();
     }
 
     function test_WinnerClaimPrice() external{
@@ -550,7 +550,7 @@ contract TokenRaffleTest is Test, SetupUsers {
         mockERC20.approve(address(tokenRaffle), 100e6);
         tokenRaffle.purchaseTickets(2);
         utils.goForward(ticketSaleDuration + 1);
-        tokenRaffle.drawnTickets();
+        tokenRaffle.draw();
         uint256 requestId = mockRamdomProvider.callerToRequestId(address(tokenRaffle));
         mockRamdomProvider.generateRandomNumbers(requestId);
         uint256 winningTicketNumber = 1;
@@ -571,7 +571,7 @@ contract TokenRaffleTest is Test, SetupUsers {
         mockERC20.approve(address(tokenRaffle), 100e6);
         tokenRaffle.purchaseTickets(10);
         utils.goForward(ticketSaleDuration + 1);
-        tokenRaffle.drawnTickets();
+        tokenRaffle.draw();
         uint256 requestId = mockRamdomProvider.callerToRequestId(address(tokenRaffle));
         mockRamdomProvider.generateRandomNumbers(requestId);
         changePrank(alice);
@@ -593,7 +593,7 @@ contract TokenRaffleTest is Test, SetupUsers {
         mockERC20.approve(address(tokenRaffle), 100e6);
         tokenRaffle.purchaseTickets(2);
         utils.goForward(ticketSaleDuration + 1);
-        tokenRaffle.drawnTickets();
+        tokenRaffle.draw();
         uint256 requestId = mockRamdomProvider.callerToRequestId(address(tokenRaffle));
         mockRamdomProvider.generateRandomNumbers(requestId);
         changePrank(alice);
@@ -629,7 +629,7 @@ contract TokenRaffleTest is Test, SetupUsers {
         changePrank(bob);
         ethRaffle.purchaseTicketsInEth{value: 2e7}(2);
         utils.goForward(ticketSaleDuration + 1);
-        ethRaffle.drawnTickets();
+        ethRaffle.draw();
         uint256 requestId = mockRamdomProvider.callerToRequestId(address(ethRaffle));
         mockRamdomProvider.generateRandomNumbers(requestId);
         changePrank(alice);
@@ -642,7 +642,7 @@ contract TokenRaffleTest is Test, SetupUsers {
         mockERC20.approve(address(tokenRaffle), 100e6);
         tokenRaffle.purchaseTickets(2);
         utils.goForward(ticketSaleDuration + 1);
-        tokenRaffle.drawnTickets();
+        tokenRaffle.draw();
         uint256 requestId = mockRamdomProvider.callerToRequestId(address(tokenRaffle));
         mockRamdomProvider.generateRandomNumbers(requestId);
         vm.expectRevert(Errors.NOT_CREATOR.selector);
@@ -685,7 +685,7 @@ contract TokenRaffleTest is Test, SetupUsers {
         changePrank(carole);
         uint256 caroleBalanceBefore = mockERC20.balanceOf(carole);
         utils.goForward(ticketSaleDuration + 1);
-        tokenRaffleWithInsurance.drawnTickets();
+        tokenRaffleWithInsurance.draw();
         tokenRaffleWithInsurance.creatorExerciseRefund();
         assertEq(mockERC721.ownerOf(tokenWithAssuranceNftId), carole);
         uint256 insurancePaid = tokenRaffleWithInsurance.insurancePaid();

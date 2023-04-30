@@ -226,7 +226,7 @@
     },
     {
       "inputs": [],
-      "name": "drawnTickets",
+      "name": "draw",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -239,7 +239,7 @@
           "type": "uint256[]"
         }
       ],
-      "name": "drawnTickets",
+      "name": "draw",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
