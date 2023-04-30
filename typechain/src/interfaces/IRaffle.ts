@@ -62,8 +62,8 @@ export interface IRaffleInterface extends utils.Interface {
     "claimPrice()": FunctionFragment;
     "claimTicketSalesAmount()": FunctionFragment;
     "creator()": FunctionFragment;
-    "drawnTickets()": FunctionFragment;
-    "drawnTickets(uint256[])": FunctionFragment;
+    "draw()": FunctionFragment;
+    "draw(uint256[])": FunctionFragment;
     "endTicketSales()": FunctionFragment;
     "initialize((address,address,address,address,uint256,uint256,uint256,uint64))": FunctionFragment;
     "maxSupply()": FunctionFragment;
@@ -85,8 +85,8 @@ export interface IRaffleInterface extends utils.Interface {
       | "claimPrice"
       | "claimTicketSalesAmount"
       | "creator"
-      | "drawnTickets()"
-      | "drawnTickets(uint256[])"
+      | "draw()"
+      | "draw(uint256[])"
       | "endTicketSales"
       | "initialize"
       | "maxSupply"
@@ -115,12 +115,9 @@ export interface IRaffleInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "creator", values?: undefined): string;
+  encodeFunctionData(functionFragment: "draw()", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "drawnTickets()",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "drawnTickets(uint256[])",
+    functionFragment: "draw(uint256[])",
     values: [PromiseOrValue<BigNumberish>[]]
   ): string;
   encodeFunctionData(
@@ -177,12 +174,9 @@ export interface IRaffleInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "creator", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "draw()", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "drawnTickets()",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "drawnTickets(uint256[])",
+    functionFragment: "draw(uint256[])",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -271,11 +265,11 @@ export interface IRaffle extends BaseContract {
 
     creator(overrides?: CallOverrides): Promise<[string]>;
 
-    "drawnTickets()"(
+    "draw()"(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    "drawnTickets(uint256[])"(
+    "draw(uint256[])"(
       randomNumbers: PromiseOrValue<BigNumberish>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -335,11 +329,11 @@ export interface IRaffle extends BaseContract {
 
   creator(overrides?: CallOverrides): Promise<string>;
 
-  "drawnTickets()"(
+  "draw()"(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  "drawnTickets(uint256[])"(
+  "draw(uint256[])"(
     randomNumbers: PromiseOrValue<BigNumberish>[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -395,9 +389,9 @@ export interface IRaffle extends BaseContract {
 
     creator(overrides?: CallOverrides): Promise<string>;
 
-    "drawnTickets()"(overrides?: CallOverrides): Promise<void>;
+    "draw()"(overrides?: CallOverrides): Promise<void>;
 
-    "drawnTickets(uint256[])"(
+    "draw(uint256[])"(
       randomNumbers: PromiseOrValue<BigNumberish>[],
       overrides?: CallOverrides
     ): Promise<void>;
@@ -460,11 +454,11 @@ export interface IRaffle extends BaseContract {
 
     creator(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "drawnTickets()"(
+    "draw()"(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    "drawnTickets(uint256[])"(
+    "draw(uint256[])"(
       randomNumbers: PromiseOrValue<BigNumberish>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -521,11 +515,11 @@ export interface IRaffle extends BaseContract {
 
     creator(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "drawnTickets()"(
+    "draw()"(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    "drawnTickets(uint256[])"(
+    "draw(uint256[])"(
       randomNumbers: PromiseOrValue<BigNumberish>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;

@@ -32,7 +32,7 @@ interface IRaffle {
      * @notice Request a random numbers
      * @dev must call the RandomProvider that use ChainLinkVRFv2 
      */
-    function drawnTickets() external;
+    function draw() external;
 
     /**
      * @notice Select the winning tickets number received from the RandomProvider contract
@@ -40,7 +40,7 @@ interface IRaffle {
      * function must not revert to avoid multi drawn to revert
      * @param randomNumbers random numbers requested in array
      */
-    function drawnTickets(uint256[] memory randomNumbers) external;
+    function draw(uint256[] memory randomNumbers) external;
     
     /**
      * @notice Allows the creator to excerce his insurance and claim back his nft

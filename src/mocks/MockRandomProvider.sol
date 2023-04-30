@@ -42,7 +42,7 @@ contract MockRandomProvider is IRandomProvider {
             }
         }
         address requestorAddress = requestIdToCaller[requestId];
-        IRaffle(requestorAddress).drawnTickets(randomNumbers); 
+        IRaffle(requestorAddress).draw(randomNumbers); 
     }
 
     function requestRandomNumberReturnZero(uint256 requestId) external {
@@ -52,6 +52,6 @@ contract MockRandomProvider is IRandomProvider {
         for(uint256 i;i<numWordsRequested;i++){
             zeroNumbers[i] = 0;
         }
-        IRaffle(requestorAddress).drawnTickets(zeroNumbers); 
+        IRaffle(requestorAddress).draw(zeroNumbers); 
     }
 }

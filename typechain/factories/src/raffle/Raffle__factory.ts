@@ -230,7 +230,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "drawnTickets",
+    name: "draw",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -243,7 +243,7 @@ const _abi = [
         type: "uint256[]",
       },
     ],
-    name: "drawnTickets",
+    name: "draw",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

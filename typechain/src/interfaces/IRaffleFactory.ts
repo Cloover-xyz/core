@@ -52,20 +52,20 @@ export declare namespace IRaffleFactory {
 
 export interface IRaffleFactoryInterface extends utils.Interface {
   functions: {
-    "batchRaffleDrawnTickets(address[])": FunctionFragment;
+    "batchRaffledraw(address[])": FunctionFragment;
     "createNewRaffle((address,address,uint256,uint256,uint256,uint64))": FunctionFragment;
     "isRegisteredRaffle(address)": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
-      | "batchRaffleDrawnTickets"
+      | "batchRaffledraw"
       | "createNewRaffle"
       | "isRegisteredRaffle"
   ): FunctionFragment;
 
   encodeFunctionData(
-    functionFragment: "batchRaffleDrawnTickets",
+    functionFragment: "batchRaffledraw",
     values: [PromiseOrValue<string>[]]
   ): string;
   encodeFunctionData(
@@ -78,7 +78,7 @@ export interface IRaffleFactoryInterface extends utils.Interface {
   ): string;
 
   decodeFunctionResult(
-    functionFragment: "batchRaffleDrawnTickets",
+    functionFragment: "batchRaffledraw",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -120,7 +120,7 @@ export interface IRaffleFactory extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    batchRaffleDrawnTickets(
+    batchRaffledraw(
       raffleContracts: PromiseOrValue<string>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -136,7 +136,7 @@ export interface IRaffleFactory extends BaseContract {
     ): Promise<[boolean]>;
   };
 
-  batchRaffleDrawnTickets(
+  batchRaffledraw(
     raffleContracts: PromiseOrValue<string>[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -152,7 +152,7 @@ export interface IRaffleFactory extends BaseContract {
   ): Promise<boolean>;
 
   callStatic: {
-    batchRaffleDrawnTickets(
+    batchRaffledraw(
       raffleContracts: PromiseOrValue<string>[],
       overrides?: CallOverrides
     ): Promise<void>;
@@ -171,7 +171,7 @@ export interface IRaffleFactory extends BaseContract {
   filters: {};
 
   estimateGas: {
-    batchRaffleDrawnTickets(
+    batchRaffledraw(
       raffleContracts: PromiseOrValue<string>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -188,7 +188,7 @@ export interface IRaffleFactory extends BaseContract {
   };
 
   populateTransaction: {
-    batchRaffleDrawnTickets(
+    batchRaffledraw(
       raffleContracts: PromiseOrValue<string>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;

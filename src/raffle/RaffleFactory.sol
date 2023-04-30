@@ -62,9 +62,9 @@ contract RaffleFactory is IRaffleFactory {
         emit NewRaffle(address(newRaffle), params);
     }
 
-    function batchRaffleDrawnTickets(address[] memory _raffleContracts) external override {
+    function batchRaffledraw(address[] memory _raffleContracts) external override {
         for(uint32 i; i<_raffleContracts.length; ++i){
-            Raffle(_raffleContracts[i]).drawnTickets();
+            Raffle(_raffleContracts[i]).draw();
         }
     }
 

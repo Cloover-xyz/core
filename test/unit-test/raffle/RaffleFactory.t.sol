@@ -256,7 +256,7 @@ contract RaffleFactoryTest is Test, SetupUsers {
   
       address[] memory raffleContract = new address[](1);
       raffleContract[0] = address(raffle);
-      factory.batchRaffleDrawnTickets(raffleContract);
+      factory.batchRaffledraw(raffleContract);
 
       uint256 requestId = mockRamdomProvider.callerToRequestId(address(raffle));
       mockRamdomProvider.generateRandomNumbers(requestId);
@@ -297,7 +297,7 @@ contract RaffleFactoryTest is Test, SetupUsers {
       address[] memory raffleContract = new address[](2);
       raffleContract[0] = address(raffleOne);
       raffleContract[1] = address(raffleTwo);
-      factory.batchRaffleDrawnTickets(raffleContract);
+      factory.batchRaffledraw(raffleContract);
 
       uint256 requestId = mockRamdomProvider.callerToRequestId(address(raffleOne));
       mockRamdomProvider.generateRandomNumbers(requestId);
@@ -336,7 +336,7 @@ contract RaffleFactoryTest is Test, SetupUsers {
       raffleTwo.purchaseTickets(2);
 
       utils.goForward(ticketSaleDuration + 1);
-      raffleOne.drawnTickets();
+      raffleOne.draw();
       uint256 requestId = mockRamdomProvider.callerToRequestId(address(raffleOne));
       mockRamdomProvider.generateRandomNumbers(requestId);
       raffleOne.winningTicket();
@@ -347,7 +347,7 @@ contract RaffleFactoryTest is Test, SetupUsers {
       raffleContract[0] = address(raffleOne);
       raffleContract[1] = address(raffleTwo);
       vm.expectRevert(Errors.TICKET_ALREADY_DRAWN.selector);
-      factory.batchRaffleDrawnTickets(raffleContract);
+      factory.batchRaffledraw(raffleContract);
    }
 
    function test_DeregisterRaffle() external{

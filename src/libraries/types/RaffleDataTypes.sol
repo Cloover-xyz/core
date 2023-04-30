@@ -31,6 +31,8 @@ library RaffleDataTypes {
         bool isEthTokenSales;
         RaffleStatus status;
         uint256 maxTicketAllowedToPurchase;
+        uint256 protocolFeesPercentage;
+        uint256 insuranceSalesPercentage;
     }
  
     struct InitRaffleParams {

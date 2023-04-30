@@ -108,7 +108,7 @@ contract RandomProvider is VRFConsumerBaseV2, IRandomProvider {
         uint256[] memory randomWords
     ) internal override {
         address requestorAddress = requestIdToCaller[requestId];
-        IRaffle(requestorAddress).drawnTickets(randomWords); 
+        IRaffle(requestorAddress).draw(randomWords); 
     }
 
 

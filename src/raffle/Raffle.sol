@@ -115,7 +115,10 @@ contract Raffle is IRaffle, Initializable {
     function initialize(
         RaffleDataTypes.InitRaffleParams memory params
     ) external override payable initializer {
-        _checkData(params);
+     
+        (uint256 _insuranceSalesPercentage, uint256 _protocolFeesPercentage) =_checkData(params);
+        _globalData.protocolFeesPercentage = _protocolFeesPercentage;
+        _globalData.insuranceSalesPercentage = _insuranceSalesPercentage;
         _globalData.isEthTokenSales = params.isEthTokenSales;
         _globalData.implementationManager = params.implementationManager;
         _globalData.creator = params.creator;
@@ -178,7 +181,7 @@ contract Raffle is IRaffle, Initializable {
     }
 
     /// @inheritdoc IRaffle
-    function drawnTickets()
+    function draw()
         external
         override
         ticketSalesClose
@@ -194,7 +197,7 @@ contract Raffle is IRaffle, Initializable {
     }
 
     /// @inheritdoc IRaffle
-    function drawnTickets(
+    function draw(
         uint256[] memory randomNumbers
     ) external override onlyRandomProviderContract drawnRequested {
         if (randomNumbers[0] == 0 || randomNumbers.length == 0) {
@@ -572,7 +575,7 @@ contract Raffle is IRaffle, Initializable {
      */
     function _checkData(
         RaffleDataTypes.InitRaffleParams memory params
-    ) internal {
+    ) internal returns(uint256,uint256) {
         if (address(params.implementationManager) == address(0))
             revert Errors.NOT_ADDRESS_0();
         if (!params.isEthTokenSales) {
@@ -605,11 +608,13 @@ contract Raffle is IRaffle, Initializable {
         if (
             ticketSaleDuration < minDuration || ticketSaleDuration > maxDuration
         ) revert Errors.OUT_OF_RANGE();
+        uint _insuranceSalesPercentage;
         if (params.minTicketSalesInsurance > 0) {
+            _insuranceSalesPercentage = configManager.insuranceSalesPercentage();
             uint256 insuranceCost = _calculateInsuranceCost(
                 params.minTicketSalesInsurance,
                 params.ticketPrice,
-                configManager.insuranceSalesPercentage()
+                _insuranceSalesPercentage
             );
             if (params.isEthTokenSales) {
                 if (params.isEthTokenSales && msg.value != insuranceCost)
@@ -619,6 +624,8 @@ contract Raffle is IRaffle, Initializable {
                     revert Errors.INSURANCE_AMOUNT();
             }
         }
+        uint256 _protocolFeesPercentage = configManager.protocolFeesPercentage();
+        return(_insuranceSalesPercentage, _protocolFeesPercentage);
     }
 
     /**
@@ -679,13 +686,8 @@ contract Raffle is IRaffle, Initializable {
         view
         returns (uint256 creatorAmount, uint256 treasuryFeesAmount)
     {
-        IConfigManager configManager = IConfigManager(
-            _globalData.implementationManager.getImplementationAddress(
-                ImplementationInterfaceNames.ConfigManager
-            )
-        );
         treasuryFeesAmount = ticketSalesAmount.percentMul(
-            configManager.protocolFeesPercentage()
+            _globalData.protocolFeesPercentage
         );
         creatorAmount = ticketSalesAmount - treasuryFeesAmount;
     }
@@ -702,19 +704,13 @@ contract Raffle is IRaffle, Initializable {
         view
         returns (uint256 treasuryAmount, uint256 insurancePartPerTicket)
     {
-        IConfigManager configManager = IConfigManager(
-            _globalData.implementationManager.getImplementationAddress(
-                ImplementationInterfaceNames.ConfigManager
-            )
-        );
-
         uint256 insuranceCost = _calculateInsuranceCost(
             _globalData.minTicketSalesInsurance,
             _globalData.ticketPrice,
-            configManager.insuranceSalesPercentage()
+            _globalData.insuranceSalesPercentage
         );
 
-        treasuryAmount = insuranceCost.percentMul(configManager.protocolFeesPercentage());
+        treasuryAmount = insuranceCost.percentMul(_globalData.protocolFeesPercentage);
         if(_globalData.ticketSupply == 0) {
             return(treasuryAmount, 0);
         }

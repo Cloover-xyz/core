@@ -18,7 +18,7 @@ const _abi = [
         type: "address[]",
       },
     ],
-    name: "batchRaffleDrawnTickets",
+    name: "batchRaffledraw",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

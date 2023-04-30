@@ -37,10 +37,10 @@ interface IRaffleFactory {
     function isRegisteredRaffle(address raffleAddress) external view returns (bool);
 
     /**
-     * @notice call by batch drawnTickets() for each raffleContract passed
-     * @param raffleContracts the array of raffle addresses to call drawnTickets()
+     * @notice call by batch draw() for each raffleContract passed
+     * @param raffleContracts the array of raffle addresses to call draw()
      */
-    function batchRaffleDrawnTickets(address[] memory raffleContracts) external;
+    function batchRaffledraw(address[] memory raffleContracts) external;
 
     /**
      * @notice remove msg.sender from the list of registered raffles
