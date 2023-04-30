@@ -11,7 +11,7 @@ library RaffleDataTypes {
     enum RaffleStatus {
         Init,
         DrawnRequested,
-        WinningTicketsDrawned,
+        WinningTicketDrawn,
         RefundMode,
         Cancelled
     }

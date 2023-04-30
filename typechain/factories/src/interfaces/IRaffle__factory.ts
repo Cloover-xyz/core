@@ -38,7 +38,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "claimTicketSalesAmount",
+    name: "creatorClaimTicketSales",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

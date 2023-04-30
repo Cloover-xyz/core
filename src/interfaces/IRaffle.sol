@@ -46,47 +46,47 @@ interface IRaffle {
      * @notice Allows the creator to excerce his insurance and claim back his nft
      * @dev Only callable if ticket sales is close and amount of ticket sold is lower than raffle insurance
      */
-    function creatorExerciseRefund() external;
+    function creatorClaimInsurance() external;
 
     /**
      * @notice Allows the creator to excerce his insurance and claim back his nft
      * @dev Only callable if ticket sales is close and amount of ticket sold is lower than raffle insurance
      */
-    function creatorExerciseRefundInEth() external;
+    function creatorClaimInsuranceInEth() external;
 
     /**
      * @notice Allows the creator to claim the amount related to the ticket sales
      * @dev The functions should send to the creator his part after fees + insurance paid
      * Only callable if tickets has been sold in ERC20
      */
-    function claimTicketSalesAmount() external;
+    function creatorClaimTicketSales() external;
 
     /**
      * @notice Allows the creator to claim the amount related to the ticket sales
      * @dev The functions should send to the creator his part after fees + insurance paid
      * Only callable if tickets has been sold in Eth
      */
-    function claimEthTicketSalesAmount() external;
+    function creatorClaimTicketSalesInEth() external;
 
     /**
      * @notice Allows the winner to claim his price(s)
      * @dev Ticket(s) must be draw and raffle close to new participants
      */
-    function winnerClaimPrice() external;
+    function winnerClaim() external;
 
    /**
      * @notice Allows tickets owner to claim refund if raffle in insurance mode
      * @dev Only callable if ticket sales is close and amount of ticket sold is lower than raffle insurance
      * Only callable if tickets has been sold in Tokens 
     */
-    function userExerciseRefund() external;
+    function userClaimRefund() external;
 
    /**
      * @notice Allows tickets owner to claim refund if raffle in insurance mode
      * @dev Only callable if ticket sales is close and amount of ticket sold is lower than raffle insurance
      * Only callable if tickets has been sold in Tokens 
     */
-    function userExerciseRefundInEth() external;
+    function userClaimRefundInEth() external;
 
     /**
      * @notice Allows the creator to cancel the raffle
