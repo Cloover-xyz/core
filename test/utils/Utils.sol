@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import {Test} from "forge-std/Test.sol";
 
 contract Utils is Test {
-    
+    uint256 constant INITIAL_BALANCE = 100 ether;
     bytes32 internal nextUser = keccak256(abi.encodePacked("user address"));
 
     function getNextUserAddress() external returns (address payable) {
@@ -21,7 +21,7 @@ contract Utils is Test {
         address payable[] memory users = new address payable[](userNum);
         for (uint256 i = 0; i < userNum; i++) {
             address payable user = this.getNextUserAddress();
-            vm.deal(user, 100 ether);
+            vm.deal(user, INITIAL_BALANCE);
             users[i] = user;
         }
 

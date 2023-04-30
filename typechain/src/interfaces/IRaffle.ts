@@ -60,7 +60,7 @@ export interface IRaffleInterface extends utils.Interface {
   functions: {
     "balanceOf(address)": FunctionFragment;
     "claimPrice()": FunctionFragment;
-    "claimTicketSalesAmount()": FunctionFragment;
+    "creatorClaimTicketSales()": FunctionFragment;
     "creator()": FunctionFragment;
     "draw()": FunctionFragment;
     "draw(uint256[])": FunctionFragment;
@@ -83,7 +83,7 @@ export interface IRaffleInterface extends utils.Interface {
     nameOrSignatureOrTopic:
       | "balanceOf"
       | "claimPrice"
-      | "claimTicketSalesAmount"
+      | "creatorClaimTicketSales"
       | "creator"
       | "draw()"
       | "draw(uint256[])"
@@ -111,7 +111,7 @@ export interface IRaffleInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "claimTicketSalesAmount",
+    functionFragment: "creatorClaimTicketSales",
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "creator", values?: undefined): string;
@@ -170,7 +170,7 @@ export interface IRaffleInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "claimPrice", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "claimTicketSalesAmount",
+    functionFragment: "creatorClaimTicketSales",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "creator", data: BytesLike): Result;
@@ -259,7 +259,7 @@ export interface IRaffle extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    claimTicketSalesAmount(
+    creatorClaimTicketSales(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -323,7 +323,7 @@ export interface IRaffle extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  claimTicketSalesAmount(
+  creatorClaimTicketSales(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -385,7 +385,7 @@ export interface IRaffle extends BaseContract {
 
     claimPrice(overrides?: CallOverrides): Promise<void>;
 
-    claimTicketSalesAmount(overrides?: CallOverrides): Promise<void>;
+    creatorClaimTicketSales(overrides?: CallOverrides): Promise<void>;
 
     creator(overrides?: CallOverrides): Promise<string>;
 
@@ -448,7 +448,7 @@ export interface IRaffle extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    claimTicketSalesAmount(
+    creatorClaimTicketSales(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -509,7 +509,7 @@ export interface IRaffle extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    claimTicketSalesAmount(
+    creatorClaimTicketSales(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
