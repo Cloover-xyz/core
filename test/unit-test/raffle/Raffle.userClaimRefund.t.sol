@@ -29,7 +29,7 @@ contract UserClaimRaffleTest is Test, SetupRaffles {
 
         (,uint256 insurancePartPerTicket) = InsuranceLogic.calculateInsuranceSplit(
             INSURANCE_SALES_PERCENTAGE, 
-            FEE_PERCENTAGE,
+            PROTOCOL_FEES_PERCENTAGE,
             minTicketSalesInsurance,
             ticketPrice,
             2    
@@ -76,7 +76,7 @@ contract UserClaimRaffleTest is Test, SetupRaffles {
 
         (,uint256 insurancePartPerTicket) = InsuranceLogic.calculateInsuranceSplit(
             INSURANCE_SALES_PERCENTAGE, 
-            FEE_PERCENTAGE,
+            PROTOCOL_FEES_PERCENTAGE,
             minTicketSalesInsurance,
             ticketPrice,
             2    

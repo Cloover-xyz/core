@@ -67,6 +67,7 @@ contract InitializeRaffleTest is Test, SetupRaffles {
             0,
             ticketSaleDuration,
             false,
+            0,
             0
         );
         vm.expectRevert("Initializable: contract is already initialized");
@@ -91,6 +92,7 @@ contract InitializeRaffleTest is Test, SetupRaffles {
             0,
             ticketSaleDuration,
             false,
+            0,
             0
         );
         vm.expectRevert(Errors.NOT_ADDRESS_0.selector);
@@ -108,6 +110,7 @@ contract InitializeRaffleTest is Test, SetupRaffles {
             0,
             ticketSaleDuration,
             false,
+            0,
             0
         );
         vm.expectRevert(Errors.TOKEN_NOT_WHITELISTED.selector);
@@ -126,6 +129,7 @@ contract InitializeRaffleTest is Test, SetupRaffles {
             0,
             ticketSaleDuration,
             false,
+            0,
             0
         );
         vm.expectRevert(Errors.COLLECTION_NOT_WHITELISTED.selector);
@@ -143,6 +147,7 @@ contract InitializeRaffleTest is Test, SetupRaffles {
             0,
             ticketSaleDuration,
             false,
+            0,
             0
         );
         vm.expectRevert(Errors.CANT_BE_ZERO.selector);
@@ -160,6 +165,7 @@ contract InitializeRaffleTest is Test, SetupRaffles {
             0,
             ticketSaleDuration,
             false,
+            0,
             0
         );
         vm.expectRevert(Errors.CANT_BE_ZERO.selector);
@@ -177,6 +183,7 @@ contract InitializeRaffleTest is Test, SetupRaffles {
             0,
             ticketSaleDuration,
             false,
+            0,
             0
         );
         vm.expectRevert(Errors.EXCEED_MAX_VALUE_ALLOWED.selector);
@@ -194,6 +201,7 @@ contract InitializeRaffleTest is Test, SetupRaffles {
             0,
             uint64(MIN_SALE_DURATION) - 1,
             false,
+            0,
             0
         );
         vm.expectRevert(Errors.OUT_OF_RANGE.selector);
@@ -211,6 +219,7 @@ contract InitializeRaffleTest is Test, SetupRaffles {
             0,
             uint64(MAX_SALE_DURATION) + 1,
             false,
+            0,
             0
         );
         vm.expectRevert(Errors.OUT_OF_RANGE.selector);
@@ -228,6 +237,7 @@ contract InitializeRaffleTest is Test, SetupRaffles {
             1,
             ticketSaleDuration,
             false,
+            0,
             0
         );
         vm.expectRevert(Errors.INSURANCE_AMOUNT.selector);
@@ -276,6 +286,7 @@ contract InitializeRaffleTest is Test, SetupRaffles {
             0,
             ticketSaleDuration,
             true,
+            0,
             0
         );
         vm.expectRevert("Initializable: contract is already initialized");
@@ -284,7 +295,7 @@ contract InitializeRaffleTest is Test, SetupRaffles {
 
     function test_Initialize_EthRaffle_RevertWhen_RaffleDataNotCorrect() external{
         changePrank(alice);
-        uint _nftId = 3;
+        uint _nftId = 50;
         Raffle newRaffle = new Raffle();
         mockERC721.mint(alice, _nftId);
         mockERC721.transferFrom(alice, address(newRaffle), _nftId);
@@ -300,6 +311,7 @@ contract InitializeRaffleTest is Test, SetupRaffles {
             0,
             ticketSaleDuration,
             true,
+            0,
             0
         );
         vm.expectRevert(Errors.NOT_ADDRESS_0.selector);
@@ -319,6 +331,7 @@ contract InitializeRaffleTest is Test, SetupRaffles {
             0,
             ticketSaleDuration,
             true,
+            0,
             0
         );
         vm.expectRevert(Errors.COLLECTION_NOT_WHITELISTED.selector);
@@ -336,6 +349,7 @@ contract InitializeRaffleTest is Test, SetupRaffles {
             0,
             ticketSaleDuration,
             true,
+            0,
             0
         );
         vm.expectRevert(Errors.CANT_BE_ZERO.selector);
@@ -353,6 +367,7 @@ contract InitializeRaffleTest is Test, SetupRaffles {
             0,
             ticketSaleDuration,
             true,
+            0,
             0
         );
         vm.expectRevert(Errors.CANT_BE_ZERO.selector);
@@ -370,6 +385,7 @@ contract InitializeRaffleTest is Test, SetupRaffles {
             0,
             ticketSaleDuration,
             true,
+            0,
             0
         );
         vm.expectRevert(Errors.EXCEED_MAX_VALUE_ALLOWED.selector);
@@ -387,6 +403,7 @@ contract InitializeRaffleTest is Test, SetupRaffles {
             0,
             uint64(MIN_SALE_DURATION) - 1,
             true,
+            0,
             0
         );
         vm.expectRevert(Errors.OUT_OF_RANGE.selector);
@@ -404,6 +421,7 @@ contract InitializeRaffleTest is Test, SetupRaffles {
             0,
             uint64(MAX_SALE_DURATION) + 1,
             true,
+            0,
             0
         );
         vm.expectRevert(Errors.OUT_OF_RANGE.selector);
@@ -421,6 +439,7 @@ contract InitializeRaffleTest is Test, SetupRaffles {
             minTicketSalesInsurance,
             ticketSaleDuration,
             true,
+            0,
             0
         );
         vm.expectRevert(Errors.INSURANCE_AMOUNT.selector);

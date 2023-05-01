@@ -43,7 +43,7 @@ contract DrawRaffleTest is Test, SetupRaffles {
         tokenRaffle.draw();
         uint256 requestId = mockRamdomProvider.callerToRequestId(address(tokenRaffle));
         mockRamdomProvider.requestRandomNumberReturnZero(requestId);
-        assertTrue(tokenRaffle.raffleStatus() == RaffleDataTypes.RaffleStatus.Init);
+        assertTrue(tokenRaffle.raffleStatus() == RaffleDataTypes.RaffleStatus.DEFAULT);
     }
 
     function test_Draw_StatusSetToRefundWhenTicketSoldAmountUnderInsuranceAmount() external{
@@ -52,7 +52,7 @@ contract DrawRaffleTest is Test, SetupRaffles {
         tokenRaffleWithInsurance.purchaseTickets(2);
         utils.goForward(ticketSaleDuration + 1);
         tokenRaffleWithInsurance.draw();
-        assertTrue(tokenRaffleWithInsurance.raffleStatus() == RaffleDataTypes.RaffleStatus.RefundMode);
+        assertTrue(tokenRaffleWithInsurance.raffleStatus() == RaffleDataTypes.RaffleStatus.INSURANCE);
     }
 
     function test_Draw_TokenRaffle_RevertWhen_TicketAlreadyDrawn() external{
@@ -87,7 +87,7 @@ contract DrawRaffleTest is Test, SetupRaffles {
         ethRaffle.draw();
         uint256 requestId = mockRamdomProvider.callerToRequestId(address(ethRaffle));
         mockRamdomProvider.requestRandomNumberReturnZero(requestId);
-        assertTrue(ethRaffle.raffleStatus() == RaffleDataTypes.RaffleStatus.Init);
+        assertTrue(ethRaffle.raffleStatus() == RaffleDataTypes.RaffleStatus.DEFAULT);
     }
 
     function test_Draw_EthRaffle_RevertWhen_TicketAlreadyDrawn() external{
@@ -104,6 +104,6 @@ contract DrawRaffleTest is Test, SetupRaffles {
         changePrank(bob);
         utils.goForward(ticketSaleDuration + 1);
         tokenRaffleWithInsurance.draw();
-        assertTrue(tokenRaffleWithInsurance.raffleStatus() == RaffleDataTypes.RaffleStatus.RefundMode);
+        assertTrue(tokenRaffleWithInsurance.raffleStatus() == RaffleDataTypes.RaffleStatus.INSURANCE);
     }
 }

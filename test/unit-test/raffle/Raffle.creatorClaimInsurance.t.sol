@@ -40,7 +40,7 @@ contract CreatorClaimInsuranceRaffleTest is Test, SetupRaffles {
         tokenRaffleWithInsurance.creatorClaimInsurance();
         assertEq(mockERC721.ownerOf(tokenWithAssuranceNftId), carole);
         uint256 insurancePaid = tokenRaffleWithInsurance.insurancePaid();
-        uint256 treasuryAmount = insurancePaid.percentMul(FEE_PERCENTAGE);
+        uint256 treasuryAmount = insurancePaid.percentMul(PROTOCOL_FEES_PERCENTAGE);
         assertEq(mockERC20.balanceOf(treasury),treasuryAmount);
         assertEq(mockERC20.balanceOf(carole),caroleBalanceBefore);
     }
@@ -107,7 +107,7 @@ contract CreatorClaimInsuranceRaffleTest is Test, SetupRaffles {
         ethRaffleWithInsurance.creatorClaimInsuranceInEth();
         assertEq(mockERC721.ownerOf(ethWithAssuranceNftId), carole);
         uint256 insurancePaid = ethRaffleWithInsurance.insurancePaid();
-        uint256 treasuryAmount = insurancePaid.percentMul(FEE_PERCENTAGE);
+        uint256 treasuryAmount = insurancePaid.percentMul(PROTOCOL_FEES_PERCENTAGE);
         assertEq(address(treasury).balance, treasuryAmount + treasuryBalanceBefore);
         assertEq(address(carole).balance, caroleBalanceBefore);
     }

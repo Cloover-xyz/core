@@ -100,7 +100,8 @@ contract RaffleFactory is IRaffleFactory {
             params.minTicketSalesInsurance,
             params.ticketSaleDuration,
             params.isETHTokenSales,
-            params.maxTicketAllowedToPurchase
+            params.maxTicketAllowedToPurchase,
+            params.royaltiesPercentage
         );
     }
 
