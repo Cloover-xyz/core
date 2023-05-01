@@ -105,4 +105,7 @@ contract RaffleFactory is IRaffleFactory {
         );
     }
 
+    function version() external pure override returns(string memory){
+        return "1";
+    }
 }

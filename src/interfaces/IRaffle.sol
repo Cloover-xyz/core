@@ -183,4 +183,8 @@ interface IRaffle {
     */
     function randomProvider() external view returns(address);
     
+    /**
+     * @notice return the version of the contract
+     */
+    function version() external pure returns(string memory);
 }

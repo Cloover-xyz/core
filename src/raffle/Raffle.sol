@@ -576,6 +576,10 @@ contract Raffle is IRaffle, Initializable {
             );
     }
 
+    function version() public pure override returns (string memory) {
+        return "1";
+    }
+
     //----------------------------------------
     // Internals Functions
     //----------------------------------------

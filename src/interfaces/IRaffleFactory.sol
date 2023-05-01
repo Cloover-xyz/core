@@ -48,4 +48,8 @@ interface IRaffleFactory {
      */
     function deregisterRaffle() external;
     
+    /**
+     * @notice return the version of the contract
+     */
+    function version() external pure returns(string memory);
 }
