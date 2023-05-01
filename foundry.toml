@@ -6,7 +6,7 @@ libs = ['lib']
 gas_reports = ["Raffle", "AccessController", "ImplementationManager", "RaffleFactory", "ConfigManager", "TokenWhitelist", "NFTCollectionWhitelist"]
 
 [rpc_endpoints]
-sepolia = "${MUMBAI_RPC_URL}"
+sepolia = "${SEPOLIA_RPC_URL}"
 [etherscan]
 mainnet = { key = "${ETHERSCAN_KEY}" }
 sepolia = {key = "${ETHERSCAN_KEY}" }
