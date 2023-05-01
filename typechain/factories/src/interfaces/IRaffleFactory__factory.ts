@@ -5,9 +5,9 @@
 import { Contract, Signer, utils } from "ethers";
 import type { Provider } from "@ethersproject/providers";
 import type {
-  IRaffleFactory,
-  IRaffleFactoryInterface,
-} from "../../../src/interfaces/IRaffleFactory";
+  IClooverRaffleFactory,
+  IClooverRaffleFactoryInterface,
+} from "../../../src/interfaces/IClooverRaffleFactory";
 
 const _abi = [
   {
@@ -18,7 +18,7 @@ const _abi = [
         type: "address[]",
       },
     ],
-    name: "batchRaffledraw",
+    name: "batchClooverRaffledraw",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -58,16 +58,16 @@ const _abi = [
             type: "uint64",
           },
         ],
-        internalType: "struct IRaffleFactory.Params",
+        internalType: "struct IClooverRaffleFactory.Params",
         name: "params",
         type: "tuple",
       },
     ],
-    name: "createNewRaffle",
+    name: "createNewClooverRaffle",
     outputs: [
       {
-        internalType: "contract Raffle",
-        name: "newRaffle",
+        internalType: "contract ClooverRaffle",
+        name: "newClooverRaffle",
         type: "address",
       },
     ],
@@ -82,7 +82,7 @@ const _abi = [
         type: "address",
       },
     ],
-    name: "isRegisteredRaffle",
+    name: "isRegisteredClooverRaffle",
     outputs: [
       {
         internalType: "bool",
@@ -95,15 +95,19 @@ const _abi = [
   },
 ] as const;
 
-export class IRaffleFactory__factory {
+export class IClooverRaffleFactory__factory {
   static readonly abi = _abi;
-  static createInterface(): IRaffleFactoryInterface {
-    return new utils.Interface(_abi) as IRaffleFactoryInterface;
+  static createInterface(): IClooverRaffleFactoryInterface {
+    return new utils.Interface(_abi) as IClooverRaffleFactoryInterface;
   }
   static connect(
     address: string,
     signerOrProvider: Signer | Provider
-  ): IRaffleFactory {
-    return new Contract(address, _abi, signerOrProvider) as IRaffleFactory;
+  ): IClooverRaffleFactory {
+    return new Contract(
+      address,
+      _abi,
+      signerOrProvider
+    ) as IClooverRaffleFactory;
   }
 }

@@ -1,7 +1,7 @@
 {
   "_format": "hh-sol-artifact-1",
-  "contractName": "RaffleFactory",
-  "sourceName": "src/raffle/RaffleFactory.sol",
+  "contractName": "ClooverRaffleFactory",
+  "sourceName": "src/raffle/ClooverRaffleFactory.sol",
   "abi": [
     {
       "inputs": [
@@ -57,12 +57,12 @@
             }
           ],
           "indexed": false,
-          "internalType": "struct IRaffleFactory.Params",
+          "internalType": "struct IClooverRaffleFactory.Params",
           "name": "globalData",
           "type": "tuple"
         }
       ],
-      "name": "NewRaffle",
+      "name": "NewClooverRaffle",
       "type": "event"
     },
     {
@@ -73,7 +73,7 @@
           "type": "address[]"
         }
       ],
-      "name": "batchRaffledraw",
+      "name": "batchClooverRaffledraw",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -113,16 +113,16 @@
               "type": "uint64"
             }
           ],
-          "internalType": "struct IRaffleFactory.Params",
+          "internalType": "struct IClooverRaffleFactory.Params",
           "name": "params",
           "type": "tuple"
         }
       ],
-      "name": "createNewRaffle",
+      "name": "createNewClooverRaffle",
       "outputs": [
         {
-          "internalType": "contract Raffle",
-          "name": "newRaffle",
+          "internalType": "contract ClooverRaffle",
+          "name": "newClooverRaffle",
           "type": "address"
         }
       ],
@@ -137,7 +137,7 @@
           "type": "address"
         }
       ],
-      "name": "isRegisteredRaffle",
+      "name": "isRegisteredClooverRaffle",
       "outputs": [
         {
           "internalType": "bool",

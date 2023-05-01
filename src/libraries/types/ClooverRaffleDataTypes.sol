@@ -6,9 +6,9 @@ import {IERC721} from "openzeppelin-contracts/contracts/token/ERC721/IERC721.sol
 
 import {IImplementationManager} from "../../interfaces/IImplementationManager.sol";
 
-library RaffleDataTypes {
+library ClooverRaffleDataTypes {
 
-    enum RaffleStatus {
+    enum ClooverRaffleStatus {
         DEFAULT,
         DRAWNING,
         DRAWN,
@@ -16,7 +16,7 @@ library RaffleDataTypes {
         CANCELLED
     }
 
-    struct RaffleData {
+    struct ClooverRaffleData {
         address creator;
         IERC20 purchaseCurrency;
         IImplementationManager implementationManager;
@@ -29,14 +29,14 @@ library RaffleDataTypes {
         uint256 minTicketSalesInsurance;
         uint64 endTicketSales;
         bool isEthTokenSales;
-        RaffleStatus status;
+        ClooverRaffleStatus status;
         uint256 maxTicketAllowedToPurchase;
         uint256 protocolFeesPercentage;
         uint256 insuranceSalesPercentage;
         uint256 royaltiesPercentage;
     }
  
-    struct InitRaffleParams {
+    struct InitClooverRaffleParams {
         IImplementationManager implementationManager;
         IERC20 purchaseCurrency;
         IERC721 nftContract;

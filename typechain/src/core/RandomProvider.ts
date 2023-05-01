@@ -51,7 +51,7 @@ export interface RandomProviderInterface extends utils.Interface {
   functions: {
     "COORDINATOR()": FunctionFragment;
     "chainlinkVRFData()": FunctionFragment;
-    "getRaffleFactory()": FunctionFragment;
+    "getClooverRaffleFactory()": FunctionFragment;
     "implementationManager()": FunctionFragment;
     "rawFulfillRandomWords(uint256,uint256[])": FunctionFragment;
     "requestIdToCaller(uint256)": FunctionFragment;
@@ -62,7 +62,7 @@ export interface RandomProviderInterface extends utils.Interface {
     nameOrSignatureOrTopic:
       | "COORDINATOR"
       | "chainlinkVRFData"
-      | "getRaffleFactory"
+      | "getClooverRaffleFactory"
       | "implementationManager"
       | "rawFulfillRandomWords"
       | "requestIdToCaller"
@@ -78,7 +78,7 @@ export interface RandomProviderInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "getRaffleFactory",
+    functionFragment: "getClooverRaffleFactory",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -107,7 +107,7 @@ export interface RandomProviderInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getRaffleFactory",
+    functionFragment: "getClooverRaffleFactory",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -159,9 +159,7 @@ export interface RandomProvider extends BaseContract {
   functions: {
     COORDINATOR(overrides?: CallOverrides): Promise<[string]>;
 
-    chainlinkVRFData(
-      overrides?: CallOverrides
-    ): Promise<
+    chainlinkVRFData(overrides?: CallOverrides): Promise<
       [string, string, number, number, BigNumber] & {
         vrfCoordinator: string;
         keyHash: string;
@@ -171,7 +169,7 @@ export interface RandomProvider extends BaseContract {
       }
     >;
 
-    getRaffleFactory(overrides?: CallOverrides): Promise<[string]>;
+    getClooverRaffleFactory(overrides?: CallOverrides): Promise<[string]>;
 
     implementationManager(overrides?: CallOverrides): Promise<[string]>;
 
@@ -194,9 +192,7 @@ export interface RandomProvider extends BaseContract {
 
   COORDINATOR(overrides?: CallOverrides): Promise<string>;
 
-  chainlinkVRFData(
-    overrides?: CallOverrides
-  ): Promise<
+  chainlinkVRFData(overrides?: CallOverrides): Promise<
     [string, string, number, number, BigNumber] & {
       vrfCoordinator: string;
       keyHash: string;
@@ -206,7 +202,7 @@ export interface RandomProvider extends BaseContract {
     }
   >;
 
-  getRaffleFactory(overrides?: CallOverrides): Promise<string>;
+  getClooverRaffleFactory(overrides?: CallOverrides): Promise<string>;
 
   implementationManager(overrides?: CallOverrides): Promise<string>;
 
@@ -229,9 +225,7 @@ export interface RandomProvider extends BaseContract {
   callStatic: {
     COORDINATOR(overrides?: CallOverrides): Promise<string>;
 
-    chainlinkVRFData(
-      overrides?: CallOverrides
-    ): Promise<
+    chainlinkVRFData(overrides?: CallOverrides): Promise<
       [string, string, number, number, BigNumber] & {
         vrfCoordinator: string;
         keyHash: string;
@@ -241,7 +235,7 @@ export interface RandomProvider extends BaseContract {
       }
     >;
 
-    getRaffleFactory(overrides?: CallOverrides): Promise<string>;
+    getClooverRaffleFactory(overrides?: CallOverrides): Promise<string>;
 
     implementationManager(overrides?: CallOverrides): Promise<string>;
 
@@ -269,7 +263,7 @@ export interface RandomProvider extends BaseContract {
 
     chainlinkVRFData(overrides?: CallOverrides): Promise<BigNumber>;
 
-    getRaffleFactory(overrides?: CallOverrides): Promise<BigNumber>;
+    getClooverRaffleFactory(overrides?: CallOverrides): Promise<BigNumber>;
 
     implementationManager(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -295,7 +289,9 @@ export interface RandomProvider extends BaseContract {
 
     chainlinkVRFData(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    getRaffleFactory(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    getClooverRaffleFactory(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     implementationManager(
       overrides?: CallOverrides

@@ -9,17 +9,17 @@ import {IERC721} from "openzeppelin-contracts/contracts/token/ERC721/IERC721.sol
 import {ImplementationInterfaceNames} from "../libraries/helpers/ImplementationInterfaceNames.sol";
 import {Errors} from "../libraries/helpers/Errors.sol";
 import {PercentageMath} from "../libraries/math/PercentageMath.sol";
-import {RaffleDataTypes} from "../libraries/types/RaffleDataTypes.sol";
+import {ClooverRaffleDataTypes} from "../libraries/types/ClooverRaffleDataTypes.sol";
 
-import {IRaffle} from "../interfaces/IRaffle.sol";
-import {IRaffleFactory} from "../interfaces/IRaffleFactory.sol";
+import {IClooverRaffle} from "../interfaces/IClooverRaffle.sol";
+import {IClooverRaffleFactory} from "../interfaces/IClooverRaffleFactory.sol";
 import {IRandomProvider} from "../interfaces/IRandomProvider.sol";
 import {INFTCollectionWhitelist} from "../interfaces/INFTCollectionWhitelist.sol";
 import {ITokenWhitelist} from "../interfaces/ITokenWhitelist.sol";
 import {IConfigManager} from "../interfaces/IConfigManager.sol";
 import {IImplementationManager} from "../interfaces/IImplementationManager.sol";
 
-contract Raffle is IRaffle, Initializable {
+contract ClooverRaffle is IClooverRaffle, Initializable {
     using PercentageMath for uint;
 
     //----------------------------------------
@@ -34,7 +34,7 @@ contract Raffle is IRaffle, Initializable {
 
     mapping(address => bool) internal _hasUserClaimedRefund;
 
-    RaffleDataTypes.RaffleData internal _globalData;
+    ClooverRaffleDataTypes.ClooverRaffleData internal _globalData;
 
     //----------------------------------------
     // Events
@@ -55,7 +55,7 @@ contract Raffle is IRaffle, Initializable {
     event WinningTicketDrawned(uint256 winningTicket);
     event CreatorClaimedInsurance(address creator);
     event UserClaimedRefund(address user, uint256 amountReceived);
-    event RaffleCancelled(address creator);
+    event ClooverRaffleCancelled(address creator);
 
     //----------------------------------------
     // Modifier
@@ -74,26 +74,26 @@ contract Raffle is IRaffle, Initializable {
 
     modifier ticketHasNotBeDrawn() {
         if (
-            raffleStatus() == RaffleDataTypes.RaffleStatus.DRAWN
+            raffleStatus() == ClooverRaffleDataTypes.ClooverRaffleStatus.DRAWN
         ) revert Errors.TICKET_ALREADY_DRAWN();
         _;
     }
 
     modifier winningTicketDrawn() {
         if (
-            raffleStatus() != RaffleDataTypes.RaffleStatus.DRAWN
+            raffleStatus() != ClooverRaffleDataTypes.ClooverRaffleStatus.DRAWN
         ) revert Errors.TICKET_NOT_DRAWN();
         _;
     }
 
     modifier drawRequested() {
-        if (raffleStatus() != RaffleDataTypes.RaffleStatus.DRAWNING)
+        if (raffleStatus() != ClooverRaffleDataTypes.ClooverRaffleStatus.DRAWNING)
             revert Errors.DRAWN_NOT_REQUESTED();
         _;
     }
 
     modifier notRefundMode() {
-        if (raffleStatus() == RaffleDataTypes.RaffleStatus.INSURANCE)
+        if (raffleStatus() == ClooverRaffleDataTypes.ClooverRaffleStatus.INSURANCE)
             revert Errors.IN_REFUND_MODE();
         _;
     }
@@ -114,7 +114,7 @@ contract Raffle is IRaffle, Initializable {
     // Initialize function
     //----------------------------------------
     function initialize(
-        RaffleDataTypes.InitRaffleParams memory params
+        ClooverRaffleDataTypes.InitClooverRaffleParams memory params
     ) external override payable initializer {
      
         (uint256 _insuranceSalesPercentage, uint256 _protocolFeesPercentage) =_checkData(params);
@@ -143,7 +143,7 @@ contract Raffle is IRaffle, Initializable {
     // Externals Functions
     //----------------------------------------
     
-    /// @inheritdoc IRaffle
+    /// @inheritdoc IClooverRaffle
     function purchaseTickets(
         uint256 nbOfTickets
     ) external override ticketSalesOpen {
@@ -166,7 +166,7 @@ contract Raffle is IRaffle, Initializable {
         emit TicketPurchased(msg.sender, ticketsPurchased);
     }
 
-    /// @inheritdoc IRaffle
+    /// @inheritdoc IClooverRaffle
     function purchaseTicketsInEth(
         uint256 nbOfTickets
     ) external payable override ticketSalesOpen {
@@ -182,7 +182,7 @@ contract Raffle is IRaffle, Initializable {
         emit TicketPurchased(msg.sender, ticketsPurchased);
     }
 
-    /// @inheritdoc IRaffle
+    /// @inheritdoc IClooverRaffle
     function draw()
         external
         override
@@ -191,31 +191,31 @@ contract Raffle is IRaffle, Initializable {
         notRefundMode
     {
         if (_globalData.ticketSupply > 0 && _globalData.ticketSupply >= _globalData.minTicketSalesInsurance){
-            _globalData.status = RaffleDataTypes.RaffleStatus.DRAWNING;
+            _globalData.status = ClooverRaffleDataTypes.ClooverRaffleStatus.DRAWNING;
             IRandomProvider(randomProvider()).requestRandomNumbers(1);
         } else {
-            _globalData.status = RaffleDataTypes.RaffleStatus.INSURANCE;
+            _globalData.status = ClooverRaffleDataTypes.ClooverRaffleStatus.INSURANCE;
         }
     }
 
-    /// @inheritdoc IRaffle
+    /// @inheritdoc IClooverRaffle
     function draw(
         uint256[] memory randomNumbers
     ) external override onlyRandomProviderContract drawRequested {
         if (randomNumbers[0] == 0) {
-            _globalData.status = RaffleDataTypes.RaffleStatus.DEFAULT;
+            _globalData.status = ClooverRaffleDataTypes.ClooverRaffleStatus.DEFAULT;
         } else {
             _globalData.winningTicketNumber =
                 (randomNumbers[0] % _globalData.ticketSupply) +
                 1;
-            _globalData.status = RaffleDataTypes
-                .RaffleStatus
+            _globalData.status = ClooverRaffleDataTypes
+                .ClooverRaffleStatus
                 .DRAWN;
             emit WinningTicketDrawned(_globalData.winningTicketNumber);
         }
     }
 
-    /// @inheritdoc IRaffle
+    /// @inheritdoc IClooverRaffle
     function creatorClaimTicketSales()
         external
         override
@@ -260,7 +260,7 @@ contract Raffle is IRaffle, Initializable {
         );
     }
 
-    /// @inheritdoc IRaffle
+    /// @inheritdoc IClooverRaffle
     function creatorClaimTicketSalesInEth()
         external
         override
@@ -303,7 +303,7 @@ contract Raffle is IRaffle, Initializable {
         );
     }
 
-    /// @inheritdoc IRaffle
+    /// @inheritdoc IClooverRaffle
     function winnerClaim() external override ticketSalesClose winningTicketDrawn {
         if (msg.sender != winnerAddress())
             revert Errors.MSG_SENDER_NOT_WINNER();
@@ -319,7 +319,7 @@ contract Raffle is IRaffle, Initializable {
         );
     }
 
-    /// @inheritdoc IRaffle
+    /// @inheritdoc IClooverRaffle
     function userClaimRefund()
         external
         override
@@ -343,7 +343,7 @@ contract Raffle is IRaffle, Initializable {
         emit UserClaimedRefund(msg.sender, totalRefundAmount);
     }
 
-    /// @inheritdoc IRaffle
+    /// @inheritdoc IClooverRaffle
     function userClaimRefundInEth()
         external
         override
@@ -364,7 +364,7 @@ contract Raffle is IRaffle, Initializable {
         emit UserClaimedRefund(msg.sender, totalRefundAmount);
     }
 
-    /// @inheritdoc IRaffle
+    /// @inheritdoc IClooverRaffle
     function creatorClaimInsurance()
         external
         override
@@ -379,7 +379,7 @@ contract Raffle is IRaffle, Initializable {
         if (_globalData.ticketSupply >= _globalData.minTicketSalesInsurance)
             revert Errors.SALES_EXCEED_INSURANCE_LIMIT();
         
-        _globalData.status = RaffleDataTypes.RaffleStatus.INSURANCE;
+        _globalData.status = ClooverRaffleDataTypes.ClooverRaffleStatus.INSURANCE;
         
         (uint256 protocolFees, ) = _calculateInsuranceSplit();
         address treasuryAddress = _globalData
@@ -398,7 +398,7 @@ contract Raffle is IRaffle, Initializable {
         emit CreatorClaimedInsurance(creator());
     }
       
-    /// @inheritdoc IRaffle
+    /// @inheritdoc IClooverRaffle
     function creatorClaimInsuranceInEth()
         external
         override
@@ -413,7 +413,7 @@ contract Raffle is IRaffle, Initializable {
         if (_globalData.ticketSupply >= _globalData.minTicketSalesInsurance)
                 revert Errors.SALES_EXCEED_INSURANCE_LIMIT();
         
-        _globalData.status = RaffleDataTypes.RaffleStatus.INSURANCE;
+        _globalData.status = ClooverRaffleDataTypes.ClooverRaffleStatus.INSURANCE;
                 
         (uint256 protocolFees, ) = _calculateInsuranceSplit();
         address treasuryAddress = _globalData
@@ -429,16 +429,16 @@ contract Raffle is IRaffle, Initializable {
         emit CreatorClaimedInsurance(creator());
     }
 
-    /// @inheritdoc IRaffle
-    function cancelRaffle() external override onlyCreator {
+    /// @inheritdoc IClooverRaffle
+    function cancelClooverRaffle() external override onlyCreator {
         if(_globalData.ticketSupply > 0)
                 revert Errors.SALES_ALREADY_STARTED();
 
-        IRaffleFactory(
+        IClooverRaffleFactory(
             _globalData.implementationManager.getImplementationAddress(
-                ImplementationInterfaceNames.RaffleFactory
+                ImplementationInterfaceNames.ClooverRaffleFactory
             )
-        ).deregisterRaffle();
+        ).deregisterClooverRaffle();
             
         if(_globalData.minTicketSalesInsurance > 0){
             if(_globalData.isEthTokenSales) {
@@ -459,40 +459,40 @@ contract Raffle is IRaffle, Initializable {
             creator(),
             _globalData.nftId
         );
-        emit RaffleCancelled(creator());
+        emit ClooverRaffleCancelled(creator());
     }
 
-    /// @inheritdoc IRaffle
+    /// @inheritdoc IClooverRaffle
     function totalSupply() public view override returns (uint256) {
         return _globalData.ticketSupply;
     }
 
-    /// @inheritdoc IRaffle
+    /// @inheritdoc IClooverRaffle
     function maxSupply() public view override returns (uint256) {
         return _globalData.maxTicketSupply;
     }
 
-    /// @inheritdoc IRaffle
+    /// @inheritdoc IClooverRaffle
     function creator() public view override returns (address) {
         return _globalData.creator;
     }
 
-    /// @inheritdoc IRaffle
+    /// @inheritdoc IClooverRaffle
     function purchaseCurrency() public view override returns (IERC20) {
         return _globalData.purchaseCurrency;
     }
 
-    /// @inheritdoc IRaffle
+    /// @inheritdoc IClooverRaffle
     function ticketPrice() public view override returns (uint256) {
         return _globalData.ticketPrice;
     }
 
-    /// @inheritdoc IRaffle
+    /// @inheritdoc IClooverRaffle
     function endTicketSales() public view override returns (uint64) {
         return _globalData.endTicketSales;
     }
 
-    /// @inheritdoc IRaffle
+    /// @inheritdoc IClooverRaffle
     function winningTicket()
         public
         view
@@ -504,7 +504,7 @@ contract Raffle is IRaffle, Initializable {
         return _globalData.winningTicketNumber;
     }
 
-    /// @inheritdoc IRaffle
+    /// @inheritdoc IClooverRaffle
     function winnerAddress()
         public
         view
@@ -516,7 +516,7 @@ contract Raffle is IRaffle, Initializable {
         return _ticketOwner[_globalData.winningTicketNumber];
     }
 
-    /// @inheritdoc IRaffle
+    /// @inheritdoc IClooverRaffle
     function nftToWin()
         public
         view
@@ -526,29 +526,29 @@ contract Raffle is IRaffle, Initializable {
         return (_globalData.nftContract, _globalData.nftId);
     }
 
-    /// @inheritdoc IRaffle
+    /// @inheritdoc IClooverRaffle
     function raffleStatus()
         public
         view
         override
-        returns (RaffleDataTypes.RaffleStatus)
+        returns (ClooverRaffleDataTypes.ClooverRaffleStatus)
     {
         return _globalData.status;
     }
 
-    /// @inheritdoc IRaffle
+    /// @inheritdoc IClooverRaffle
     function balanceOf(
         address user
     ) public view override returns (uint256[] memory) {
         return _ownerTickets[user];
     }
 
-    /// @inheritdoc IRaffle
+    /// @inheritdoc IClooverRaffle
     function ownerOf(uint256 id) public view override returns (address) {
         return _ticketOwner[id];
     }
 
-    /// @inheritdoc IRaffle
+    /// @inheritdoc IClooverRaffle
     function randomProvider() public view override returns (address) {
         return
             _globalData.implementationManager.getImplementationAddress(
@@ -556,7 +556,7 @@ contract Raffle is IRaffle, Initializable {
             );
     }
 
-    /// @inheritdoc IRaffle
+    /// @inheritdoc IClooverRaffle
     function isEthTokenSales() public view override returns (bool) {
         return _globalData.isEthTokenSales;
     }
@@ -589,7 +589,7 @@ contract Raffle is IRaffle, Initializable {
      * @param params the struct data use for initialization
      */
     function _checkData(
-        RaffleDataTypes.InitRaffleParams memory params
+        ClooverRaffleDataTypes.InitClooverRaffleParams memory params
     ) internal returns(uint256,uint256) {
         if (address(params.implementationManager) == address(0))
             revert Errors.NOT_ADDRESS_0();

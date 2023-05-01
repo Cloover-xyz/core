@@ -2,8 +2,8 @@
 pragma solidity ^0.8.0;
 
 import {IImplementationManager} from "../interfaces/IImplementationManager.sol";
-import {IRaffleFactory} from "../interfaces/IRaffleFactory.sol";
-import {IRaffle} from "../interfaces/IRaffle.sol";
+import {IClooverRaffleFactory} from "../interfaces/IClooverRaffleFactory.sol";
+import {IClooverRaffle} from "../interfaces/IClooverRaffle.sol";
 import {IRandomProvider} from "../interfaces/IRandomProvider.sol";
 
 import {ImplementationInterfaceNames} from "../libraries/helpers/ImplementationInterfaceNames.sol";
@@ -42,7 +42,7 @@ contract MockRandomProvider is IRandomProvider {
             }
         }
         address requestorAddress = requestIdToCaller[requestId];
-        IRaffle(requestorAddress).draw(randomNumbers); 
+        IClooverRaffle(requestorAddress).draw(randomNumbers); 
     }
 
     function requestRandomNumberReturnZero(uint256 requestId) external {
@@ -52,6 +52,6 @@ contract MockRandomProvider is IRandomProvider {
         for(uint256 i;i<numWordsRequested;i++){
             zeroNumbers[i] = 0;
         }
-        IRaffle(requestorAddress).draw(zeroNumbers); 
+        IClooverRaffle(requestorAddress).draw(zeroNumbers); 
     }
 }

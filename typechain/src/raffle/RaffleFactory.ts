@@ -27,7 +27,7 @@ import type {
   PromiseOrValue,
 } from "../../common";
 
-export declare namespace IRaffleFactory {
+export declare namespace IClooverRaffleFactory {
   export type ParamsStruct = {
     purchaseCurrency: PromiseOrValue<string>;
     nftContract: PromiseOrValue<string>;
@@ -54,32 +54,32 @@ export declare namespace IRaffleFactory {
   };
 }
 
-export interface RaffleFactoryInterface extends utils.Interface {
+export interface ClooverRaffleFactoryInterface extends utils.Interface {
   functions: {
-    "batchRaffledraw(address[])": FunctionFragment;
-    "createNewRaffle((address,address,uint256,uint256,uint256,uint64))": FunctionFragment;
-    "isRegisteredRaffle(address)": FunctionFragment;
+    "batchClooverRaffledraw(address[])": FunctionFragment;
+    "createNewClooverRaffle((address,address,uint256,uint256,uint256,uint64))": FunctionFragment;
+    "isRegisteredClooverRaffle(address)": FunctionFragment;
     "requestIdToContracts(uint256,uint256)": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
-      | "batchRaffledraw"
-      | "createNewRaffle"
-      | "isRegisteredRaffle"
+      | "batchClooverRaffledraw"
+      | "createNewClooverRaffle"
+      | "isRegisteredClooverRaffle"
       | "requestIdToContracts"
   ): FunctionFragment;
 
   encodeFunctionData(
-    functionFragment: "batchRaffledraw",
+    functionFragment: "batchClooverRaffledraw",
     values: [PromiseOrValue<string>[]]
   ): string;
   encodeFunctionData(
-    functionFragment: "createNewRaffle",
-    values: [IRaffleFactory.ParamsStruct]
+    functionFragment: "createNewClooverRaffle",
+    values: [IClooverRaffleFactory.ParamsStruct]
   ): string;
   encodeFunctionData(
-    functionFragment: "isRegisteredRaffle",
+    functionFragment: "isRegisteredClooverRaffle",
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
@@ -88,15 +88,15 @@ export interface RaffleFactoryInterface extends utils.Interface {
   ): string;
 
   decodeFunctionResult(
-    functionFragment: "batchRaffledraw",
+    functionFragment: "batchClooverRaffledraw",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "createNewRaffle",
+    functionFragment: "createNewClooverRaffle",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "isRegisteredRaffle",
+    functionFragment: "isRegisteredClooverRaffle",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -105,29 +105,30 @@ export interface RaffleFactoryInterface extends utils.Interface {
   ): Result;
 
   events: {
-    "NewRaffle(address,tuple)": EventFragment;
+    "NewClooverRaffle(address,tuple)": EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: "NewRaffle"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "NewClooverRaffle"): EventFragment;
 }
 
-export interface NewRaffleEventObject {
+export interface NewClooverRaffleEventObject {
   raffleContract: string;
-  globalData: IRaffleFactory.ParamsStructOutput;
+  globalData: IClooverRaffleFactory.ParamsStructOutput;
 }
-export type NewRaffleEvent = TypedEvent<
-  [string, IRaffleFactory.ParamsStructOutput],
-  NewRaffleEventObject
+export type NewClooverRaffleEvent = TypedEvent<
+  [string, IClooverRaffleFactory.ParamsStructOutput],
+  NewClooverRaffleEventObject
 >;
 
-export type NewRaffleEventFilter = TypedEventFilter<NewRaffleEvent>;
+export type NewClooverRaffleEventFilter =
+  TypedEventFilter<NewClooverRaffleEvent>;
 
-export interface RaffleFactory extends BaseContract {
+export interface ClooverRaffleFactory extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: RaffleFactoryInterface;
+  interface: ClooverRaffleFactoryInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
@@ -149,17 +150,17 @@ export interface RaffleFactory extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    batchRaffledraw(
+    batchClooverRaffledraw(
       _raffleContracts: PromiseOrValue<string>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    createNewRaffle(
-      params: IRaffleFactory.ParamsStruct,
+    createNewClooverRaffle(
+      params: IClooverRaffleFactory.ParamsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    isRegisteredRaffle(
+    isRegisteredClooverRaffle(
       arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
@@ -171,17 +172,17 @@ export interface RaffleFactory extends BaseContract {
     ): Promise<[string]>;
   };
 
-  batchRaffledraw(
+  batchClooverRaffledraw(
     _raffleContracts: PromiseOrValue<string>[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  createNewRaffle(
-    params: IRaffleFactory.ParamsStruct,
+  createNewClooverRaffle(
+    params: IClooverRaffleFactory.ParamsStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  isRegisteredRaffle(
+  isRegisteredClooverRaffle(
     arg0: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<boolean>;
@@ -193,17 +194,17 @@ export interface RaffleFactory extends BaseContract {
   ): Promise<string>;
 
   callStatic: {
-    batchRaffledraw(
+    batchClooverRaffledraw(
       _raffleContracts: PromiseOrValue<string>[],
       overrides?: CallOverrides
     ): Promise<void>;
 
-    createNewRaffle(
-      params: IRaffleFactory.ParamsStruct,
+    createNewClooverRaffle(
+      params: IClooverRaffleFactory.ParamsStruct,
       overrides?: CallOverrides
     ): Promise<string>;
 
-    isRegisteredRaffle(
+    isRegisteredClooverRaffle(
       arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<boolean>;
@@ -216,28 +217,28 @@ export interface RaffleFactory extends BaseContract {
   };
 
   filters: {
-    "NewRaffle(address,tuple)"(
+    "NewClooverRaffle(address,tuple)"(
       raffleContract?: PromiseOrValue<string> | null,
       globalData?: null
-    ): NewRaffleEventFilter;
-    NewRaffle(
+    ): NewClooverRaffleEventFilter;
+    NewClooverRaffle(
       raffleContract?: PromiseOrValue<string> | null,
       globalData?: null
-    ): NewRaffleEventFilter;
+    ): NewClooverRaffleEventFilter;
   };
 
   estimateGas: {
-    batchRaffledraw(
+    batchClooverRaffledraw(
       _raffleContracts: PromiseOrValue<string>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    createNewRaffle(
-      params: IRaffleFactory.ParamsStruct,
+    createNewClooverRaffle(
+      params: IClooverRaffleFactory.ParamsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    isRegisteredRaffle(
+    isRegisteredClooverRaffle(
       arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -250,17 +251,17 @@ export interface RaffleFactory extends BaseContract {
   };
 
   populateTransaction: {
-    batchRaffledraw(
+    batchClooverRaffledraw(
       _raffleContracts: PromiseOrValue<string>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    createNewRaffle(
-      params: IRaffleFactory.ParamsStruct,
+    createNewClooverRaffle(
+      params: IClooverRaffleFactory.ParamsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    isRegisteredRaffle(
+    isRegisteredClooverRaffle(
       arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;

@@ -7,8 +7,8 @@ import {VRFConsumerBaseV2} from "chainlink/contracts/src/v0.8/VRFConsumerBaseV2.
 import {IImplementationManager} from "../interfaces/IImplementationManager.sol";
 import {IAccessController} from "../interfaces/IAccessController.sol";
 import {IRandomProvider} from "../interfaces/IRandomProvider.sol";
-import {IRaffle} from "../interfaces/IRaffle.sol";
-import {IRaffleFactory} from "../interfaces/IRaffleFactory.sol";
+import {IClooverRaffle} from "../interfaces/IClooverRaffle.sol";
+import {IClooverRaffleFactory} from "../interfaces/IClooverRaffleFactory.sol";
 
 import {ImplementationInterfaceNames} from "../libraries/helpers/ImplementationInterfaceNames.sol";
 import {Errors} from "../libraries/helpers/Errors.sol";
@@ -47,8 +47,8 @@ contract RandomProvider is VRFConsumerBaseV2, IRandomProvider {
     // Modifier
     //----------------------------------------
 
-    modifier onlyRaffleContract(){
-        if(!IRaffleFactory(getRaffleFactory()).isRegisteredRaffle(msg.sender)) revert Errors.NOT_REGISTERED_RAFFLE();
+    modifier onlyClooverRaffleContract(){
+        if(!IClooverRaffleFactory(getClooverRaffleFactory()).isRegisteredClooverRaffle(msg.sender)) revert Errors.NOT_REGISTERED_RAFFLE();
         _;
     }
 
@@ -75,7 +75,7 @@ contract RandomProvider is VRFConsumerBaseV2, IRandomProvider {
     //----------------------------------------
 
     /// @inheritdoc IRandomProvider
-    function requestRandomNumbers(uint32 numWords) external override onlyRaffleContract() returns(uint256 requestId){
+    function requestRandomNumbers(uint32 numWords) external override onlyClooverRaffleContract() returns(uint256 requestId){
         requestId = COORDINATOR.requestRandomWords(
             chainlinkVRFData.keyHash,
             chainlinkVRFData.subscriptionId,
@@ -90,8 +90,8 @@ contract RandomProvider is VRFConsumerBaseV2, IRandomProvider {
     * @notice get the randomProvider contract address from the implementationManager
     * @return The address of the randomProvider contract
     */
-    function getRaffleFactory() public view returns(address){
-       return implementationManager.getImplementationAddress(ImplementationInterfaceNames.RaffleFactory);
+    function getClooverRaffleFactory() public view returns(address){
+       return implementationManager.getImplementationAddress(ImplementationInterfaceNames.ClooverRaffleFactory);
     }
 
     //----------------------------------------
@@ -108,7 +108,7 @@ contract RandomProvider is VRFConsumerBaseV2, IRandomProvider {
         uint256[] memory randomWords
     ) internal override {
         address requestorAddress = requestIdToCaller[requestId];
-        IRaffle(requestorAddress).draw(randomWords); 
+        IClooverRaffle(requestorAddress).draw(randomWords); 
     }
 
 

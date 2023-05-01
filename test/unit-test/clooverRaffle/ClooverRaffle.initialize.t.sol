@@ -9,54 +9,54 @@ import {IERC721} from "openzeppelin-contracts/contracts/token/ERC721/IERC721.sol
 import {MockERC20} from "../../../src/mocks/MockERC20.sol";
 import {MockERC721} from "../../../src/mocks/MockERC721.sol";
 
-import {Raffle} from "../../../src/raffle/Raffle.sol";
+import {ClooverRaffle} from "../../../src/raffle/ClooverRaffle.sol";
 import {ImplementationManager} from "../../../src/core/ImplementationManager.sol";
 
 import {Errors} from "../../../src/libraries/helpers/Errors.sol";
-import {RaffleDataTypes} from "../../../src/libraries/types/RaffleDataTypes.sol";
+import {ClooverRaffleDataTypes} from "../../../src/libraries/types/ClooverRaffleDataTypes.sol";
 import {InsuranceLogic} from "../../../src/libraries/math/InsuranceLogic.sol";
 
-import {SetupRaffles} from "./SetupRaffles.sol";
+import {SetupClooverRaffles} from "./SetupClooverRaffles.sol";
 
-contract InitializeRaffleTest is Test, SetupRaffles {
+contract InitializeClooverRaffleTest is Test, SetupClooverRaffles {
     using InsuranceLogic for uint;
 
     function setUp() public virtual override {
-        SetupRaffles.setUp();
+        SetupClooverRaffles.setUp();
     }
 
-    function test_Initialize_TokenRaffle() external{
+    function test_Initialize_TokenClooverRaffle() external{
         // Without insurance
-        assertEq(tokenRaffle.creator(), alice);
-        assertEq(tokenRaffle.ticketPrice(), ticketPrice);
-        assertEq(tokenRaffle.endTicketSales(), uint64(block.timestamp) + ticketSaleDuration);
-        assertEq(tokenRaffle.totalSupply(), 0);
-        assertEq(tokenRaffle.maxSupply(), maxTicketSupply);
-        assertFalse(tokenRaffle.isEthTokenSales());
-        assertEq(address(tokenRaffle.purchaseCurrency()), address(mockERC20));
-        (IERC721 contractAddress, uint256 id )= tokenRaffle.nftToWin();
+        assertEq(tokenClooverRaffle.creator(), alice);
+        assertEq(tokenClooverRaffle.ticketPrice(), ticketPrice);
+        assertEq(tokenClooverRaffle.endTicketSales(), uint64(block.timestamp) + ticketSaleDuration);
+        assertEq(tokenClooverRaffle.totalSupply(), 0);
+        assertEq(tokenClooverRaffle.maxSupply(), maxTicketSupply);
+        assertFalse(tokenClooverRaffle.isEthTokenSales());
+        assertEq(address(tokenClooverRaffle.purchaseCurrency()), address(mockERC20));
+        (IERC721 contractAddress, uint256 id )= tokenClooverRaffle.nftToWin();
         assertEq(address(contractAddress) ,address(mockERC721));
         assertEq(id ,tokenNftId);
-        assertEq(contractAddress.ownerOf(tokenNftId) ,address(tokenRaffle));
+        assertEq(contractAddress.ownerOf(tokenNftId) ,address(tokenClooverRaffle));
 
         // With insurance
         uint256 insuranceCost = minTicketSalesInsurance.calculateInsuranceCost(ticketPrice, INSURANCE_SALES_PERCENTAGE);
-        assertEq(tokenRaffleWithInsurance.creator(), carole);
-        assertEq(tokenRaffleWithInsurance.ticketPrice(), ticketPrice);
-        assertEq(tokenRaffleWithInsurance.endTicketSales(), uint64(block.timestamp) + ticketSaleDuration);
-        assertEq(tokenRaffleWithInsurance.totalSupply(), 0);
-        assertEq(tokenRaffleWithInsurance.maxSupply(), maxTicketSupply);
-        assertEq(tokenRaffleWithInsurance.insurancePaid(), insuranceCost);
-        assertFalse(tokenRaffleWithInsurance.isEthTokenSales());
-        assertEq(address(tokenRaffleWithInsurance.purchaseCurrency()), address(mockERC20));
-        (contractAddress, id )= tokenRaffleWithInsurance.nftToWin();
+        assertEq(tokenClooverRaffleWithInsurance.creator(), carole);
+        assertEq(tokenClooverRaffleWithInsurance.ticketPrice(), ticketPrice);
+        assertEq(tokenClooverRaffleWithInsurance.endTicketSales(), uint64(block.timestamp) + ticketSaleDuration);
+        assertEq(tokenClooverRaffleWithInsurance.totalSupply(), 0);
+        assertEq(tokenClooverRaffleWithInsurance.maxSupply(), maxTicketSupply);
+        assertEq(tokenClooverRaffleWithInsurance.insurancePaid(), insuranceCost);
+        assertFalse(tokenClooverRaffleWithInsurance.isEthTokenSales());
+        assertEq(address(tokenClooverRaffleWithInsurance.purchaseCurrency()), address(mockERC20));
+        (contractAddress, id )= tokenClooverRaffleWithInsurance.nftToWin();
         assertEq(address(contractAddress) ,address(mockERC721));
         assertEq(id ,tokenWithAssuranceNftId);
-        assertEq(contractAddress.ownerOf(tokenWithAssuranceNftId) ,address(tokenRaffleWithInsurance));
+        assertEq(contractAddress.ownerOf(tokenWithAssuranceNftId) ,address(tokenClooverRaffleWithInsurance));
     }
 
-    function test_Initialize_TokenRaffle_RevertWhen_RaffleAlreadyInitialize() external{
-        RaffleDataTypes.InitRaffleParams memory data = RaffleDataTypes.InitRaffleParams(
+    function test_Initialize_TokenClooverRaffle_RevertWhen_ClooverRaffleAlreadyInitialize() external{
+        ClooverRaffleDataTypes.InitClooverRaffleParams memory data = ClooverRaffleDataTypes.InitClooverRaffleParams(
             implementationManager,
             mockERC20,
             mockERC721,
@@ -71,17 +71,17 @@ contract InitializeRaffleTest is Test, SetupRaffles {
             0
         );
         vm.expectRevert("Initializable: contract is already initialized");
-        tokenRaffle.initialize(data);
+        tokenClooverRaffle.initialize(data);
     }
 
-    function test_Initialize_TokenRaffle_RevertWhen_RaffleDataNotCorrect() external{
+    function test_Initialize_TokenClooverRaffle_RevertWhen_ClooverRaffleDataNotCorrect() external{
         changePrank(alice);
         uint _nftId = 5;
-        Raffle newRaffle = new Raffle();
+        ClooverRaffle newClooverRaffle = new ClooverRaffle();
         mockERC721.mint(alice, _nftId);
-        mockERC721.transferFrom(alice, address(newRaffle), _nftId);
+        mockERC721.transferFrom(alice, address(newClooverRaffle), _nftId);
         //implementationManager == address(0)
-        RaffleDataTypes.InitRaffleParams memory data = RaffleDataTypes.InitRaffleParams(
+        ClooverRaffleDataTypes.InitClooverRaffleParams memory data = ClooverRaffleDataTypes.InitClooverRaffleParams(
             ImplementationManager(address(0)),
             mockERC20,
             mockERC721,
@@ -96,10 +96,10 @@ contract InitializeRaffleTest is Test, SetupRaffles {
             0
         );
         vm.expectRevert(Errors.NOT_ADDRESS_0.selector);
-        newRaffle.initialize(data);
+        newClooverRaffle.initialize(data);
 
         //Token not whitelisted
-        data = RaffleDataTypes.InitRaffleParams(
+        data = ClooverRaffleDataTypes.InitClooverRaffleParams(
             implementationManager,
             MockERC20(address(0)),
             mockERC721,
@@ -114,11 +114,11 @@ contract InitializeRaffleTest is Test, SetupRaffles {
             0
         );
         vm.expectRevert(Errors.TOKEN_NOT_WHITELISTED.selector);
-        newRaffle.initialize(data);
+        newClooverRaffle.initialize(data);
 
         //NFT not whitelisted
         MockERC721 notWhitelistedCollection = new MockERC721("NOT WHITELISTED", "NFT");
-        data = RaffleDataTypes.InitRaffleParams(
+        data = ClooverRaffleDataTypes.InitClooverRaffleParams(
             implementationManager,
             mockERC20,
             notWhitelistedCollection,
@@ -133,10 +133,10 @@ contract InitializeRaffleTest is Test, SetupRaffles {
             0
         );
         vm.expectRevert(Errors.COLLECTION_NOT_WHITELISTED.selector);
-        newRaffle.initialize(data);
+        newClooverRaffle.initialize(data);
 
         // ticketPrice == 0
-        data = RaffleDataTypes.InitRaffleParams(
+        data = ClooverRaffleDataTypes.InitClooverRaffleParams(
             implementationManager,
             mockERC20,
             mockERC721,
@@ -151,10 +151,10 @@ contract InitializeRaffleTest is Test, SetupRaffles {
             0
         );
         vm.expectRevert(Errors.CANT_BE_ZERO.selector);
-        newRaffle.initialize(data);
+        newClooverRaffle.initialize(data);
 
         // maxTicketSupply == 0
-        data = RaffleDataTypes.InitRaffleParams(
+        data = ClooverRaffleDataTypes.InitClooverRaffleParams(
             implementationManager,
             mockERC20,
             mockERC721,
@@ -169,10 +169,10 @@ contract InitializeRaffleTest is Test, SetupRaffles {
             0
         );
         vm.expectRevert(Errors.CANT_BE_ZERO.selector);
-        newRaffle.initialize(data);
+        newClooverRaffle.initialize(data);
 
         // maxTicketSupply > maxTicketSupplyAllowed
-        data = RaffleDataTypes.InitRaffleParams(
+        data = ClooverRaffleDataTypes.InitClooverRaffleParams(
             implementationManager,
             mockERC20,
             mockERC721,
@@ -187,10 +187,10 @@ contract InitializeRaffleTest is Test, SetupRaffles {
             0
         );
         vm.expectRevert(Errors.EXCEED_MAX_VALUE_ALLOWED.selector);
-        newRaffle.initialize(data);
+        newClooverRaffle.initialize(data);
 
         // ticketSaleDuration < minTicketSalesDuration
-        data = RaffleDataTypes.InitRaffleParams(
+        data = ClooverRaffleDataTypes.InitClooverRaffleParams(
             implementationManager,
             mockERC20,
             mockERC721,
@@ -205,10 +205,10 @@ contract InitializeRaffleTest is Test, SetupRaffles {
             0
         );
         vm.expectRevert(Errors.OUT_OF_RANGE.selector);
-        newRaffle.initialize(data);
+        newClooverRaffle.initialize(data);
 
         // ticketSaleDuration > maxTicketSalesDuration
-        data = RaffleDataTypes.InitRaffleParams(
+        data = ClooverRaffleDataTypes.InitClooverRaffleParams(
             implementationManager,
             mockERC20,
             mockERC721,
@@ -223,10 +223,10 @@ contract InitializeRaffleTest is Test, SetupRaffles {
             0
         );
         vm.expectRevert(Errors.OUT_OF_RANGE.selector);
-        newRaffle.initialize(data);
+        newClooverRaffle.initialize(data);
 
         //minTicketSalesInsurance > 0 && transfer value == insuranceCost
-        data = RaffleDataTypes.InitRaffleParams(
+        data = ClooverRaffleDataTypes.InitClooverRaffleParams(
             implementationManager,
             mockERC20,
             mockERC721,
@@ -241,41 +241,41 @@ contract InitializeRaffleTest is Test, SetupRaffles {
             0
         );
         vm.expectRevert(Errors.INSURANCE_AMOUNT.selector);
-        newRaffle.initialize(data);
+        newClooverRaffle.initialize(data);
     }
 
-    function test_Initialize_EthRaffle() external{
+    function test_Initialize_EthClooverRaffle() external{
         // Without insurance
-        assertEq(ethRaffle.creator(), alice);
-        assertEq(ethRaffle.ticketPrice(), ticketPrice);
-        assertEq(ethRaffle.endTicketSales(), uint64(block.timestamp) + ticketSaleDuration);
-        assertEq(ethRaffle.totalSupply(), 0);
-        assertEq(ethRaffle.maxSupply(), maxTicketSupply);
-        assertTrue(ethRaffle.isEthTokenSales());
-        assertEq(address(ethRaffle.purchaseCurrency()), address(0));
-        (IERC721 contractAddress, uint256 id )= ethRaffle.nftToWin();
+        assertEq(ethClooverRaffle.creator(), alice);
+        assertEq(ethClooverRaffle.ticketPrice(), ticketPrice);
+        assertEq(ethClooverRaffle.endTicketSales(), uint64(block.timestamp) + ticketSaleDuration);
+        assertEq(ethClooverRaffle.totalSupply(), 0);
+        assertEq(ethClooverRaffle.maxSupply(), maxTicketSupply);
+        assertTrue(ethClooverRaffle.isEthTokenSales());
+        assertEq(address(ethClooverRaffle.purchaseCurrency()), address(0));
+        (IERC721 contractAddress, uint256 id )= ethClooverRaffle.nftToWin();
         assertEq(address(contractAddress) ,address(mockERC721));
         assertEq(id ,ethNftId);
-        assertEq(contractAddress.ownerOf(ethNftId) ,address(ethRaffle));
+        assertEq(contractAddress.ownerOf(ethNftId) ,address(ethClooverRaffle));
 
         // With insurance
         uint256 insuranceCost = minTicketSalesInsurance.calculateInsuranceCost(ticketPrice, INSURANCE_SALES_PERCENTAGE);
-        assertEq(ethRaffleWithInsurance.creator(), carole);
-        assertEq(ethRaffleWithInsurance.ticketPrice(), ticketPrice);
-        assertEq(ethRaffleWithInsurance.endTicketSales(), uint64(block.timestamp) + ticketSaleDuration);
-        assertEq(ethRaffleWithInsurance.totalSupply(), 0);
-        assertEq(ethRaffleWithInsurance.maxSupply(), maxTicketSupply);
-        assertEq(ethRaffleWithInsurance.insurancePaid(), insuranceCost);
-        assertTrue(ethRaffleWithInsurance.isEthTokenSales());
-        assertEq(address(ethRaffleWithInsurance.purchaseCurrency()), address(0));
-        (contractAddress, id )= ethRaffleWithInsurance.nftToWin();
+        assertEq(ethClooverRaffleWithInsurance.creator(), carole);
+        assertEq(ethClooverRaffleWithInsurance.ticketPrice(), ticketPrice);
+        assertEq(ethClooverRaffleWithInsurance.endTicketSales(), uint64(block.timestamp) + ticketSaleDuration);
+        assertEq(ethClooverRaffleWithInsurance.totalSupply(), 0);
+        assertEq(ethClooverRaffleWithInsurance.maxSupply(), maxTicketSupply);
+        assertEq(ethClooverRaffleWithInsurance.insurancePaid(), insuranceCost);
+        assertTrue(ethClooverRaffleWithInsurance.isEthTokenSales());
+        assertEq(address(ethClooverRaffleWithInsurance.purchaseCurrency()), address(0));
+        (contractAddress, id )= ethClooverRaffleWithInsurance.nftToWin();
         assertEq(address(contractAddress) ,address(mockERC721));
         assertEq(id ,ethWithAssuranceNftId);
-        assertEq(contractAddress.ownerOf(ethWithAssuranceNftId) ,address(ethRaffleWithInsurance));
+        assertEq(contractAddress.ownerOf(ethWithAssuranceNftId) ,address(ethClooverRaffleWithInsurance));
     }
     
-    function test_Initialize_EthRaffle_RevertWhen_RaffleAlreadyInitialize() external{
-        RaffleDataTypes.InitRaffleParams memory data = RaffleDataTypes.InitRaffleParams(
+    function test_Initialize_EthClooverRaffle_RevertWhen_ClooverRaffleAlreadyInitialize() external{
+        ClooverRaffleDataTypes.InitClooverRaffleParams memory data = ClooverRaffleDataTypes.InitClooverRaffleParams(
             implementationManager,
             IERC20(address(0)),
             mockERC721,
@@ -290,17 +290,17 @@ contract InitializeRaffleTest is Test, SetupRaffles {
             0
         );
         vm.expectRevert("Initializable: contract is already initialized");
-        ethRaffle.initialize(data);
+        ethClooverRaffle.initialize(data);
     }
 
-    function test_Initialize_EthRaffle_RevertWhen_RaffleDataNotCorrect() external{
+    function test_Initialize_EthClooverRaffle_RevertWhen_ClooverRaffleDataNotCorrect() external{
         changePrank(alice);
         uint _nftId = 50;
-        Raffle newRaffle = new Raffle();
+        ClooverRaffle newClooverRaffle = new ClooverRaffle();
         mockERC721.mint(alice, _nftId);
-        mockERC721.transferFrom(alice, address(newRaffle), _nftId);
+        mockERC721.transferFrom(alice, address(newClooverRaffle), _nftId);
         //implementationManager == address(0)
-        RaffleDataTypes.InitRaffleParams memory data = RaffleDataTypes.InitRaffleParams(
+        ClooverRaffleDataTypes.InitClooverRaffleParams memory data = ClooverRaffleDataTypes.InitClooverRaffleParams(
             ImplementationManager(address(0)),
             IERC20(address(0)),
             mockERC721,
@@ -315,12 +315,12 @@ contract InitializeRaffleTest is Test, SetupRaffles {
             0
         );
         vm.expectRevert(Errors.NOT_ADDRESS_0.selector);
-        newRaffle.initialize(data);
+        newClooverRaffle.initialize(data);
 
     
         //NFT not whitelisted
         MockERC721 notWhitelistedCollection = new MockERC721("NOT WHITELISTED", "NFT");
-        data = RaffleDataTypes.InitRaffleParams(
+        data = ClooverRaffleDataTypes.InitClooverRaffleParams(
             implementationManager,
             IERC20(address(0)),
             notWhitelistedCollection,
@@ -335,10 +335,10 @@ contract InitializeRaffleTest is Test, SetupRaffles {
             0
         );
         vm.expectRevert(Errors.COLLECTION_NOT_WHITELISTED.selector);
-        newRaffle.initialize(data);
+        newClooverRaffle.initialize(data);
 
         // ticketPrice == 0
-        data = RaffleDataTypes.InitRaffleParams(
+        data = ClooverRaffleDataTypes.InitClooverRaffleParams(
             implementationManager,
             IERC20(address(0)),
             mockERC721,
@@ -353,10 +353,10 @@ contract InitializeRaffleTest is Test, SetupRaffles {
             0
         );
         vm.expectRevert(Errors.CANT_BE_ZERO.selector);
-        newRaffle.initialize(data);
+        newClooverRaffle.initialize(data);
 
         // maxTicketSupply == 0
-        data = RaffleDataTypes.InitRaffleParams(
+        data = ClooverRaffleDataTypes.InitClooverRaffleParams(
             implementationManager,
             IERC20(address(0)),
             mockERC721,
@@ -371,10 +371,10 @@ contract InitializeRaffleTest is Test, SetupRaffles {
             0
         );
         vm.expectRevert(Errors.CANT_BE_ZERO.selector);
-        newRaffle.initialize(data);
+        newClooverRaffle.initialize(data);
 
         // maxTicketSupply > maxTicketSupplyAllowed
-        data = RaffleDataTypes.InitRaffleParams(
+        data = ClooverRaffleDataTypes.InitClooverRaffleParams(
             implementationManager,
             IERC20(address(0)),
             mockERC721,
@@ -389,10 +389,10 @@ contract InitializeRaffleTest is Test, SetupRaffles {
             0
         );
         vm.expectRevert(Errors.EXCEED_MAX_VALUE_ALLOWED.selector);
-        newRaffle.initialize(data);
+        newClooverRaffle.initialize(data);
 
         // ticketSaleDuration < minTicketSalesDuration
-        data = RaffleDataTypes.InitRaffleParams(
+        data = ClooverRaffleDataTypes.InitClooverRaffleParams(
             implementationManager,
             IERC20(address(0)),
             mockERC721,
@@ -407,10 +407,10 @@ contract InitializeRaffleTest is Test, SetupRaffles {
             0
         );
         vm.expectRevert(Errors.OUT_OF_RANGE.selector);
-        newRaffle.initialize(data);
+        newClooverRaffle.initialize(data);
 
         // ticketSaleDuration > maxTicketSalesDuration
-        data = RaffleDataTypes.InitRaffleParams(
+        data = ClooverRaffleDataTypes.InitClooverRaffleParams(
             implementationManager,
             IERC20(address(0)),
             mockERC721,
@@ -425,10 +425,10 @@ contract InitializeRaffleTest is Test, SetupRaffles {
             0
         );
         vm.expectRevert(Errors.OUT_OF_RANGE.selector);
-        newRaffle.initialize(data);
+        newClooverRaffle.initialize(data);
 
         // msg.value != insuranceCost
-        data = RaffleDataTypes.InitRaffleParams(
+        data = ClooverRaffleDataTypes.InitClooverRaffleParams(
             implementationManager,
             IERC20(address(0)),
             mockERC721,
@@ -443,6 +443,6 @@ contract InitializeRaffleTest is Test, SetupRaffles {
             0
         );
         vm.expectRevert(Errors.INSURANCE_AMOUNT.selector);
-        newRaffle.initialize(data);
+        newClooverRaffle.initialize(data);
     }
 }

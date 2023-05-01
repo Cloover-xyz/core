@@ -122,7 +122,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "getRaffleFactory",
+    name: "getClooverRaffleFactory",
     outputs: [
       {
         internalType: "address",

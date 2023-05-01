@@ -51,7 +51,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "RaffleFactory",
+    name: "ClooverRaffleFactory",
     outputs: [
       {
         internalType: "bytes32",

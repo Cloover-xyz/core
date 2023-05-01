@@ -37,10 +37,10 @@ It's the contract that manage the whitelist of NFT collection that can be use fo
 6. `TokenWhitelist.sol`
 It manage the whitelist of tokens that can be use as currency for the raffles. Only the MAINTAINER_ROLE can add/remove token.
 
-7. `RaffleFactory.sol`
-Deploy new raffle using OpenZeppelin Clone() function. It's the access point for raffles creation.
+7. `ClooverRaffleFactory.sol`
+Deploy new raffles using OpenZeppelin Clone() function. It's the access point for raffles creation.
 
-8. `Raffle.sol`
+8. `ClooverRaffle.sol`
 It's the contract that manage the raffle. Each raffle created is a clone of this contract that handle a single raffle lifecycle. The contract will be initialize with the raffle's parameters and the raffle's creator will be the owner of the contract.
  
     1. Raffles' creators can specify several options during the creation:

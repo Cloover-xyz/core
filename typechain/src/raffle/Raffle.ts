@@ -27,8 +27,8 @@ import type {
   PromiseOrValue,
 } from "../../common";
 
-export declare namespace RaffleDataTypes {
-  export type InitRaffleParamsStruct = {
+export declare namespace ClooverRaffleDataTypes {
+  export type InitClooverRaffleParamsStruct = {
     implementationManager: PromiseOrValue<string>;
     purchaseCurrency: PromiseOrValue<string>;
     nftContract: PromiseOrValue<string>;
@@ -39,7 +39,7 @@ export declare namespace RaffleDataTypes {
     ticketSaleDuration: PromiseOrValue<BigNumberish>;
   };
 
-  export type InitRaffleParamsStructOutput = [
+  export type InitClooverRaffleParamsStructOutput = [
     string,
     string,
     string,
@@ -60,7 +60,7 @@ export declare namespace RaffleDataTypes {
   };
 }
 
-export interface RaffleInterface extends utils.Interface {
+export interface ClooverRaffleInterface extends utils.Interface {
   functions: {
     "balanceOf(address)": FunctionFragment;
     "claimPrice()": FunctionFragment;
@@ -130,7 +130,7 @@ export interface RaffleInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "initialize",
-    values: [RaffleDataTypes.InitRaffleParamsStruct]
+    values: [ClooverRaffleDataTypes.InitClooverRaffleParamsStruct]
   ): string;
   encodeFunctionData(functionFragment: "maxSupply", values?: undefined): string;
   encodeFunctionData(functionFragment: "nftToWin", values?: undefined): string;
@@ -296,12 +296,12 @@ export type WinningTicketDrawnedEvent = TypedEvent<
 export type WinningTicketDrawnedEventFilter =
   TypedEventFilter<WinningTicketDrawnedEvent>;
 
-export interface Raffle extends BaseContract {
+export interface ClooverRaffle extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: RaffleInterface;
+  interface: ClooverRaffleInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
@@ -350,7 +350,7 @@ export interface Raffle extends BaseContract {
     endTicketSales(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     initialize(
-      params: RaffleDataTypes.InitRaffleParamsStruct,
+      params: ClooverRaffleDataTypes.InitClooverRaffleParamsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -414,7 +414,7 @@ export interface Raffle extends BaseContract {
   endTicketSales(overrides?: CallOverrides): Promise<BigNumber>;
 
   initialize(
-    params: RaffleDataTypes.InitRaffleParamsStruct,
+    params: ClooverRaffleDataTypes.InitClooverRaffleParamsStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -472,7 +472,7 @@ export interface Raffle extends BaseContract {
     endTicketSales(overrides?: CallOverrides): Promise<BigNumber>;
 
     initialize(
-      params: RaffleDataTypes.InitRaffleParamsStruct,
+      params: ClooverRaffleDataTypes.InitClooverRaffleParamsStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -578,7 +578,7 @@ export interface Raffle extends BaseContract {
     endTicketSales(overrides?: CallOverrides): Promise<BigNumber>;
 
     initialize(
-      params: RaffleDataTypes.InitRaffleParamsStruct,
+      params: ClooverRaffleDataTypes.InitClooverRaffleParamsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -639,7 +639,7 @@ export interface Raffle extends BaseContract {
     endTicketSales(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     initialize(
-      params: RaffleDataTypes.InitRaffleParamsStruct,
+      params: ClooverRaffleDataTypes.InitClooverRaffleParamsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

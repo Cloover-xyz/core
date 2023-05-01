@@ -8,17 +8,17 @@ import {Clones} from "openzeppelin-contracts/contracts/proxy/Clones.sol";
 import {Errors} from "../libraries/helpers/Errors.sol";
 
 import {IImplementationManager} from "../interfaces/IImplementationManager.sol";
-import {IRaffleFactory} from "../interfaces/IRaffleFactory.sol";
+import {IClooverRaffleFactory} from "../interfaces/IClooverRaffleFactory.sol";
 import {IConfigManager} from "../interfaces/IConfigManager.sol";
 
 import {ImplementationInterfaceNames} from "../libraries/helpers/ImplementationInterfaceNames.sol";
 import {Errors} from "../libraries/helpers/Errors.sol";
-import {RaffleDataTypes} from "../libraries/types/RaffleDataTypes.sol";
+import {ClooverRaffleDataTypes} from "../libraries/types/ClooverRaffleDataTypes.sol";
 import {InsuranceLogic} from "../libraries/math/InsuranceLogic.sol";
 
-import {Raffle} from "./Raffle.sol";
+import {ClooverRaffle} from "./ClooverRaffle.sol";
  
-contract RaffleFactory is IRaffleFactory {
+contract ClooverRaffleFactory is IClooverRaffleFactory {
     using Clones for address;
     using InsuranceLogic for uint;
 
@@ -29,14 +29,14 @@ contract RaffleFactory is IRaffleFactory {
 
     address immutable raffleImplementation;
 
-    mapping(address => bool) public override isRegisteredRaffle;
+    mapping(address => bool) public override isRegisteredClooverRaffle;
     
     mapping(uint256 => address[]) public requestIdToContracts;
 
     //----------------------------------------
     // Events
     //----------------------------------------
-    event NewRaffle(address indexed raffleContract, Params globalData);
+    event NewClooverRaffle(address indexed raffleContract, Params globalData);
 
       
 
@@ -45,38 +45,38 @@ contract RaffleFactory is IRaffleFactory {
     //----------------------------------------
     constructor(IImplementationManager _implementationManager){
         implementationManager = _implementationManager;
-        raffleImplementation  = address(new Raffle());
+        raffleImplementation  = address(new ClooverRaffle());
     }
 
     //----------------------------------------
     // External functions
     //----------------------------------------
 
-    /// @inheritdoc IRaffleFactory
-    function createNewRaffle(Params memory params) external override payable returns(Raffle newRaffle){
-        newRaffle = Raffle(raffleImplementation.clone());
-        params.nftContract.transferFrom(msg.sender, address(newRaffle), params.nftId);
-        _handleInsurance(params, address(newRaffle));
-        newRaffle.initialize{value: msg.value}(_convertParams(params));
-        isRegisteredRaffle[address(newRaffle)] = true;
-        emit NewRaffle(address(newRaffle), params);
+    /// @inheritdoc IClooverRaffleFactory
+    function createNewClooverRaffle(Params memory params) external override payable returns(ClooverRaffle newClooverRaffle){
+        newClooverRaffle = ClooverRaffle(raffleImplementation.clone());
+        params.nftContract.transferFrom(msg.sender, address(newClooverRaffle), params.nftId);
+        _handleInsurance(params, address(newClooverRaffle));
+        newClooverRaffle.initialize{value: msg.value}(_convertParams(params));
+        isRegisteredClooverRaffle[address(newClooverRaffle)] = true;
+        emit NewClooverRaffle(address(newClooverRaffle), params);
     }
 
-    function batchRaffledraw(address[] memory _raffleContracts) external override {
+    function batchClooverRaffledraw(address[] memory _raffleContracts) external override {
         for(uint32 i; i<_raffleContracts.length; ++i){
-            Raffle(_raffleContracts[i]).draw();
+            ClooverRaffle(_raffleContracts[i]).draw();
         }
     }
 
-    function deregisterRaffle() external override{
-        isRegisteredRaffle[msg.sender] = false;
+    function deregisterClooverRaffle() external override{
+        isRegisteredClooverRaffle[msg.sender] = false;
     }
     
     //----------------------------------------
     // Internal functions
     //----------------------------------------
 
-    function _handleInsurance(Params memory params, address newRaffle) internal {
+    function _handleInsurance(Params memory params, address newClooverRaffle) internal {
         if(params.minTicketSalesInsurance > 0 && !params.isETHTokenSales){
             IConfigManager configManager = IConfigManager(
                 implementationManager.getImplementationAddress(
@@ -84,12 +84,12 @@ contract RaffleFactory is IRaffleFactory {
                 )
             );
             uint256 insuranceCost = params.minTicketSalesInsurance.calculateInsuranceCost(params.ticketPrice,  configManager.insuranceSalesPercentage());
-            params.purchaseCurrency.transferFrom(msg.sender, newRaffle, insuranceCost);
+            params.purchaseCurrency.transferFrom(msg.sender, newClooverRaffle, insuranceCost);
         }
     }
     
-    function _convertParams(Params memory params) internal view returns(RaffleDataTypes.InitRaffleParams memory raffleParams){
-        raffleParams = RaffleDataTypes.InitRaffleParams(
+    function _convertParams(Params memory params) internal view returns(ClooverRaffleDataTypes.InitClooverRaffleParams memory raffleParams){
+        raffleParams = ClooverRaffleDataTypes.InitClooverRaffleParams(
             implementationManager,
             params.purchaseCurrency,
             params.nftContract,

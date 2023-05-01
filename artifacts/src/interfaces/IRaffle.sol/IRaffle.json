@@ -1,7 +1,7 @@
 {
   "_format": "hh-sol-artifact-1",
-  "contractName": "IRaffle",
-  "sourceName": "src/interfaces/IRaffle.sol",
+  "contractName": "IClooverRaffle",
+  "sourceName": "src/interfaces/IClooverRaffle.sol",
   "abi": [
     {
       "inputs": [
@@ -127,7 +127,7 @@
               "type": "uint64"
             }
           ],
-          "internalType": "struct RaffleDataTypes.InitRaffleParams",
+          "internalType": "struct ClooverRaffleDataTypes.InitClooverRaffleParams",
           "name": "params",
           "type": "tuple"
         }
@@ -218,7 +218,7 @@
       "name": "raffleStatus",
       "outputs": [
         {
-          "internalType": "enum RaffleDataTypes.RaffleStatus",
+          "internalType": "enum ClooverRaffleDataTypes.ClooverRaffleStatus",
           "name": "",
           "type": "uint8"
         }

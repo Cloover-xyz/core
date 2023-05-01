@@ -40,7 +40,7 @@ library Errors {
     error IS_ETH_RAFFLE(); //'Ticket can only be purchase with native token (ex: ETH for Ethereum network)'
     error NOT_ETH_RAFFLE(); //'Ticket can not be purchase with native token (ex: ETH for Ethereum network)'
     error TRANSFER_FAIL(); 
-    error NO_INSURANCE_TAKEN();  //'Raffle's creator didn't took insurance'
+    error NO_INSURANCE_TAKEN();  //'ClooverRaffle's creator didn't took insurance'
     error INSURANCE_AMOUNT();  //'Insurance cost must paid'
     error SALES_EXCEED_INSURANCE_LIMIT();  //'Ticket sales exceed min ticket sales covered by the insurance'
     error ALREADY_CLAIMED();  //'User already claimed his part'

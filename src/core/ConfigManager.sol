@@ -17,7 +17,7 @@ import {ConfiguratorInputTypes} from "../libraries/types/ConfiguratorInputTypes.
 contract ConfigManager is IConfigManager {
     using PercentageMath for uint256;
 
-    struct RaffleConfigData{
+    struct ClooverRaffleConfigData{
         uint256 protocolFeesPercentage;
         uint256 maxTicketSupplyAllowed;
         uint256 minTicketSalesDuration;
@@ -31,7 +31,7 @@ contract ConfigManager is IConfigManager {
 
     IImplementationManager public _implementationManager;
 
-    RaffleConfigData private _raffleConfigData;
+    ClooverRaffleConfigData private _raffleConfigData;
 
     //----------------------------------------
     // Events
@@ -61,7 +61,7 @@ contract ConfigManager is IConfigManager {
         if(_data.minTicketSalesDuration > _data.maxTicketSalesDuration) revert Errors.WRONG_DURATION_LIMITS();
         if(_data.maxTicketSupplyAllowed == 0) revert Errors.CANT_BE_ZERO();
         _implementationManager = implManager;
-        _raffleConfigData = RaffleConfigData(
+        _raffleConfigData = ClooverRaffleConfigData(
             _data.protocolFeesPercentage,
             _data.maxTicketSupplyAllowed,
             _data.minTicketSalesDuration,

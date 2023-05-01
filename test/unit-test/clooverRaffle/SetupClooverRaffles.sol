@@ -12,17 +12,17 @@ import {ImplementationManager} from "../../../src/core/ImplementationManager.sol
 import {NFTCollectionWhitelist} from "../../../src/core/NFTCollectionWhitelist.sol";
 import {TokenWhitelist} from "../../../src/core/TokenWhitelist.sol";
 import {ConfigManager} from "../../../src/core/ConfigManager.sol";
-import {RaffleFactory} from "../../../src/raffle/RaffleFactory.sol";
-import {Raffle} from "../../../src/raffle/Raffle.sol";
+import {ClooverRaffleFactory} from "../../../src/raffle/ClooverRaffleFactory.sol";
+import {ClooverRaffle} from "../../../src/raffle/ClooverRaffle.sol";
 
 import {ImplementationInterfaceNames} from "../../../src/libraries/helpers/ImplementationInterfaceNames.sol";
 import {ConfiguratorInputTypes} from "../../../src/libraries/types/ConfiguratorInputTypes.sol";
-import {RaffleDataTypes} from "../../../src/libraries/types/RaffleDataTypes.sol";
+import {ClooverRaffleDataTypes} from "../../../src/libraries/types/ClooverRaffleDataTypes.sol";
 import {InsuranceLogic} from "../../../src/libraries/math/InsuranceLogic.sol";
 
 import {SetupUsers} from "../../utils/SetupUsers.sol";
 
-contract SetupRaffles is Test, SetupUsers {
+contract SetupClooverRaffles is Test, SetupUsers {
     using InsuranceLogic for uint;
 
     MockERC20 mockERC20;
@@ -30,18 +30,18 @@ contract SetupRaffles is Test, SetupUsers {
     MockRandomProvider mockRamdomProvider;
 
     ConfigManager configManager;
-    RaffleFactory raffleFactory;
+    ClooverRaffleFactory raffleFactory;
     ImplementationManager implementationManager;
     NFTCollectionWhitelist nftCollectionWhitelist;
     TokenWhitelist tokenWhitelist;
     AccessController accessController;
 
-    Raffle tokenRaffle;
-    Raffle tokenRaffleWithInsurance;
-    Raffle tokenRaffleWithRoyalties;
-    Raffle ethRaffle;
-    Raffle ethRaffleWithInsurance;
-    Raffle ethRaffleWithRoyalties;
+    ClooverRaffle tokenClooverRaffle;
+    ClooverRaffle tokenClooverRaffleWithInsurance;
+    ClooverRaffle tokenClooverRaffleWithRoyalties;
+    ClooverRaffle ethClooverRaffle;
+    ClooverRaffle ethClooverRaffleWithInsurance;
+    ClooverRaffle ethClooverRaffleWithRoyalties;
 
     uint256 maxTicketSupply = 10;
     uint256 ticketPrice = 2e18; // 10
@@ -56,8 +56,8 @@ contract SetupRaffles is Test, SetupUsers {
     uint256 ethWithAssuranceNftId = 12;
     uint256 ethWithRoyaltiesNftId = 13;
 
-    uint256 tokenRaffleInsuranceCost;
-    uint256 ethRaffleInsuranceCost;
+    uint256 tokenClooverRaffleInsuranceCost;
+    uint256 ethClooverRaffleInsuranceCost;
 
     uint256 MIN_SALE_DURATION = 1 days;
     uint256 MAX_SALE_DURATION = 2 weeks;
@@ -80,7 +80,7 @@ contract SetupRaffles is Test, SetupUsers {
         implementationManager = new ImplementationManager(
             address(accessController)
         );
-        raffleFactory = new RaffleFactory(implementationManager);
+        raffleFactory = new ClooverRaffleFactory(implementationManager);
         nftCollectionWhitelist = new NFTCollectionWhitelist(
             implementationManager
         );
@@ -100,7 +100,7 @@ contract SetupRaffles is Test, SetupUsers {
 
         changePrank(maintainer);
         implementationManager.changeImplementationAddress(
-            ImplementationInterfaceNames.RaffleFactory,
+            ImplementationInterfaceNames.ClooverRaffleFactory,
             address(raffleFactory)
         );
         implementationManager.changeImplementationAddress(
@@ -137,9 +137,9 @@ contract SetupRaffles is Test, SetupUsers {
         mockERC721.mint(alice, ethWithRoyaltiesNftId);
 
         changePrank(alice);
-        tokenRaffle = new Raffle();
-        RaffleDataTypes.InitRaffleParams memory raffleData = RaffleDataTypes
-            .InitRaffleParams(
+        tokenClooverRaffle = new ClooverRaffle();
+        ClooverRaffleDataTypes.InitClooverRaffleParams memory raffleData = ClooverRaffleDataTypes
+            .InitClooverRaffleParams(
                 implementationManager,
                 mockERC20,
                 mockERC721,
@@ -153,12 +153,12 @@ contract SetupRaffles is Test, SetupUsers {
                 0,
                 0
             );
-        mockERC721.transferFrom(alice, address(tokenRaffle), tokenNftId);
-        tokenRaffle.initialize(raffleData);
+        mockERC721.transferFrom(alice, address(tokenClooverRaffle), tokenNftId);
+        tokenClooverRaffle.initialize(raffleData);
 
-        ethRaffle = new Raffle();
-        RaffleDataTypes.InitRaffleParams memory ethRaffleData = RaffleDataTypes
-            .InitRaffleParams(
+        ethClooverRaffle = new ClooverRaffle();
+        ClooverRaffleDataTypes.InitClooverRaffleParams memory ethClooverRaffleData = ClooverRaffleDataTypes
+            .InitClooverRaffleParams(
                 implementationManager,
                 mockERC20,
                 mockERC721,
@@ -172,12 +172,12 @@ contract SetupRaffles is Test, SetupUsers {
                 0,
                 0
             );
-        mockERC721.transferFrom(alice, address(ethRaffle), ethNftId);
-        ethRaffle.initialize(ethRaffleData);
+        mockERC721.transferFrom(alice, address(ethClooverRaffle), ethNftId);
+        ethClooverRaffle.initialize(ethClooverRaffleData);
 
-        tokenRaffleWithRoyalties = new Raffle();
-        RaffleDataTypes.InitRaffleParams memory raffleWithRoyaltiesData = RaffleDataTypes
-            .InitRaffleParams(
+        tokenClooverRaffleWithRoyalties = new ClooverRaffle();
+        ClooverRaffleDataTypes.InitClooverRaffleParams memory raffleWithRoyaltiesData = ClooverRaffleDataTypes
+            .InitClooverRaffleParams(
                 implementationManager,
                 mockERC20,
                 mockERC721,
@@ -191,12 +191,12 @@ contract SetupRaffles is Test, SetupUsers {
                 0,
                 royaltiesPercentage
             );
-        mockERC721.transferFrom(alice, address(tokenRaffleWithRoyalties), tokenWithRoyaltiesNftId);
-        tokenRaffleWithRoyalties.initialize(raffleWithRoyaltiesData);
+        mockERC721.transferFrom(alice, address(tokenClooverRaffleWithRoyalties), tokenWithRoyaltiesNftId);
+        tokenClooverRaffleWithRoyalties.initialize(raffleWithRoyaltiesData);
 
-        ethRaffleWithRoyalties = new Raffle();
-        RaffleDataTypes.InitRaffleParams memory ethRaffleWithRoyaltiesData = RaffleDataTypes
-            .InitRaffleParams(
+        ethClooverRaffleWithRoyalties = new ClooverRaffle();
+        ClooverRaffleDataTypes.InitClooverRaffleParams memory ethClooverRaffleWithRoyaltiesData = ClooverRaffleDataTypes
+            .InitClooverRaffleParams(
                 implementationManager,
                 mockERC20,
                 mockERC721,
@@ -210,14 +210,14 @@ contract SetupRaffles is Test, SetupUsers {
                 0,
                 royaltiesPercentage
             );
-        mockERC721.transferFrom(alice, address(ethRaffleWithRoyalties), ethWithRoyaltiesNftId);
-        ethRaffleWithRoyalties.initialize(ethRaffleWithRoyaltiesData);
+        mockERC721.transferFrom(alice, address(ethClooverRaffleWithRoyalties), ethWithRoyaltiesNftId);
+        ethClooverRaffleWithRoyalties.initialize(ethClooverRaffleWithRoyaltiesData);
 
         changePrank(carole);
-        tokenRaffleWithInsurance = new Raffle();
-        RaffleDataTypes.InitRaffleParams
-            memory tokenRaffleWithInsuranceData = RaffleDataTypes
-                .InitRaffleParams(
+        tokenClooverRaffleWithInsurance = new ClooverRaffle();
+        ClooverRaffleDataTypes.InitClooverRaffleParams
+            memory tokenClooverRaffleWithInsuranceData = ClooverRaffleDataTypes
+                .InitClooverRaffleParams(
                     implementationManager,
                     mockERC20,
                     mockERC721,
@@ -233,21 +233,21 @@ contract SetupRaffles is Test, SetupUsers {
                 );
         mockERC721.transferFrom(
             carole,
-            address(tokenRaffleWithInsurance),
+            address(tokenClooverRaffleWithInsurance),
             tokenWithAssuranceNftId
         );
-        tokenRaffleInsuranceCost = minTicketSalesInsurance
+        tokenClooverRaffleInsuranceCost = minTicketSalesInsurance
             .calculateInsuranceCost(ticketPrice, INSURANCE_SALES_PERCENTAGE);
         mockERC20.transfer(
-            address(tokenRaffleWithInsurance),
-            tokenRaffleInsuranceCost
+            address(tokenClooverRaffleWithInsurance),
+            tokenClooverRaffleInsuranceCost
         );
-        tokenRaffleWithInsurance.initialize(tokenRaffleWithInsuranceData);
+        tokenClooverRaffleWithInsurance.initialize(tokenClooverRaffleWithInsuranceData);
 
-        ethRaffleWithInsurance = new Raffle();
-        RaffleDataTypes.InitRaffleParams
-            memory ethRaffleWithInsuranceData = RaffleDataTypes
-                .InitRaffleParams(
+        ethClooverRaffleWithInsurance = new ClooverRaffle();
+        ClooverRaffleDataTypes.InitClooverRaffleParams
+            memory ethClooverRaffleWithInsuranceData = ClooverRaffleDataTypes
+                .InitClooverRaffleParams(
                     implementationManager,
                     mockERC20,
                     mockERC721,
@@ -263,15 +263,15 @@ contract SetupRaffles is Test, SetupUsers {
                 );
         mockERC721.transferFrom(
             carole,
-            address(ethRaffleWithInsurance),
+            address(ethClooverRaffleWithInsurance),
             ethWithAssuranceNftId
         );
-        ethRaffleInsuranceCost = minTicketSalesInsurance.calculateInsuranceCost(
+        ethClooverRaffleInsuranceCost = minTicketSalesInsurance.calculateInsuranceCost(
             ticketPrice,
             INSURANCE_SALES_PERCENTAGE
         );
-        ethRaffleWithInsurance.initialize{value: ethRaffleInsuranceCost}(
-            ethRaffleWithInsuranceData
+        ethClooverRaffleWithInsurance.initialize{value: ethClooverRaffleInsuranceCost}(
+            ethClooverRaffleWithInsuranceData
         );
     }
 }

@@ -25,7 +25,7 @@ export interface ImplementationInterfaceNamesInterface extends utils.Interface {
     "AccessController()": FunctionFragment;
     "ConfigManager()": FunctionFragment;
     "NFTWhitelist()": FunctionFragment;
-    "RaffleFactory()": FunctionFragment;
+    "ClooverRaffleFactory()": FunctionFragment;
     "RandomProvider()": FunctionFragment;
     "TokenWhitelist()": FunctionFragment;
     "Treasury()": FunctionFragment;
@@ -36,7 +36,7 @@ export interface ImplementationInterfaceNamesInterface extends utils.Interface {
       | "AccessController"
       | "ConfigManager"
       | "NFTWhitelist"
-      | "RaffleFactory"
+      | "ClooverRaffleFactory"
       | "RandomProvider"
       | "TokenWhitelist"
       | "Treasury"
@@ -55,7 +55,7 @@ export interface ImplementationInterfaceNamesInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "RaffleFactory",
+    functionFragment: "ClooverRaffleFactory",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -81,7 +81,7 @@ export interface ImplementationInterfaceNamesInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "RaffleFactory",
+    functionFragment: "ClooverRaffleFactory",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -130,7 +130,7 @@ export interface ImplementationInterfaceNames extends BaseContract {
 
     NFTWhitelist(overrides?: CallOverrides): Promise<[string]>;
 
-    RaffleFactory(overrides?: CallOverrides): Promise<[string]>;
+    ClooverRaffleFactory(overrides?: CallOverrides): Promise<[string]>;
 
     RandomProvider(overrides?: CallOverrides): Promise<[string]>;
 
@@ -145,7 +145,7 @@ export interface ImplementationInterfaceNames extends BaseContract {
 
   NFTWhitelist(overrides?: CallOverrides): Promise<string>;
 
-  RaffleFactory(overrides?: CallOverrides): Promise<string>;
+  ClooverRaffleFactory(overrides?: CallOverrides): Promise<string>;
 
   RandomProvider(overrides?: CallOverrides): Promise<string>;
 
@@ -160,7 +160,7 @@ export interface ImplementationInterfaceNames extends BaseContract {
 
     NFTWhitelist(overrides?: CallOverrides): Promise<string>;
 
-    RaffleFactory(overrides?: CallOverrides): Promise<string>;
+    ClooverRaffleFactory(overrides?: CallOverrides): Promise<string>;
 
     RandomProvider(overrides?: CallOverrides): Promise<string>;
 
@@ -178,7 +178,7 @@ export interface ImplementationInterfaceNames extends BaseContract {
 
     NFTWhitelist(overrides?: CallOverrides): Promise<BigNumber>;
 
-    RaffleFactory(overrides?: CallOverrides): Promise<BigNumber>;
+    ClooverRaffleFactory(overrides?: CallOverrides): Promise<BigNumber>;
 
     RandomProvider(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -194,7 +194,9 @@ export interface ImplementationInterfaceNames extends BaseContract {
 
     NFTWhitelist(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    RaffleFactory(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    ClooverRaffleFactory(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     RandomProvider(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 

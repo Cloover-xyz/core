@@ -4,15 +4,15 @@ pragma solidity ^0.8.0;
 import {IERC20} from "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 import {IERC721} from "openzeppelin-contracts/contracts/token/ERC721/IERC721.sol";
 
-import {RaffleDataTypes} from '../libraries/types/RaffleDataTypes.sol';
+import {ClooverRaffleDataTypes} from '../libraries/types/ClooverRaffleDataTypes.sol';
 
-interface IRaffle {
+interface IClooverRaffle {
     /**
      * @notice Function to initialize contract
      * @dev must be tag by the initializer function 
-     * @param params used for initialization (see InitRaffleParams struct)
+     * @param params used for initialization (see InitClooverRaffleParams struct)
      */
-    function initialize(RaffleDataTypes.InitRaffleParams memory params) external payable;
+    function initialize(ClooverRaffleDataTypes.InitClooverRaffleParams memory params) external payable;
 
     /**
      * @notice Allows users to purchase tickets
@@ -36,7 +36,7 @@ interface IRaffle {
 
     /**
      * @notice Select the winning tickets number received from the RandomProvider contract
-     * @dev must be only called by the RandomProvider contract or the RaffleFactory
+     * @dev must be only called by the RandomProvider contract or the ClooverRaffleFactory
      * function must not revert to avoid multi drawn to revert
      * @param randomNumbers random numbers requested in array
      */
@@ -92,9 +92,9 @@ interface IRaffle {
      * @notice Allows the creator to cancel the raffle
      * @dev Only callable if no ticket has been sold
      * must refund the creator insurance if paid
-     * must remove the raffle from the RaffleFactory whitelist
+     * must remove the raffle from the ClooverRaffleFactory whitelist
      */
-    function cancelRaffle() external;
+    function cancelClooverRaffle() external;
 
     /**
     * @notice get the total amount of tickets sold
@@ -161,9 +161,9 @@ interface IRaffle {
 
     /**
     * @notice get info regarding the workflow status of the raffle
-    * @return The status regarding the RaffleStatus enum 
+    * @return The status regarding the ClooverRaffleStatus enum 
     */
-    function raffleStatus() external view returns(RaffleDataTypes.RaffleStatus);
+    function raffleStatus() external view returns(ClooverRaffleDataTypes.ClooverRaffleStatus);
 
     /**
     * @notice get all tickets number bought by a user

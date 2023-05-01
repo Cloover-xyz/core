@@ -115,7 +115,7 @@
     },
     {
       "inputs": [],
-      "name": "getRaffleFactory",
+      "name": "getClooverRaffleFactory",
       "outputs": [
         {
           "internalType": "address",
