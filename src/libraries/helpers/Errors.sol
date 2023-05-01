@@ -18,7 +18,7 @@ library Errors {
     error NOT_CREATOR(); // 'msg.sender is not the creator of the raffle'
     error TICKET_NOT_DRAWN(); // 'ticket must be drawn'
     error TICKET_ALREADY_DRAWN(); // 'ticket has already be drawn'
-    error TICKET_DRAWN_NOT_REQUESTED(); // 'ticket drawn has not be requested'
+    error DRAWN_NOT_REQUESTED(); // 'ticket drawn has not be requested'
     error NOT_IN_REFUND_MODE(); // 'raffle is not in insurance mode'
     error IN_REFUND_MODE(); // 'raffle is in insurance mode'
     error NOT_MAINTAINER(); // 'Caller is not the maintainer'

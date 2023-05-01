@@ -73,22 +73,24 @@ contract PurchaseTicketsRaffleTest is Test, SetupRaffles {
 
     function test_PurchaseTickets_RevertWhen_UserTicketBalanceExceedLimitAllowed() external{
         changePrank(alice);
-        mockERC721.mint(alice, 3);
+        uint256 _nftId = 50;
+        mockERC721.mint(alice, _nftId);
         Raffle raffleLimit = new Raffle();
         RaffleDataTypes.InitRaffleParams memory ethData = RaffleDataTypes.InitRaffleParams(
             implementationManager,
             mockERC20,
             mockERC721,
             alice,
-            3,
+            _nftId,
             maxTicketSupply,
             ticketPrice,
             0,
             ticketSaleDuration,
             false,
-            5
+            5,
+            0
         );
-        mockERC721.transferFrom(alice, address(raffleLimit), 3);
+        mockERC721.transferFrom(alice, address(raffleLimit), _nftId);
         raffleLimit.initialize(ethData);
 
         changePrank(bob);
@@ -188,22 +190,24 @@ contract PurchaseTicketsRaffleTest is Test, SetupRaffles {
 
     function test_PurchaseTicketsInEth_RevertWhen_UserTicketPurchaseExceedLimitAllowed() external{
         changePrank(alice);
-        mockERC721.mint(alice, 3);
+        uint256 _nftId = 50;
+        mockERC721.mint(alice, _nftId);
         Raffle ethRaffleLimit = new Raffle();
         RaffleDataTypes.InitRaffleParams memory ethData = RaffleDataTypes.InitRaffleParams(
             implementationManager,
             IERC20(address(0)),
             mockERC721,
             alice,
-            3,
+            _nftId,
             maxTicketSupply,
             ticketPrice,
             0,
             ticketSaleDuration,
             true,
-            5
+            5,
+            0
         );
-        mockERC721.transferFrom(alice, address(ethRaffleLimit), 3);
+        mockERC721.transferFrom(alice, address(ethRaffleLimit), _nftId);
         ethRaffleLimit.initialize(ethData);
 
         changePrank(bob);

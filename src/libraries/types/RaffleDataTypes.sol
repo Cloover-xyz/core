@@ -9,11 +9,11 @@ import {IImplementationManager} from "../../interfaces/IImplementationManager.so
 library RaffleDataTypes {
 
     enum RaffleStatus {
-        Init,
-        DrawnRequested,
-        WinningTicketDrawn,
-        RefundMode,
-        Cancelled
+        DEFAULT,
+        DRAWNING,
+        DRAWN,
+        INSURANCE,
+        CANCELLED
     }
 
     struct RaffleData {
@@ -33,6 +33,7 @@ library RaffleDataTypes {
         uint256 maxTicketAllowedToPurchase;
         uint256 protocolFeesPercentage;
         uint256 insuranceSalesPercentage;
+        uint256 royaltiesPercentage;
     }
  
     struct InitRaffleParams {
@@ -47,5 +48,6 @@ library RaffleDataTypes {
         uint64 ticketSaleDuration;
         bool isEthTokenSales;
         uint256 maxTicketAllowedToPurchase;
+        uint256 royaltiesPercentage;
     }
 }

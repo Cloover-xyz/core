@@ -79,7 +79,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "TICKET_DRAWN_NOT_REQUESTED",
+    name: "DRAWN_NOT_REQUESTED",
     type: "error",
   },
   {

@@ -49,7 +49,8 @@ contract Raffle is IRaffle, Initializable {
     event CreatorClaimedTicketSalesAmount(
         address indexed winner,
         uint256 creatorAmountReceived,
-        uint256 treasuryAmount
+        uint256 treasuryAmount,
+        uint256 royaltiesAmount
     );
     event WinningTicketDrawned(uint256 winningTicket);
     event CreatorClaimedInsurance(address creator);
@@ -73,26 +74,26 @@ contract Raffle is IRaffle, Initializable {
 
     modifier ticketHasNotBeDrawn() {
         if (
-            raffleStatus() == RaffleDataTypes.RaffleStatus.WinningTicketDrawn
+            raffleStatus() == RaffleDataTypes.RaffleStatus.DRAWN
         ) revert Errors.TICKET_ALREADY_DRAWN();
         _;
     }
 
     modifier winningTicketDrawn() {
         if (
-            raffleStatus() != RaffleDataTypes.RaffleStatus.WinningTicketDrawn
+            raffleStatus() != RaffleDataTypes.RaffleStatus.DRAWN
         ) revert Errors.TICKET_NOT_DRAWN();
         _;
     }
 
     modifier drawRequested() {
-        if (raffleStatus() != RaffleDataTypes.RaffleStatus.DrawnRequested)
-            revert Errors.TICKET_DRAWN_NOT_REQUESTED();
+        if (raffleStatus() != RaffleDataTypes.RaffleStatus.DRAWNING)
+            revert Errors.DRAWN_NOT_REQUESTED();
         _;
     }
 
     modifier notRefundMode() {
-        if (raffleStatus() == RaffleDataTypes.RaffleStatus.RefundMode)
+        if (raffleStatus() == RaffleDataTypes.RaffleStatus.INSURANCE)
             revert Errors.IN_REFUND_MODE();
         _;
     }
@@ -135,6 +136,7 @@ contract Raffle is IRaffle, Initializable {
             params.ticketSaleDuration;
         _globalData.maxTicketAllowedToPurchase = params
             .maxTicketAllowedToPurchase;
+        _globalData.royaltiesPercentage = params.royaltiesPercentage;
     }
 
     //----------------------------------------
@@ -189,10 +191,10 @@ contract Raffle is IRaffle, Initializable {
         notRefundMode
     {
         if (_globalData.ticketSupply > 0 && _globalData.ticketSupply >= _globalData.minTicketSalesInsurance){
-            _globalData.status = RaffleDataTypes.RaffleStatus.DrawnRequested;
+            _globalData.status = RaffleDataTypes.RaffleStatus.DRAWNING;
             IRandomProvider(randomProvider()).requestRandomNumbers(1);
         } else {
-            _globalData.status = RaffleDataTypes.RaffleStatus.RefundMode;
+            _globalData.status = RaffleDataTypes.RaffleStatus.INSURANCE;
         }
     }
 
@@ -201,14 +203,14 @@ contract Raffle is IRaffle, Initializable {
         uint256[] memory randomNumbers
     ) external override onlyRandomProviderContract drawRequested {
         if (randomNumbers[0] == 0) {
-            _globalData.status = RaffleDataTypes.RaffleStatus.Init;
+            _globalData.status = RaffleDataTypes.RaffleStatus.DEFAULT;
         } else {
             _globalData.winningTicketNumber =
                 (randomNumbers[0] % _globalData.ticketSupply) +
                 1;
             _globalData.status = RaffleDataTypes
                 .RaffleStatus
-                .WinningTicketDrawn;
+                .DRAWN;
             emit WinningTicketDrawned(_globalData.winningTicketNumber);
         }
     }
@@ -229,20 +231,32 @@ contract Raffle is IRaffle, Initializable {
         uint256 ticketSalesAmount = totalBalance - insuranceCost;
         (
             uint256 creatorAmount,
-            uint256 treasuryFeesAmount
+            uint256 protocolFees,
+            uint256 royaltiesAmount
         ) = _calculateAmountToTransfer(ticketSalesAmount);
-        uint256 totalClaimableAmount = insuranceCost + creatorAmount;
         _globalData.purchaseCurrency.transfer(
             _globalData.implementationManager.getImplementationAddress(
                 ImplementationInterfaceNames.Treasury
             ),
-            treasuryFeesAmount
+            protocolFees
         );
+        if(royaltiesAmount > 0){
+            _globalData.purchaseCurrency.transfer(
+                INFTCollectionWhitelist(
+                    _globalData.implementationManager.getImplementationAddress(
+                        ImplementationInterfaceNames.NFTWhitelist
+                    )
+                ).getCollectionCreator(address(_globalData.nftContract)),
+                royaltiesAmount
+            );
+        }
+        uint256 totalClaimableAmount = insuranceCost + creatorAmount;
         _globalData.purchaseCurrency.transfer(msg.sender, totalClaimableAmount);
         emit CreatorClaimedTicketSalesAmount(
             msg.sender,
             totalClaimableAmount,
-            treasuryFeesAmount
+            protocolFees,
+            royaltiesAmount
         );
     }
 
@@ -260,20 +274,32 @@ contract Raffle is IRaffle, Initializable {
         uint256 ticketSalesAmount = totalBalance - insuranceCost;
         (
             uint256 creatorAmount,
-            uint256 treasuryFeesAmount
+            uint256 protocolFees,
+            uint256 royaltiesAmount
         ) = _calculateAmountToTransfer(ticketSalesAmount);
-        uint256 totalClaimableAmount = insuranceCost + creatorAmount;
         _safeTransferETH(
             _globalData.implementationManager.getImplementationAddress(
                 ImplementationInterfaceNames.Treasury
             ),
-            treasuryFeesAmount
+            protocolFees
         );
+        if(royaltiesAmount > 0){
+            _safeTransferETH(
+                INFTCollectionWhitelist(
+                    _globalData.implementationManager.getImplementationAddress(
+                        ImplementationInterfaceNames.NFTWhitelist
+                    )
+                ).getCollectionCreator(address(_globalData.nftContract)),
+                royaltiesAmount
+            );
+        }
+        uint256 totalClaimableAmount = insuranceCost + creatorAmount;
         _safeTransferETH(msg.sender, totalClaimableAmount);
         emit CreatorClaimedTicketSalesAmount(
             msg.sender,
             totalClaimableAmount,
-            treasuryFeesAmount
+            protocolFees,
+            royaltiesAmount
         );
     }
 
@@ -353,15 +379,15 @@ contract Raffle is IRaffle, Initializable {
         if (_globalData.ticketSupply >= _globalData.minTicketSalesInsurance)
             revert Errors.SALES_EXCEED_INSURANCE_LIMIT();
         
-        _globalData.status = RaffleDataTypes.RaffleStatus.RefundMode;
+        _globalData.status = RaffleDataTypes.RaffleStatus.INSURANCE;
         
-        (uint256 treasuryFeesAmount, ) = _calculateInsuranceSplit();
+        (uint256 protocolFees, ) = _calculateInsuranceSplit();
         address treasuryAddress = _globalData
             .implementationManager
             .getImplementationAddress(ImplementationInterfaceNames.Treasury);
         _globalData.purchaseCurrency.transfer(
             treasuryAddress,
-            treasuryFeesAmount
+            protocolFees
         );
 
         _globalData.nftContract.safeTransferFrom(
@@ -387,13 +413,13 @@ contract Raffle is IRaffle, Initializable {
         if (_globalData.ticketSupply >= _globalData.minTicketSalesInsurance)
                 revert Errors.SALES_EXCEED_INSURANCE_LIMIT();
         
-        _globalData.status = RaffleDataTypes.RaffleStatus.RefundMode;
+        _globalData.status = RaffleDataTypes.RaffleStatus.INSURANCE;
                 
-        (uint256 treasuryFeesAmount, ) = _calculateInsuranceSplit();
+        (uint256 protocolFees, ) = _calculateInsuranceSplit();
         address treasuryAddress = _globalData
             .implementationManager
             .getImplementationAddress(ImplementationInterfaceNames.Treasury);
-        _safeTransferETH(treasuryAddress, treasuryFeesAmount);
+        _safeTransferETH(treasuryAddress, protocolFees);
 
         _globalData.nftContract.safeTransferFrom(
             address(this),
@@ -609,6 +635,7 @@ contract Raffle is IRaffle, Initializable {
                     revert Errors.INSURANCE_AMOUNT();
             }
         }
+        if(params.royaltiesPercentage > PercentageMath.PERCENTAGE_FACTOR) revert Errors.EXCEED_MAX_PERCENTAGE();
         uint256 _protocolFeesPercentage = configManager.protocolFeesPercentage();
         return(_insuranceSalesPercentage, _protocolFeesPercentage);
     }
@@ -653,11 +680,11 @@ contract Raffle is IRaffle, Initializable {
 
         ticketsPurchased = new uint256[](nbOfTickets);
         for (uint i; i < nbOfTickets; ) {
-            ++ticketNumber;
-            ticketsPurchased[i] = ticketNumber;
-            ownerTickets.push(ticketNumber);
-            _ticketOwner[ticketNumber] = msg.sender;
             unchecked {
+                ++ticketNumber;
+                ticketsPurchased[i] = ticketNumber;
+                ownerTickets.push(ticketNumber);
+                _ticketOwner[ticketNumber] = msg.sender;
                 ++i;
             }
         }
@@ -669,12 +696,15 @@ contract Raffle is IRaffle, Initializable {
     )
         internal
         view
-        returns (uint256 creatorAmount, uint256 treasuryFeesAmount)
+        returns (uint256 creatorAmount, uint256 protocolFees, uint256 royaltiesAmount)
     {
-        treasuryFeesAmount = ticketSalesAmount.percentMul(
+        protocolFees = ticketSalesAmount.percentMul(
             _globalData.protocolFeesPercentage
         );
-        creatorAmount = ticketSalesAmount - treasuryFeesAmount;
+        royaltiesAmount = ticketSalesAmount.percentMul(
+            _globalData.royaltiesPercentage
+        );
+        creatorAmount = ticketSalesAmount - protocolFees - royaltiesAmount;
     }
 
     function _calculateUserInsurancePart(
