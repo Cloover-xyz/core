@@ -8,7 +8,25 @@ import {IImplementationManager} from "../../interfaces/IImplementationManager.so
 
 library ClooverRaffleDataTypes {
 
-    enum ClooverRaffleStatus {
+    struct RaffleConfigurationData {
+        address creator;    
+        IImplementationManager implementationManager;
+        IERC20 purchaseCurrency;
+        IERC721 nftContract;
+        uint256 nftId;
+        uint256 ticketPrice;
+        uint64 endTicketSales;
+        uint16 maxTotalSupply;
+        uint16 ticketSalesInsurance;
+        uint16 maxTicketAllowedToPurchase;
+        uint16 protocolFeeRate;
+        uint16 insuranceRate;
+        uint16 royaltiesRate;
+        bool isEthRaffle;
+
+    }
+
+    enum RaffleStatus {
         DEFAULT,
         DRAWNING,
         DRAWN,
@@ -16,38 +34,47 @@ library ClooverRaffleDataTypes {
         CANCELLED
     }
 
-    struct ClooverRaffleData {
-        address creator;
-        IERC20 purchaseCurrency;
-        IImplementationManager implementationManager;
-        IERC721 nftContract;
-        uint256 nftId;
-        uint256 maxTicketSupply;
-        uint256 ticketSupply;
-        uint256 ticketPrice;
-        uint256 winningTicketNumber;
-        uint256 minTicketSalesInsurance;
-        uint64 endTicketSales;
-        bool isEthTokenSales;
-        ClooverRaffleStatus status;
-        uint256 maxTicketAllowedToPurchase;
-        uint256 protocolFeesPercentage;
-        uint256 insuranceSalesPercentage;
-        uint256 royaltiesPercentage;
+    struct RaffleLifeCycleData {
+        RaffleStatus status;
+        uint16 currentSupply;
+        uint16 winningTicketNumber;
+    }
+
+    struct PurchasedEntries{
+        address owner;
+        uint16 currentTicketsSold; // Current amount of tickets sold with new purchase
+        uint16 nbOfTickets; // number of tickets purchased
+    }
+
+    struct ParticipantInfo{
+        uint16 nbOfTicketsPurchased;
+        uint16[] purchasedEntriesIndexes;
+        bool hasClaimedRefund;
     }
  
-    struct InitClooverRaffleParams {
+    struct InitializeRaffleParams {
+        address creator;    
         IImplementationManager implementationManager;
         IERC20 purchaseCurrency;
         IERC721 nftContract;
-        address creator;
         uint256 nftId;
-        uint256 maxTicketSupply;
         uint256 ticketPrice;
-        uint256 minTicketSalesInsurance;
-        uint64 ticketSaleDuration;
-        bool isEthTokenSales;
-        uint256 maxTicketAllowedToPurchase;
-        uint256 royaltiesPercentage;
+        uint64 ticketSalesDuration;
+        uint16 maxTotalSupply;
+        uint16 maxTicketAllowedToPurchase;
+        uint16 ticketSalesInsurance;
+        uint16 royaltiesRate;
+    }
+
+    struct CreateRaffleParams{
+        IERC20 purchaseCurrency;
+        IERC721 nftContract;
+        uint256 nftId;
+        uint256 ticketPrice;
+        uint64 ticketSalesDuration;
+        uint16 maxTotalSupply;
+        uint16 maxTicketAllowedToPurchase;
+        uint16 ticketSalesInsurance;
+        uint16 royaltiesRate;
     }
 }

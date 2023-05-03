@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "forge-std/console2.sol";
+import {Math} from "openzeppelin-contracts/contracts/utils/math/Math.sol";
 import {Initializable} from "openzeppelin-contracts/contracts/proxy/utils/Initializable.sol";
 import {IERC20} from "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 import {IERC721} from "openzeppelin-contracts/contracts/token/ERC721/IERC721.sol";
@@ -26,36 +26,32 @@ contract ClooverRaffle is IClooverRaffle, Initializable {
     // Storage
     //----------------------------------------
 
-    // Mapping from ticket ID to owner address
-    mapping(uint256 => address) internal _ticketOwner;
+    ClooverRaffleDataTypes.PurchasedEntries[] internal purchasedEntries;
 
-    // Mapping owner address to tickets list
-    mapping(address => uint256[]) internal _ownerTickets;
+    // Mapping owner address to PurchasedEntries index
+    mapping(address => ClooverRaffleDataTypes.ParticipantInfo) internal participantInfoMap;
 
-    mapping(address => bool) internal _hasUserClaimedRefund;
+    ClooverRaffleDataTypes.RaffleConfigurationData internal config;
 
-    ClooverRaffleDataTypes.ClooverRaffleData internal _globalData;
+    ClooverRaffleDataTypes.RaffleLifeCycleData internal lifeCycleData;
 
     //----------------------------------------
     // Events
     //----------------------------------------
 
-    event TicketPurchased(address indexed buyer, uint256[] ticketNumbers);
-    event WinnerClaimedPrice(
-        address indexed winner,
-        address indexed nftContract,
-        uint256 nftId
-    );
-    event CreatorClaimedTicketSalesAmount(
+    event TicketPurchased(address indexed buyer, uint16 firstTicket, uint16 nbOfTicketsPurchased);
+    event WinnerClaimed(address winner);
+    event CreatorClaimed(
         address indexed winner,
         uint256 creatorAmountReceived,
-        uint256 treasuryAmount,
+        uint256 protocolFeeAmount,
         uint256 royaltiesAmount
     );
-    event WinningTicketDrawned(uint256 winningTicket);
+    event WinningTicketDrawn(uint16 winningTicket);
     event CreatorClaimedInsurance(address creator);
-    event UserClaimedRefund(address user, uint256 amountReceived);
-    event ClooverRaffleCancelled(address creator);
+    event UserClaimedRefund(address indexed user, uint256 amountReceived);
+    event RaffleCancelled(address creator);
+    event RaffleStatus(ClooverRaffleDataTypes.RaffleStatus indexed status);
 
     //----------------------------------------
     // Modifier
@@ -66,7 +62,7 @@ contract ClooverRaffle is IClooverRaffle, Initializable {
         _;
     }
 
-    modifier ticketSalesClose() {
+    modifier ticketSalesOver() {
         if (block.timestamp < endTicketSales())
             revert Errors.RAFFLE_STILL_OPEN();
         _;
@@ -74,26 +70,20 @@ contract ClooverRaffle is IClooverRaffle, Initializable {
 
     modifier ticketHasNotBeDrawn() {
         if (
-            raffleStatus() == ClooverRaffleDataTypes.ClooverRaffleStatus.DRAWN
+            raffleStatus() == ClooverRaffleDataTypes.RaffleStatus.DRAWN
         ) revert Errors.TICKET_ALREADY_DRAWN();
         _;
     }
 
     modifier winningTicketDrawn() {
         if (
-            raffleStatus() != ClooverRaffleDataTypes.ClooverRaffleStatus.DRAWN
+            raffleStatus() != ClooverRaffleDataTypes.RaffleStatus.DRAWN
         ) revert Errors.TICKET_NOT_DRAWN();
         _;
     }
 
-    modifier drawRequested() {
-        if (raffleStatus() != ClooverRaffleDataTypes.ClooverRaffleStatus.DRAWNING)
-            revert Errors.DRAWN_NOT_REQUESTED();
-        _;
-    }
-
     modifier notRefundMode() {
-        if (raffleStatus() == ClooverRaffleDataTypes.ClooverRaffleStatus.INSURANCE)
+        if (raffleStatus() == ClooverRaffleDataTypes.RaffleStatus.INSURANCE)
             revert Errors.IN_REFUND_MODE();
         _;
     }
@@ -114,29 +104,28 @@ contract ClooverRaffle is IClooverRaffle, Initializable {
     // Initialize function
     //----------------------------------------
     function initialize(
-        ClooverRaffleDataTypes.InitClooverRaffleParams memory params
+        ClooverRaffleDataTypes.InitializeRaffleParams memory params
     ) external override payable initializer {
-     
-        (uint256 _insuranceSalesPercentage, uint256 _protocolFeesPercentage) =_checkData(params);
-        _globalData.protocolFeesPercentage = _protocolFeesPercentage;
-        _globalData.insuranceSalesPercentage = _insuranceSalesPercentage;
-        _globalData.isEthTokenSales = params.isEthTokenSales;
-        _globalData.implementationManager = params.implementationManager;
-        _globalData.creator = params.creator;
-        if (!params.isEthTokenSales) {
-            _globalData.purchaseCurrency = params.purchaseCurrency;
-        }
-        _globalData.nftContract = params.nftContract;
-        _globalData.nftId = params.nftId;
-        _globalData.maxTicketSupply = params.maxTicketSupply;
-        _globalData.ticketPrice = params.ticketPrice;
-        _globalData.minTicketSalesInsurance = params.minTicketSalesInsurance;
-        _globalData.endTicketSales =
-            uint64(block.timestamp) +
-            params.ticketSaleDuration;
-        _globalData.maxTicketAllowedToPurchase = params
-            .maxTicketAllowedToPurchase;
-        _globalData.royaltiesPercentage = params.royaltiesPercentage;
+
+        (uint16 _insuranceRate, uint16 _protocolFeeRate, bool _isEthRaffle) =_checkData(params);
+        
+        
+        config = ClooverRaffleDataTypes.RaffleConfigurationData({
+            creator: params.creator,
+            implementationManager: params.implementationManager,
+            purchaseCurrency: params.purchaseCurrency,
+            nftContract: params.nftContract,
+            nftId: params.nftId,
+            ticketPrice: params.ticketPrice,
+            endTicketSales: uint64(block.timestamp) + params.ticketSalesDuration,
+            maxTotalSupply: params.maxTotalSupply,
+            ticketSalesInsurance: params.ticketSalesInsurance,
+            maxTicketAllowedToPurchase: params.maxTicketAllowedToPurchase,
+            protocolFeeRate: _protocolFeeRate,
+            insuranceRate: _insuranceRate,
+            royaltiesRate: params.royaltiesRate,
+            isEthRaffle: _isEthRaffle
+        });
     }
 
     //----------------------------------------
@@ -145,114 +134,130 @@ contract ClooverRaffle is IClooverRaffle, Initializable {
     
     /// @inheritdoc IClooverRaffle
     function purchaseTickets(
-        uint256 nbOfTickets
+        uint16 nbOfTickets
     ) external override ticketSalesOpen {
-        if (_globalData.isEthTokenSales) revert Errors.IS_ETH_RAFFLE();
+        if (isEthRaffle()) revert Errors.IS_ETH_RAFFLE();
         if (nbOfTickets == 0) revert Errors.CANT_BE_ZERO();
-         if( _globalData.maxTicketAllowedToPurchase > 0 && balanceOf(msg.sender).length + nbOfTickets > _globalData.maxTicketAllowedToPurchase)
+        uint16 _maxTicketAllowedToPurchase = config.maxTicketAllowedToPurchase;
+        if(_maxTicketAllowedToPurchase > 0 && participantInfoMap[msg.sender].nbOfTicketsPurchased + nbOfTickets > _maxTicketAllowedToPurchase)
             revert Errors.EXCEED_MAX_TICKET_ALLOWED_TO_PURCHASE();
-        if (totalSupply() + nbOfTickets > _globalData.maxTicketSupply)
-            revert Errors.MAX_TICKET_SUPPLY_EXCEEDED();
+       
+        uint16 _currentSupply = currentSupply();
+        if (_currentSupply + nbOfTickets > maxTotalSupply())
+            revert Errors.TICKET_SUPPLY_OVERFLOW();
+        
         uint256 ticketCost =  _calculateTicketsCost(nbOfTickets);
-
-        _globalData.purchaseCurrency.transferFrom(
+        config.purchaseCurrency.transferFrom(
             msg.sender,
             address(this),
             ticketCost
         );
 
-        uint256[] memory ticketsPurchased = _purchaseTicket(nbOfTickets);
+         _purchaseTicket(nbOfTickets);
 
-        emit TicketPurchased(msg.sender, ticketsPurchased);
+        emit TicketPurchased(msg.sender, _currentSupply, uint16(nbOfTickets));
     }
 
     /// @inheritdoc IClooverRaffle
     function purchaseTicketsInEth(
-        uint256 nbOfTickets
+        uint16 nbOfTickets
     ) external payable override ticketSalesOpen {
-        if (!_globalData.isEthTokenSales) revert Errors.NOT_ETH_RAFFLE();
+        if (!isEthRaffle()) revert Errors.NOT_ETH_RAFFLE();
         if (nbOfTickets == 0) revert Errors.CANT_BE_ZERO();
-        if( _globalData.maxTicketAllowedToPurchase > 0 && balanceOf(msg.sender).length + nbOfTickets > _globalData.maxTicketAllowedToPurchase)
+        
+        uint16 _maxTicketAllowedToPurchase = config.maxTicketAllowedToPurchase;
+        if(_maxTicketAllowedToPurchase > 0 && participantInfoMap[msg.sender].nbOfTicketsPurchased + nbOfTickets > _maxTicketAllowedToPurchase)
             revert Errors.EXCEED_MAX_TICKET_ALLOWED_TO_PURCHASE();
-        if (totalSupply() + nbOfTickets > _globalData.maxTicketSupply)
-            revert Errors.MAX_TICKET_SUPPLY_EXCEEDED();
+        
+        uint16 _currentSupply = currentSupply();
+        if (_currentSupply + nbOfTickets > maxTotalSupply())
+            revert Errors.TICKET_SUPPLY_OVERFLOW();
+            
         if (_calculateTicketsCost(nbOfTickets) != msg.value)
             revert Errors.WRONG_MSG_VALUE();
-        uint256[] memory ticketsPurchased = _purchaseTicket(nbOfTickets);
-        emit TicketPurchased(msg.sender, ticketsPurchased);
+
+        _purchaseTicket(nbOfTickets);
+
+        emit TicketPurchased(msg.sender, _currentSupply, uint16(nbOfTickets));
     }
 
     /// @inheritdoc IClooverRaffle
     function draw()
         external
         override
-        ticketSalesClose
+        ticketSalesOver
         ticketHasNotBeDrawn
-        notRefundMode
     {
-        if (_globalData.ticketSupply > 0 && _globalData.ticketSupply >= _globalData.minTicketSalesInsurance){
-            _globalData.status = ClooverRaffleDataTypes.ClooverRaffleStatus.DRAWNING;
+        uint16 _currentSupply = currentSupply();
+        if (_currentSupply > 0 && _currentSupply >= config.ticketSalesInsurance){
+            lifeCycleData.status = ClooverRaffleDataTypes.RaffleStatus.DRAWNING;
             IRandomProvider(randomProvider()).requestRandomNumbers(1);
         } else {
-            _globalData.status = ClooverRaffleDataTypes.ClooverRaffleStatus.INSURANCE;
+            lifeCycleData.status = ClooverRaffleDataTypes.RaffleStatus.INSURANCE;
         }
+        emit RaffleStatus(lifeCycleData.status);
     }
 
     /// @inheritdoc IClooverRaffle
     function draw(
         uint256[] memory randomNumbers
-    ) external override onlyRandomProviderContract drawRequested {
+    ) external override onlyRandomProviderContract {
         if (randomNumbers[0] == 0) {
-            _globalData.status = ClooverRaffleDataTypes.ClooverRaffleStatus.DEFAULT;
+            lifeCycleData.status = ClooverRaffleDataTypes.RaffleStatus.DEFAULT;
+            
         } else {
-            _globalData.winningTicketNumber =
-                (randomNumbers[0] % _globalData.ticketSupply) +
-                1;
-            _globalData.status = ClooverRaffleDataTypes
-                .ClooverRaffleStatus
-                .DRAWN;
-            emit WinningTicketDrawned(_globalData.winningTicketNumber);
+            uint16 winningTicketNumber = uint16((randomNumbers[0] % currentSupply()) + 1);
+            lifeCycleData.winningTicketNumber = winningTicketNumber;
+            lifeCycleData.status = ClooverRaffleDataTypes.RaffleStatus.DRAWN;
+
+            emit WinningTicketDrawn(winningTicketNumber);
         }
+        emit RaffleStatus(lifeCycleData.status);
     }
 
     /// @inheritdoc IClooverRaffle
     function creatorClaimTicketSales()
         external
         override
-        ticketSalesClose
         winningTicketDrawn
         onlyCreator
     {
-        if (_globalData.isEthTokenSales) revert Errors.IS_ETH_RAFFLE();
+        if (isEthRaffle()) revert Errors.IS_ETH_RAFFLE();
+        IERC20 _purchaseCurrency = config.purchaseCurrency;
+        IImplementationManager _implementationManager = config.implementationManager;
+        
         uint256 insuranceCost = insurancePaid();
-        uint256 totalBalance = _globalData.purchaseCurrency.balanceOf(
-            address(this)
-        );
+        uint256 totalBalance = _purchaseCurrency.balanceOf(address(this));
         uint256 ticketSalesAmount = totalBalance - insuranceCost;
+        
         (
             uint256 creatorAmount,
             uint256 protocolFees,
             uint256 royaltiesAmount
         ) = _calculateAmountToTransfer(ticketSalesAmount);
-        _globalData.purchaseCurrency.transfer(
-            _globalData.implementationManager.getImplementationAddress(
+        
+        _purchaseCurrency.transfer(
+            _implementationManager.getImplementationAddress(
                 ImplementationInterfaceNames.Treasury
             ),
             protocolFees
         );
+        
         if(royaltiesAmount > 0){
-            _globalData.purchaseCurrency.transfer(
+            _purchaseCurrency.transfer(
                 INFTCollectionWhitelist(
-                    _globalData.implementationManager.getImplementationAddress(
+                    _implementationManager.getImplementationAddress(
                         ImplementationInterfaceNames.NFTWhitelist
                     )
-                ).getCollectionCreator(address(_globalData.nftContract)),
+                ).getCollectionCreator(address(config.nftContract)),
                 royaltiesAmount
             );
         }
+        
         uint256 totalClaimableAmount = insuranceCost + creatorAmount;
-        _globalData.purchaseCurrency.transfer(msg.sender, totalClaimableAmount);
-        emit CreatorClaimedTicketSalesAmount(
+        _purchaseCurrency.transfer(msg.sender, totalClaimableAmount);
+        
+        emit CreatorClaimed(
             msg.sender,
             totalClaimableAmount,
             protocolFees,
@@ -264,38 +269,44 @@ contract ClooverRaffle is IClooverRaffle, Initializable {
     function creatorClaimTicketSalesInEth()
         external
         override
-        ticketSalesClose
         winningTicketDrawn
         onlyCreator
     {
-        if (!_globalData.isEthTokenSales) revert Errors.NOT_ETH_RAFFLE();
+        if (!isEthRaffle()) revert Errors.NOT_ETH_RAFFLE();
+        IImplementationManager _implementationManager = config.implementationManager;
+        
         uint256 insuranceCost = insurancePaid();
         uint256 totalBalance = address(this).balance;
         uint256 ticketSalesAmount = totalBalance - insuranceCost;
+        
         (
             uint256 creatorAmount,
             uint256 protocolFees,
             uint256 royaltiesAmount
         ) = _calculateAmountToTransfer(ticketSalesAmount);
+
         _safeTransferETH(
-            _globalData.implementationManager.getImplementationAddress(
+            _implementationManager.getImplementationAddress(
                 ImplementationInterfaceNames.Treasury
             ),
             protocolFees
         );
+
         if(royaltiesAmount > 0){
             _safeTransferETH(
                 INFTCollectionWhitelist(
-                    _globalData.implementationManager.getImplementationAddress(
+                   _implementationManager.getImplementationAddress(
                         ImplementationInterfaceNames.NFTWhitelist
                     )
-                ).getCollectionCreator(address(_globalData.nftContract)),
+                ).getCollectionCreator(address(config.nftContract)),
                 royaltiesAmount
             );
         }
+        
         uint256 totalClaimableAmount = insuranceCost + creatorAmount;
         _safeTransferETH(msg.sender, totalClaimableAmount);
-        emit CreatorClaimedTicketSalesAmount(
+        
+        emit CreatorClaimed(
             msg.sender,
             totalClaimableAmount,
             protocolFees,
@@ -304,42 +315,30 @@ contract ClooverRaffle is IClooverRaffle, Initializable {
     }
 
     /// @inheritdoc IClooverRaffle
-    function winnerClaim() external override ticketSalesClose winningTicketDrawn {
+    function winnerClaim() external override winningTicketDrawn {
         if (msg.sender != winnerAddress())
             revert Errors.MSG_SENDER_NOT_WINNER();
-        _globalData.nftContract.safeTransferFrom(
+        config.nftContract.safeTransferFrom(
             address(this),
             msg.sender,
-            _globalData.nftId
+            config.nftId
         );
-        emit WinnerClaimedPrice(
-            msg.sender,
-            address(_globalData.nftContract),
-            _globalData.nftId
-        );
+        emit WinnerClaimed(msg.sender);
     }
 
     /// @inheritdoc IClooverRaffle
     function userClaimRefund()
         external
         override
-        ticketSalesClose
+        ticketSalesOver
         ticketHasNotBeDrawn
     {
-        if (_globalData.isEthTokenSales) revert Errors.IS_ETH_RAFFLE();
-        if (_globalData.ticketSupply >= _globalData.minTicketSalesInsurance)
-            revert Errors.SALES_EXCEED_INSURANCE_LIMIT();
-        if (_hasUserClaimedRefund[msg.sender]) revert Errors.ALREADY_CLAIMED();
-        _hasUserClaimedRefund[msg.sender] = true;
-        uint256 amountOfTicketPurchased = balanceOf(msg.sender).length;
-        if (amountOfTicketPurchased == 0) revert Errors.NOTHING_TO_CLAIM();
-        uint256 totalRefundAmount = _calculateTicketsCost(
-            amountOfTicketPurchased
-        ) + _calculateUserInsurancePart(amountOfTicketPurchased);
-        _globalData.purchaseCurrency.transfer(
-            msg.sender,
-            totalRefundAmount
-        );
+        if (isEthRaffle()) revert Errors.IS_ETH_RAFFLE();
+
+        uint256 totalRefundAmount = _calculateUserRefundAmount();
+
+        config.purchaseCurrency.transfer(msg.sender, totalRefundAmount);
+
         emit UserClaimedRefund(msg.sender, totalRefundAmount);
     }
 
@@ -347,20 +346,15 @@ contract ClooverRaffle is IClooverRaffle, Initializable {
     function userClaimRefundInEth()
         external
         override
-        ticketSalesClose
+        ticketSalesOver
         ticketHasNotBeDrawn
     {
-        if (!_globalData.isEthTokenSales) revert Errors.NOT_ETH_RAFFLE();
-        if (_globalData.ticketSupply >= _globalData.minTicketSalesInsurance)
-            revert Errors.SALES_EXCEED_INSURANCE_LIMIT();
-        if (_hasUserClaimedRefund[msg.sender]) revert Errors.ALREADY_CLAIMED();
-        _hasUserClaimedRefund[msg.sender] = true;
-        uint256 amountOfTicketPurchased = balanceOf(msg.sender).length;
-        if (amountOfTicketPurchased == 0) revert Errors.NOTHING_TO_CLAIM();
-        uint256 totalRefundAmount = _calculateTicketsCost(
-            amountOfTicketPurchased
-        ) + _calculateUserInsurancePart(amountOfTicketPurchased);
+        if (!isEthRaffle()) revert Errors.NOT_ETH_RAFFLE();
+        
+        uint256 totalRefundAmount = _calculateUserRefundAmount();
+
         _safeTransferETH(msg.sender, totalRefundAmount);       
+        
         emit UserClaimedRefund(msg.sender, totalRefundAmount);
     }
 
@@ -368,128 +362,132 @@ contract ClooverRaffle is IClooverRaffle, Initializable {
     function creatorClaimInsurance()
         external
         override
-        ticketSalesClose
+        ticketSalesOver
         ticketHasNotBeDrawn
         onlyCreator
     {
-        if(_globalData.isEthTokenSales) revert Errors.IS_ETH_RAFFLE();
-        if(_globalData.minTicketSalesInsurance == 0) revert Errors.NO_INSURANCE_TAKEN();
-        if(_globalData.ticketSupply == 0) revert Errors.NOTHING_TO_CLAIM();
+        if (isEthRaffle()) revert Errors.IS_ETH_RAFFLE();
+        uint16 _ticketSalesInsurance = config.ticketSalesInsurance;  
+        if(_ticketSalesInsurance == 0) revert Errors.NO_INSURANCE_TAKEN();
+        uint16 _currentSupply = currentSupply();
+        if(_currentSupply == 0) revert Errors.NOTHING_TO_CLAIM();
         
-        if (_globalData.ticketSupply >= _globalData.minTicketSalesInsurance)
+        if (_currentSupply >= _ticketSalesInsurance)
             revert Errors.SALES_EXCEED_INSURANCE_LIMIT();
         
-        _globalData.status = ClooverRaffleDataTypes.ClooverRaffleStatus.INSURANCE;
+        lifeCycleData.status = ClooverRaffleDataTypes.RaffleStatus.INSURANCE;
         
         (uint256 protocolFees, ) = _calculateInsuranceSplit();
-        address treasuryAddress = _globalData
+        address treasuryAddress = config
             .implementationManager
             .getImplementationAddress(ImplementationInterfaceNames.Treasury);
-        _globalData.purchaseCurrency.transfer(
+        config.purchaseCurrency.transfer(
             treasuryAddress,
             protocolFees
         );
 
-        _globalData.nftContract.safeTransferFrom(
+        config.nftContract.safeTransferFrom(
             address(this),
             creator(),
-            _globalData.nftId
+            config.nftId
         );
-        emit CreatorClaimedInsurance(creator());
+        emit CreatorClaimedInsurance(msg.sender);
     }
       
     /// @inheritdoc IClooverRaffle
     function creatorClaimInsuranceInEth()
         external
         override
-        ticketSalesClose
+        ticketSalesOver
         ticketHasNotBeDrawn
         onlyCreator
     {
-        if (!_globalData.isEthTokenSales) revert Errors.NOT_ETH_RAFFLE();  
-        if(_globalData.minTicketSalesInsurance == 0) revert Errors.NO_INSURANCE_TAKEN();
-        if(_globalData.ticketSupply == 0) revert Errors.NOTHING_TO_CLAIM();
+        if (!isEthRaffle()) revert Errors.NOT_ETH_RAFFLE();
+        uint16 _ticketSalesInsurance = config.ticketSalesInsurance;  
+        if(_ticketSalesInsurance == 0) revert Errors.NO_INSURANCE_TAKEN();
+        uint16 _currentSupply = currentSupply();
+        if(_currentSupply == 0) revert Errors.NOTHING_TO_CLAIM();
         
-        if (_globalData.ticketSupply >= _globalData.minTicketSalesInsurance)
-                revert Errors.SALES_EXCEED_INSURANCE_LIMIT();
+        if (_currentSupply >= _ticketSalesInsurance)
+            revert Errors.SALES_EXCEED_INSURANCE_LIMIT();
         
-        _globalData.status = ClooverRaffleDataTypes.ClooverRaffleStatus.INSURANCE;
+        lifeCycleData.status = ClooverRaffleDataTypes.RaffleStatus.INSURANCE;
                 
         (uint256 protocolFees, ) = _calculateInsuranceSplit();
-        address treasuryAddress = _globalData
+        address treasuryAddress = config
             .implementationManager
             .getImplementationAddress(ImplementationInterfaceNames.Treasury);
         _safeTransferETH(treasuryAddress, protocolFees);
 
-        _globalData.nftContract.safeTransferFrom(
+        config.nftContract.safeTransferFrom(
             address(this),
             creator(),
-            _globalData.nftId
+            config.nftId
         );
-        emit CreatorClaimedInsurance(creator());
+        emit CreatorClaimedInsurance(msg.sender);
     }
 
     /// @inheritdoc IClooverRaffle
-    function cancelClooverRaffle() external override onlyCreator {
-        if(_globalData.ticketSupply > 0)
-                revert Errors.SALES_ALREADY_STARTED();
+    function cancelRaffle() external override onlyCreator {
+        if(currentSupply() > 0) revert Errors.SALES_ALREADY_STARTED();
 
         IClooverRaffleFactory(
-            _globalData.implementationManager.getImplementationAddress(
+            config.implementationManager.getImplementationAddress(
                 ImplementationInterfaceNames.ClooverRaffleFactory
             )
         ).deregisterClooverRaffle();
             
-        if(_globalData.minTicketSalesInsurance > 0){
-            if(_globalData.isEthTokenSales) {
+        if(config.ticketSalesInsurance > 0){
+            if(isEthRaffle()) {
                 _safeTransferETH(
                     creator(),
                     insurancePaid()
                 );
             } else {
-                _globalData.purchaseCurrency.transfer(
+                config.purchaseCurrency.transfer(
                     creator(),
                     insurancePaid()
                 );
             }
         }
         
-        _globalData.nftContract.safeTransferFrom(
+        config.nftContract.safeTransferFrom(
             address(this),
             creator(),
-            _globalData.nftId
+            config.nftId
         );
-        emit ClooverRaffleCancelled(creator());
+        emit RaffleCancelled(msg.sender);
+        emit RaffleStatus(lifeCycleData.status);
     }
 
     /// @inheritdoc IClooverRaffle
-    function totalSupply() public view override returns (uint256) {
-        return _globalData.ticketSupply;
+    function maxTotalSupply() public view override returns (uint16) {
+        return config.maxTotalSupply;
     }
 
     /// @inheritdoc IClooverRaffle
-    function maxSupply() public view override returns (uint256) {
-        return _globalData.maxTicketSupply;
+    function currentSupply() public view override returns (uint16) {
+        return lifeCycleData.currentSupply;
     }
 
     /// @inheritdoc IClooverRaffle
     function creator() public view override returns (address) {
-        return _globalData.creator;
+        return config.creator;
     }
 
     /// @inheritdoc IClooverRaffle
     function purchaseCurrency() public view override returns (IERC20) {
-        return _globalData.purchaseCurrency;
+        return config.purchaseCurrency;
     }
 
     /// @inheritdoc IClooverRaffle
     function ticketPrice() public view override returns (uint256) {
-        return _globalData.ticketPrice;
+        return config.ticketPrice;
     }
 
     /// @inheritdoc IClooverRaffle
     function endTicketSales() public view override returns (uint64) {
-        return _globalData.endTicketSales;
+        return config.endTicketSales;
     }
 
     /// @inheritdoc IClooverRaffle
@@ -497,11 +495,10 @@ contract ClooverRaffle is IClooverRaffle, Initializable {
         public
         view
         override
-        ticketSalesClose
         winningTicketDrawn
-        returns (uint256)
+        returns (uint16)
     {
-        return _globalData.winningTicketNumber;
+        return lifeCycleData.winningTicketNumber;
     }
 
     /// @inheritdoc IClooverRaffle
@@ -509,11 +506,12 @@ contract ClooverRaffle is IClooverRaffle, Initializable {
         public
         view
         override
-        ticketSalesClose
+        ticketSalesOver
         winningTicketDrawn
         returns (address)
     {
-        return _ticketOwner[_globalData.winningTicketNumber];
+        uint256 index = findUpperBound(purchasedEntries, lifeCycleData.winningTicketNumber);
+        return purchasedEntries[index].owner;
     }
 
     /// @inheritdoc IClooverRaffle
@@ -523,7 +521,7 @@ contract ClooverRaffle is IClooverRaffle, Initializable {
         override
         returns (IERC721 nftContractAddress, uint256 nftId)
     {
-        return (_globalData.nftContract, _globalData.nftId);
+        return (config.nftContract, config.nftId);
     }
 
     /// @inheritdoc IClooverRaffle
@@ -531,48 +529,68 @@ contract ClooverRaffle is IClooverRaffle, Initializable {
         public
         view
         override
-        returns (ClooverRaffleDataTypes.ClooverRaffleStatus)
+        returns (ClooverRaffleDataTypes.RaffleStatus)
     {
-        return _globalData.status;
+        return lifeCycleData.status;
+    }
+
+
+    /// @inheritdoc IClooverRaffle
+    function balanceOf(address user) public view override returns (uint16[] memory) {
+        if(user == address(0)) return new uint16[](0);
+
+        ClooverRaffleDataTypes.ParticipantInfo memory participantInfo = participantInfoMap[user];
+        if(participantInfo.nbOfTicketsPurchased == 0) return new uint16[](0);
+
+        ClooverRaffleDataTypes.PurchasedEntries[] memory _purchasedEntries = purchasedEntries;
+       
+        uint16[] memory userTickets = new uint16[](participantInfo.nbOfTicketsPurchased);
+        uint16 entriesLength = uint16(participantInfo.purchasedEntriesIndexes.length);
+        for(uint16 i; i < entriesLength; ) {
+            uint16 entryIndex = participantInfo.purchasedEntriesIndexes[i];
+            uint16 nbOfTicketsPurchased = _purchasedEntries[entryIndex].nbOfTickets;
+            uint16 startNumber = _purchasedEntries[entryIndex].currentTicketsSold - nbOfTicketsPurchased;
+            for(uint16 j; j < nbOfTicketsPurchased; ){
+                userTickets[i+j] = startNumber + j;
+                unchecked {
+                    ++j;
+                }
+            }
+            unchecked {
+                ++i;
+            }
+        }
+        return userTickets;
     }
 
     /// @inheritdoc IClooverRaffle
-    function balanceOf(
-        address user
-    ) public view override returns (uint256[] memory) {
-        return _ownerTickets[user];
-    }
+    function ownerOf(uint16 id) public view override returns (address) {
+        if(id > currentSupply() || id == 0) return address(0);
 
-    /// @inheritdoc IClooverRaffle
-    function ownerOf(uint256 id) public view override returns (address) {
-        return _ticketOwner[id];
+        uint16 index = uint16(findUpperBound(purchasedEntries, id));
+        return purchasedEntries[index].owner;
     }
 
     /// @inheritdoc IClooverRaffle
     function randomProvider() public view override returns (address) {
         return
-            _globalData.implementationManager.getImplementationAddress(
+            config.implementationManager.getImplementationAddress(
                 ImplementationInterfaceNames.RandomProvider
             );
     }
 
     /// @inheritdoc IClooverRaffle
-    function isEthTokenSales() public view override returns (bool) {
-        return _globalData.isEthTokenSales;
+    function isEthRaffle() public view override returns (bool) {
+        return config.isEthRaffle;
     }
 
     function insurancePaid() public view returns (uint256) {
-        if (_globalData.minTicketSalesInsurance == 0) return 0;
-        IConfigManager configManager = IConfigManager(
-            _globalData.implementationManager.getImplementationAddress(
-                ImplementationInterfaceNames.ConfigManager
-            )
-        );
+        if (config.ticketSalesInsurance == 0) return 0;
         return
             _calculateInsuranceCost(
-                _globalData.minTicketSalesInsurance,
-                _globalData.ticketPrice,
-                configManager.insuranceSalesPercentage()
+                uint256(config.ticketSalesInsurance),
+                config.ticketPrice,
+                uint256(config.insuranceRate)
             );
     }
 
@@ -589,59 +607,89 @@ contract ClooverRaffle is IClooverRaffle, Initializable {
      * @param params the struct data use for initialization
      */
     function _checkData(
-        ClooverRaffleDataTypes.InitClooverRaffleParams memory params
-    ) internal returns(uint256,uint256) {
+        ClooverRaffleDataTypes.InitializeRaffleParams memory params
+    ) internal returns(uint16, uint16, bool) {
         if (address(params.implementationManager) == address(0))
             revert Errors.NOT_ADDRESS_0();
-        if (!params.isEthTokenSales) {
-            if (!_getTokenWhitelist(params.implementationManager).isWhitelisted(
-                    address(params.purchaseCurrency)))
+        {
+            INFTCollectionWhitelist nftWhitelist = INFTCollectionWhitelist(params
+                .implementationManager
+                .getImplementationAddress(
+                    ImplementationInterfaceNames.NFTWhitelist
+                ));
+            if (!nftWhitelist.isWhitelisted(address(params.nftContract))) 
+                revert Errors.COLLECTION_NOT_WHITELISTED();
+        }
+        address purchaseCurrencyAddress = address(params.purchaseCurrency);
+        bool _isEthRaffle = purchaseCurrencyAddress == address(0);
+        if (!_isEthRaffle) {
+            ITokenWhitelist tokenWhitelist = ITokenWhitelist(params.implementationManager.getImplementationAddress(ImplementationInterfaceNames.TokenWhitelist));
+            if (!tokenWhitelist.isWhitelisted(purchaseCurrencyAddress))
                 revert Errors.TOKEN_NOT_WHITELISTED();
         }
-        address nftWhitelist = params
-            .implementationManager
-            .getImplementationAddress(
-                ImplementationInterfaceNames.NFTWhitelist
-            );
-        if (
-            !INFTCollectionWhitelist(nftWhitelist).isWhitelisted(
-                address(params.nftContract)
-            )
-        ) revert Errors.COLLECTION_NOT_WHITELISTED();
+
         if (params.ticketPrice == 0) revert Errors.CANT_BE_ZERO();
-        if (params.maxTicketSupply == 0) revert Errors.CANT_BE_ZERO();
+
+        uint256 _maxTotalSupply = params.maxTotalSupply;
+        if (_maxTotalSupply == 0) revert Errors.CANT_BE_ZERO();
         IConfigManager configManager = IConfigManager(
             params.implementationManager.getImplementationAddress(
                 ImplementationInterfaceNames.ConfigManager
             )
         );
-        if (params.maxTicketSupply > configManager.maxTicketSupplyAllowed())
+        if (_maxTotalSupply > configManager.maxTotalSupplyAllowed())
             revert Errors.EXCEED_MAX_VALUE_ALLOWED();
+
         (uint256 minDuration, uint256 maxDuration) = configManager
             .ticketSalesDurationLimits();
-        uint256 ticketSaleDuration = params.ticketSaleDuration;
+        uint64 ticketSaleDuration = params.ticketSalesDuration;
         if (
             ticketSaleDuration < minDuration || ticketSaleDuration > maxDuration
         ) revert Errors.OUT_OF_RANGE();
-        uint _insuranceSalesPercentage;
-        if (params.minTicketSalesInsurance > 0) {
-            _insuranceSalesPercentage = configManager.insuranceSalesPercentage();
+
+        uint256 _insuranceRate;
+        uint16 ticketSalesInsurance = params.ticketSalesInsurance;
+        if (ticketSalesInsurance > 0) {
+            _insuranceRate = configManager.insuranceRate();
             uint256 insuranceCost = _calculateInsuranceCost(
-                params.minTicketSalesInsurance,
+                ticketSalesInsurance,
                 params.ticketPrice,
-                _insuranceSalesPercentage
+                _insuranceRate
             );
-            if (params.isEthTokenSales) {
-                if (params.isEthTokenSales && msg.value != insuranceCost)
+            if (_isEthRaffle) {
+                if (msg.value != insuranceCost)
                     revert Errors.INSURANCE_AMOUNT();
             } else {
                 if(params.purchaseCurrency.balanceOf(address(this)) != insuranceCost)
                     revert Errors.INSURANCE_AMOUNT();
             }
         }
-        if(params.royaltiesPercentage > PercentageMath.PERCENTAGE_FACTOR) revert Errors.EXCEED_MAX_PERCENTAGE();
-        uint256 _protocolFeesPercentage = configManager.protocolFeesPercentage();
-        return(_insuranceSalesPercentage, _protocolFeesPercentage);
+        if(params.royaltiesRate > PercentageMath.PERCENTAGE_FACTOR) revert Errors.EXCEED_MAX_PERCENTAGE();
+        uint256 _protocolFeeRate = configManager.protocolFeeRate();
+        return(uint16(_insuranceRate), uint16(_protocolFeeRate), _isEthRaffle);
+    }
+
+   /**
+     * @notice attribute ticket to msg.sender
+     * @param nbOfTickets the amount of ticket that the msg.sender to purchasing
+     */
+    function _purchaseTicket(
+        uint16 nbOfTickets
+    ) internal {
+        uint16 purchasedEntriesIndex = uint16(purchasedEntries.length);
+        uint16 currentTicketsSold = lifeCycleData.currentSupply + nbOfTickets;
+
+        ClooverRaffleDataTypes.PurchasedEntries memory entryPurchase = ClooverRaffleDataTypes.PurchasedEntries({
+            owner: msg.sender,
+            currentTicketsSold: currentTicketsSold + 1,
+            nbOfTickets: nbOfTickets
+        });
+        purchasedEntries.push(entryPurchase);
+
+        participantInfoMap[msg.sender].nbOfTicketsPurchased += nbOfTickets;
+        participantInfoMap[msg.sender].purchasedEntriesIndexes.push(purchasedEntriesIndex);
+
+        lifeCycleData.currentSupply = currentTicketsSold;
     }
 
     /**
@@ -651,48 +699,47 @@ contract ClooverRaffle is IClooverRaffle, Initializable {
     function _calculateTicketsCost(
         uint256 nbOfTickets
     ) internal view returns (uint256 amountPrice) {
-        amountPrice = _globalData.ticketPrice * nbOfTickets;
+        amountPrice = config.ticketPrice * nbOfTickets;
+    }
+
+    /// https://docs.openzeppelin.com/contracts/3.x/api/utils#Arrays-findUpperBound-uint256---uint256-
+    function findUpperBound(ClooverRaffleDataTypes.PurchasedEntries[] memory array, uint256 ticketNumberToSearch) internal pure returns (uint256) {
+        if (array.length == 0) return 0;
+
+        uint256 low = 0;
+        uint256 high = array.length;
+
+        while (low < high) {
+            uint256 mid = Math.average(low, high);
+            if (array[mid].currentTicketsSold > ticketNumberToSearch) {
+                high = mid;
+            } else {
+                low = mid + 1;
+            }
+        }
+
+        if (low > 0 && array[low - 1].currentTicketsSold == ticketNumberToSearch) {
+            return low - 1;
+        } else {
+            return low;
+        }
     }
 
     /**
      * @notice calculate the amount in insurance creator paid
-     * @param minTicketSalesInsurance is the amount of ticket cover by the insurance
+     * @param ticketSalesInsurance is the amount of ticket cover by the insurance
      * @param ticketCost is the price of one ticket
-     * @param insurancePercentage is the percentage that the creator has to pay as insurance
-     * @return insuranceAmount the total cost
+     * @param insuranceRate is the percentage that the creator has to pay as insurance
+     * @return insuranceCost the total cost
      */
     function _calculateInsuranceCost(
-        uint256 minTicketSalesInsurance,
+        uint256 ticketSalesInsurance,
         uint256 ticketCost,
-        uint256 insurancePercentage
-    ) internal pure returns (uint256 insuranceAmount) {
-        insuranceAmount = (minTicketSalesInsurance * ticketCost).percentMul(
-            insurancePercentage
+        uint256 insuranceRate
+    ) internal pure returns (uint256 insuranceCost) {
+        insuranceCost = (ticketSalesInsurance * ticketCost).percentMul(
+            insuranceRate
         );
-    }
-
-    /**
-     * @notice attribute ticket to msg.sender
-     * @param nbOfTickets the amount of ticket that the msg.sender to purchasing
-     * @return ticketsPurchased the list of tickets purchased by the msg.sender
-     */
-    function _purchaseTicket(
-        uint256 nbOfTickets
-    ) internal returns (uint256[] memory ticketsPurchased) {
-        uint256[] storage ownerTickets = _ownerTickets[msg.sender];
-        uint256 ticketNumber = _globalData.ticketSupply;
-
-        ticketsPurchased = new uint256[](nbOfTickets);
-        for (uint i; i < nbOfTickets; ) {
-            unchecked {
-                ++ticketNumber;
-                ticketsPurchased[i] = ticketNumber;
-                ownerTickets.push(ticketNumber);
-                _ticketOwner[ticketNumber] = msg.sender;
-                ++i;
-            }
-        }
-        _globalData.ticketSupply = ticketNumber;
     }
 
     function _calculateAmountToTransfer(
@@ -700,15 +747,28 @@ contract ClooverRaffle is IClooverRaffle, Initializable {
     )
         internal
         view
-        returns (uint256 creatorAmount, uint256 protocolFees, uint256 royaltiesAmount)
+        returns (uint256 creatorAmount, uint256 protocolFeesAmount, uint256 royaltiesAmount)
     {
-        protocolFees = ticketSalesAmount.percentMul(
-            _globalData.protocolFeesPercentage
+        protocolFeesAmount = ticketSalesAmount.percentMul(
+            uint256(config.protocolFeeRate)
         );
         royaltiesAmount = ticketSalesAmount.percentMul(
-            _globalData.royaltiesPercentage
+            uint256(config.royaltiesRate)
         );
-        creatorAmount = ticketSalesAmount - protocolFees - royaltiesAmount;
+        creatorAmount = ticketSalesAmount - protocolFeesAmount - royaltiesAmount;
+    }
+
+    function _calculateUserRefundAmount() internal returns(uint256 totalRefundAmount) {
+        if (currentSupply() >= config.ticketSalesInsurance) revert Errors.SALES_EXCEED_INSURANCE_LIMIT();
+        
+        ClooverRaffleDataTypes.ParticipantInfo memory participantInfo = participantInfoMap[msg.sender];
+        if (participantInfo.hasClaimedRefund) revert Errors.ALREADY_CLAIMED();
+        participantInfoMap[msg.sender].hasClaimedRefund = true;
+        
+        uint256 nbOfTicketPurchased = participantInfo.nbOfTicketsPurchased;
+        if (nbOfTicketPurchased == 0) revert Errors.NOTHING_TO_CLAIM();
+
+        totalRefundAmount = _calculateTicketsCost(nbOfTicketPurchased) + _calculateUserInsurancePart(nbOfTicketPurchased);
     }
 
     function _calculateUserInsurancePart(
@@ -721,22 +781,20 @@ contract ClooverRaffle is IClooverRaffle, Initializable {
     function _calculateInsuranceSplit()
         internal
         view
-        returns (uint256 treasuryAmount, uint256 insurancePartPerTicket)
+        returns (uint256 protocolFeeAmount, uint256 insurancePartPerTicket)
     {
         uint256 insuranceCost = _calculateInsuranceCost(
-            _globalData.minTicketSalesInsurance,
-            _globalData.ticketPrice,
-            _globalData.insuranceSalesPercentage
+            uint256(config.ticketSalesInsurance),
+            config.ticketPrice,
+            uint256(config.insuranceRate)
         );
 
-        treasuryAmount = insuranceCost.percentMul(_globalData.protocolFeesPercentage);
+        protocolFeeAmount = insuranceCost.percentMul(uint256(config.protocolFeeRate));
 
-        insurancePartPerTicket = (insuranceCost - treasuryAmount) / _globalData.ticketSupply;
+        uint256 _currentSupply = currentSupply();
+        insurancePartPerTicket = (insuranceCost - protocolFeeAmount) / _currentSupply;
         //Avoid dust
-        treasuryAmount =
-            insuranceCost -
-            insurancePartPerTicket *
-            _globalData.ticketSupply;
+        protocolFeeAmount = insuranceCost - insurancePartPerTicket * _currentSupply;
     }
 
     /**
@@ -749,8 +807,4 @@ contract ClooverRaffle is IClooverRaffle, Initializable {
         if (!success) revert Errors.TRANSFER_FAIL();
     }
 
-    function _getTokenWhitelist(IImplementationManager _implementationManager) internal view returns(ITokenWhitelist){
-        address tokenWhitelist = _implementationManager.getImplementationAddress(ImplementationInterfaceNames.TokenWhitelist);
-        return ITokenWhitelist(tokenWhitelist);
-    }
 }

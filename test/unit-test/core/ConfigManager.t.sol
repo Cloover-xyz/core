@@ -9,7 +9,7 @@ import {AccessController} from "../../../src/core/AccessController.sol";
 import {ImplementationManager} from "../../../src/core/ImplementationManager.sol";
 import {ConfigManager} from "../../../src/core/ConfigManager.sol";
 
-import {ConfiguratorInputTypes} from "../../../src/libraries/types/ConfiguratorInputTypes.sol";
+import {ConfigManagerDataTypes} from "../../../src/libraries/types/ConfigManagerDataTypes.sol";
 
 import {Errors} from "../../../src/libraries/helpers/Errors.sol";
 import {ImplementationInterfaceNames} from "../../../src/libraries/helpers/ImplementationInterfaceNames.sol";
@@ -21,11 +21,11 @@ contract ConfigManagerTest is Test, SetupUsers {
     ImplementationManager implementationManager;
     ConfigManager configManager;
 
-    uint256 baseFeePercentage = 1e2; // 1%
-    uint256 baseInsuranceSalePercentage = 5e2; // 5%
-    uint256 baseMaxTicketSupplyAllowed = 10000; 
-    uint256 baseMinTicketSaleDuration = 86400; // 1 days
-    uint256 baseMaxTicketSaleDuration = 8 weeks; // 2 months
+    uint16 protocolFeeRate = 1e2; // 1%
+    uint16 insuranceRate = 5e2; // 5%
+    uint16 maxTotalSupplyAllowed = 10000; 
+    uint64 minTicketSalesDuration = 86400; // 1 days
+    uint64 maxTicketSalesDuration = 8 weeks; // 2 months
 
     function setUp() public virtual override {
         SetupUsers.setUp(); 
@@ -34,12 +34,12 @@ contract ConfigManagerTest is Test, SetupUsers {
         accessController = new AccessController(maintainer);
         implementationManager = new ImplementationManager(address(accessController));
 
-        ConfiguratorInputTypes.InitConfigManagerInput memory data = ConfiguratorInputTypes.InitConfigManagerInput(
-            baseFeePercentage,
-            baseMaxTicketSupplyAllowed,
-            baseMinTicketSaleDuration,
-            baseMaxTicketSaleDuration,
-            baseInsuranceSalePercentage
+        ConfigManagerDataTypes.InitConfigManagerParams memory data = ConfigManagerDataTypes.InitConfigManagerParams(
+            maxTotalSupplyAllowed,
+            protocolFeeRate,
+            insuranceRate,
+            minTicketSalesDuration,
+            maxTicketSalesDuration
         );
         configManager = new ConfigManager(implementationManager, data);
 
@@ -50,166 +50,161 @@ contract ConfigManagerTest is Test, SetupUsers {
         );
     }
 
-    function test_ContractInitialization() external {
+    function test_Deployment() external {
         assertEq(address(configManager.implementationManager()), address(implementationManager));
         assertEq(implementationManager.getImplementationAddress(ImplementationInterfaceNames.ConfigManager), address(configManager));
-        assertEq(configManager.protocolFeesPercentage(), baseFeePercentage);
-        assertEq(configManager.minTicketSalesDuration(), baseMinTicketSaleDuration);
-        assertEq(configManager.maxTicketSalesDuration(), baseMaxTicketSaleDuration);
-        assertEq(configManager.maxTicketSupplyAllowed(), baseMaxTicketSupplyAllowed);
+        assertEq(configManager.protocolFeeRate(), protocolFeeRate);
+        assertEq(configManager.minTicketSalesDuration(), minTicketSalesDuration);
+        assertEq(configManager.maxTicketSalesDuration(), maxTicketSalesDuration);
+        assertEq(configManager.maxTotalSupplyAllowed(), maxTotalSupplyAllowed);
         (uint256 min, uint256 max) = configManager.ticketSalesDurationLimits();
-        assertEq(min, baseMinTicketSaleDuration);
-        assertEq(max, baseMaxTicketSaleDuration);
+        assertEq(min, minTicketSalesDuration);
+        assertEq(max, maxTicketSalesDuration);
     }
     
-    function test_Deployment_RevertWhen_BaseFeePercentageExceed100Percent() external {
-        uint256 wrongBaseFeePercentage = 1.1e4; //110%
-        ConfiguratorInputTypes.InitConfigManagerInput memory data = ConfiguratorInputTypes.InitConfigManagerInput(
-            wrongBaseFeePercentage,
-            baseMaxTicketSupplyAllowed,
-            baseMinTicketSaleDuration,
-            baseMaxTicketSaleDuration,
-            baseInsuranceSalePercentage
+    function test_Deployment_RevertWhen_ProtocolFeeRateExceed100Percent() external {
+        ConfigManagerDataTypes.InitConfigManagerParams memory data = ConfigManagerDataTypes.InitConfigManagerParams(
+            maxTotalSupplyAllowed,
+            1.1e4, //110%
+            insuranceRate,
+            minTicketSalesDuration,
+            maxTicketSalesDuration
         );
         vm.expectRevert(Errors.EXCEED_MAX_PERCENTAGE.selector);
         configManager = new ConfigManager(implementationManager, data);
     }
 
-    function test_Deployment_RevertWhen_BaseInsurancePercentageExceed100Percent() external {
-        uint256 wrongBaseInsuranceSalePercentage = 1.1e4; //110%
-        ConfiguratorInputTypes.InitConfigManagerInput memory data = ConfiguratorInputTypes.InitConfigManagerInput(
-            baseFeePercentage,
-            baseMaxTicketSupplyAllowed,
-            baseMinTicketSaleDuration,
-            baseMaxTicketSaleDuration,
-            wrongBaseInsuranceSalePercentage
+    function test_Deployment_RevertWhen_InsuranceRateExceed100Percent() external {
+        ConfigManagerDataTypes.InitConfigManagerParams memory data = ConfigManagerDataTypes.InitConfigManagerParams(
+            maxTotalSupplyAllowed,
+            protocolFeeRate,
+            1.1e4, //110%
+            minTicketSalesDuration,
+            maxTicketSalesDuration
         );
         vm.expectRevert(Errors.EXCEED_MAX_PERCENTAGE.selector);
         configManager = new ConfigManager(implementationManager, data);
     }
 
     function test_Deployment_RevertWhen_MinDurationHigherThanMaxOne() external {
-        uint256 wrongMinDuration = baseMaxTicketSaleDuration * 2;
-        ConfiguratorInputTypes.InitConfigManagerInput memory data = ConfiguratorInputTypes.InitConfigManagerInput(
-            baseFeePercentage,
-            baseMaxTicketSupplyAllowed,
-            wrongMinDuration,
-            baseMaxTicketSaleDuration,
-            baseInsuranceSalePercentage
+        ConfigManagerDataTypes.InitConfigManagerParams memory data = ConfigManagerDataTypes.InitConfigManagerParams(
+            maxTotalSupplyAllowed,
+            protocolFeeRate,
+            insuranceRate,
+            maxTicketSalesDuration + 1,
+            maxTicketSalesDuration
         );
         vm.expectRevert(Errors.WRONG_DURATION_LIMITS.selector);
         configManager = new ConfigManager(implementationManager, data);
     }
 
     function test_Deployment_RevertWhen_MaxSupplyAllowedIsZero() external {
-        
-        ConfiguratorInputTypes.InitConfigManagerInput memory data = ConfiguratorInputTypes.InitConfigManagerInput(
-            baseFeePercentage,
+        ConfigManagerDataTypes.InitConfigManagerParams memory data = ConfigManagerDataTypes.InitConfigManagerParams(
             0,
-            baseMinTicketSaleDuration,
-            baseMaxTicketSaleDuration,
-            baseInsuranceSalePercentage
+            protocolFeeRate,
+            insuranceRate,
+            minTicketSalesDuration,
+            maxTicketSalesDuration
         );
         vm.expectRevert(Errors.CANT_BE_ZERO.selector);
         configManager = new ConfigManager(implementationManager, data);
     }
     
-    function test_SetProtocolFeePercentage() external{
+    function test_SetprotocolFeeRate() external{
         changePrank(maintainer);
-        uint256 newFeePercentage = 2.5e2; //2.5%
-        configManager.setProtocolFeesPercentage(newFeePercentage);
-        assertEq(configManager.protocolFeesPercentage(), newFeePercentage);
+        uint16 newprotocolFeeRate = 2.5e2; //2.5%
+        configManager.setProtocolFeeRate(newprotocolFeeRate);
+        assertEq(configManager.protocolFeeRate(), newprotocolFeeRate);
     }
 
-    function test_SetProtocolFeePercentage_RevertWhen_ValueExceed100Percent() external{
+    function test_SetprotocolFeeRate_RevertWhen_ValueExceed100Percent() external{
         changePrank(maintainer);
-        uint256 newFeePercentage = 1.1e4; //110%
         vm.expectRevert(Errors.EXCEED_MAX_PERCENTAGE.selector);
-        configManager.setProtocolFeesPercentage(newFeePercentage);
+        configManager.setProtocolFeeRate( 1.1e4); //110%
     }
 
-  function test_SetProtocolFeePercentage_RevertWhen_NotMaintainerCalling() external{
+  function test_SetprotocolFeeRate_RevertWhen_NotMaintainerCalling() external{
         changePrank(alice);
-        uint256 newFeePercentage = 2.5e2; //2.5%
+        uint16 newprotocolFeeRate = 2.5e2; //2.5%
         vm.expectRevert(Errors.NOT_MAINTAINER.selector);
-        configManager.setProtocolFeesPercentage(newFeePercentage);
+        configManager.setProtocolFeeRate(newprotocolFeeRate);
     }
 
-    function test_SetInsuranceSalesPercentage() external{
+    function test_setInsuranceRate() external{
         changePrank(maintainer);
-        uint256 newInsuranceSalePercentage = 2.5e2; //2.5%
-        configManager.setInsuranceSalesPercentage(newInsuranceSalePercentage);
-        assertEq(configManager.insuranceSalesPercentage(), newInsuranceSalePercentage);
+        uint16 newInsuranceRate = 2.5e2; //2.5%
+        configManager.setInsuranceRate(newInsuranceRate);
+        assertEq(configManager.insuranceRate(), newInsuranceRate);
     }
 
-    function test_SetInsuranceSalesPercentage_RevertWhen_ValueExceed100Percent() external{
+    function test_setInsuranceRate_RevertWhen_ValueExceed100Percent() external{
         changePrank(maintainer);
-        uint256 newInsuranceSalePercentage = 1.1e4; //110%
+        uint16 newInsuranceRate = 1.1e4; //110%
         vm.expectRevert(Errors.EXCEED_MAX_PERCENTAGE.selector);
-        configManager.setInsuranceSalesPercentage(newInsuranceSalePercentage);
+        configManager.setInsuranceRate(newInsuranceRate);
     }
 
-  function test_SetInsuranceSalesPercentage_RevertWhen_NotMaintainerCalling() external{
+  function test_setInsuranceRate_RevertWhen_NotMaintainerCalling() external{
         changePrank(alice);
-        uint256 newInsuranceSalePercentage = 2.5e2; //2.5%
+        uint16 newInsuranceRate = 2.5e2; //2.5%
         vm.expectRevert(Errors.NOT_MAINTAINER.selector);
-        configManager.setInsuranceSalesPercentage(newInsuranceSalePercentage);
+        configManager.setInsuranceRate(newInsuranceRate);
     }
 
   
     function test_SetMinTicketSalesDuration() external{
         changePrank(maintainer);
-        uint256 newMinTicketSalesDuration = 1 weeks;
+        uint64 newMinTicketSalesDuration = 1 weeks;
         configManager.setMinTicketSalesDuration(newMinTicketSalesDuration);
         assertEq(configManager.minTicketSalesDuration(), newMinTicketSalesDuration);
     }
 
     function test_SetMinTicketSalesDuration_RevertWhen_NotMaintainerCalling() external{
         changePrank(alice);
-        uint256 newMinTicketSalesDuration = 1 weeks;
+        uint64 newMinTicketSalesDuration = 1 weeks;
         vm.expectRevert(Errors.NOT_MAINTAINER.selector);
         configManager.setMinTicketSalesDuration(newMinTicketSalesDuration);
     }
 
     function test_SetMinTicketSalesDuration_RevertWhen_ValueIsHigherThanMaxDuration() external{
         changePrank(maintainer);
-        uint256 newMinTicketSalesDuration = baseMaxTicketSaleDuration * 2;
+        uint64 newMinTicketSalesDuration = maxTicketSalesDuration * 2;
         vm.expectRevert(Errors.WRONG_DURATION_LIMITS.selector);
         configManager.setMinTicketSalesDuration(newMinTicketSalesDuration);
     }
 
     function test_SetMaxTicketSalesDuration() external{
         changePrank(maintainer);
-        uint256 newMaxTicketSalesDuration = baseMaxTicketSaleDuration * 2;
+        uint64 newMaxTicketSalesDuration = maxTicketSalesDuration + 1;
         configManager.setMaxTicketSalesDuration(newMaxTicketSalesDuration);
         assertEq(configManager.maxTicketSalesDuration(), newMaxTicketSalesDuration);
     }
 
     function test_SetMaxTicketSalesDuration_RevertWhen_NotMaintainerCalling() external{
         changePrank(alice);
-        uint256 newMaxTicketSalesDuration = baseMaxTicketSaleDuration * 2;
+        uint64 newMaxTicketSalesDuration = maxTicketSalesDuration + 1;
         vm.expectRevert(Errors.NOT_MAINTAINER.selector);
         configManager.setMaxTicketSalesDuration(newMaxTicketSalesDuration);
     }
 
     function testSetMaxTicketSalesDuration_RevertWhen_ValueIsLowerThanMinDuration() external{
         changePrank(maintainer);
-        uint256 newMaxTicketSalesDuration = baseMinTicketSaleDuration - 10;
+        uint64 newMaxTicketSalesDuration = minTicketSalesDuration - 1;
         vm.expectRevert(Errors.WRONG_DURATION_LIMITS.selector);
         configManager.setMaxTicketSalesDuration(newMaxTicketSalesDuration);
     }
 
     function test_SetMaxTicketSupplyAllowed() external{
         changePrank(maintainer);
-        uint256 newMaxTicketSupplyAllowed = 20000;
-        configManager.setMaxTicketSupplyAllowed(newMaxTicketSupplyAllowed);
-        assertEq(configManager.maxTicketSupplyAllowed(), newMaxTicketSupplyAllowed);
+        uint16 newMaxTotalSupply = 20000;
+        configManager.setMaxTotalSupplyAllowed(newMaxTotalSupply);
+        assertEq(configManager.maxTotalSupplyAllowed(), newMaxTotalSupply);
     }
 
     function test_SetMaxTicketSupplyAllowed_RevertWhen_NotMaintainerCalling() external{
         changePrank(alice);
-         uint256 newMaxTicketSupplyAllowed = 20000;
+        uint16 newMaxTotalSupply = 20000;
         vm.expectRevert(Errors.NOT_MAINTAINER.selector);
-        configManager.setMaxTicketSupplyAllowed(newMaxTicketSupplyAllowed);
+        configManager.setMaxTotalSupplyAllowed(newMaxTotalSupply);
     }
 }

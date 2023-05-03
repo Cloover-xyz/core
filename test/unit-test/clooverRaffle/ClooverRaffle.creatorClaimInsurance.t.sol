@@ -31,16 +31,16 @@ contract CreatorClaimInsuranceClooverRaffleTest is Test, SetupClooverRaffles {
 
     function test_CreatorClaimInsurance() external {
         changePrank(bob);
-        mockERC20.approve(address(tokenClooverRaffleWithInsurance), 100e18);
-        tokenClooverRaffleWithInsurance.purchaseTickets(2);
+        mockERC20.approve(address(tokenRaffleWithInsurance), 100e18);
+        tokenRaffleWithInsurance.purchaseTickets(2);
         utils.goForward(ticketSaleDuration + 1);
         
         changePrank(carole);
         uint256 caroleBalanceBefore = mockERC20.balanceOf(carole);
-        tokenClooverRaffleWithInsurance.creatorClaimInsurance();
+        tokenRaffleWithInsurance.creatorClaimInsurance();
         assertEq(mockERC721.ownerOf(tokenWithAssuranceNftId), carole);
-        uint256 insurancePaid = tokenClooverRaffleWithInsurance.insurancePaid();
-        uint256 treasuryAmount = insurancePaid.percentMul(PROTOCOL_FEES_PERCENTAGE);
+        uint256 insurancePaid = tokenRaffleWithInsurance.insurancePaid();
+        uint256 treasuryAmount = insurancePaid.percentMul(PROTOCOL_FEE_RATE);
         assertEq(mockERC20.balanceOf(treasury),treasuryAmount);
         assertEq(mockERC20.balanceOf(carole),caroleBalanceBefore);
     }
@@ -49,65 +49,65 @@ contract CreatorClaimInsuranceClooverRaffleTest is Test, SetupClooverRaffles {
         changePrank(carole);
         utils.goForward(ticketSaleDuration + 1);
         vm.expectRevert(Errors.IS_ETH_RAFFLE.selector);
-        ethClooverRaffleWithInsurance.creatorClaimInsurance();
+        ethRaffleWithInsurance.creatorClaimInsurance();
     }
 
     function test_CreatorClaimInsurance_RevertWhen_CreatorDidNotTookInsurance() external{
         changePrank(alice);
         utils.goForward(ticketSaleDuration + 1);
         vm.expectRevert(Errors.NO_INSURANCE_TAKEN.selector);
-        tokenClooverRaffle.creatorClaimInsurance();
+        tokenRaffle.creatorClaimInsurance();
     }
 
     function test_CreatorClaimInsurance_RevertWhen_CreatorAlreadyExerciceRefund() external{
         changePrank(bob);
-        mockERC20.approve(address(tokenClooverRaffleWithInsurance), 100e18);
-        tokenClooverRaffleWithInsurance.purchaseTickets(2);
+        mockERC20.approve(address(tokenRaffleWithInsurance), 100e18);
+        tokenRaffleWithInsurance.purchaseTickets(2);
 
         changePrank(carole);
         utils.goForward(ticketSaleDuration + 1);
-        tokenClooverRaffleWithInsurance.creatorClaimInsurance();
+        tokenRaffleWithInsurance.creatorClaimInsurance();
         vm.expectRevert();
-        tokenClooverRaffleWithInsurance.creatorClaimInsurance();
+        tokenRaffleWithInsurance.creatorClaimInsurance();
     }
 
     function test_CreatorClaimInsurance_RevertWhen_NotCreatorCalling() external{
         changePrank(bob);
         utils.goForward(ticketSaleDuration + 1);
         vm.expectRevert(Errors.NOT_CREATOR.selector);
-        tokenClooverRaffleWithInsurance.creatorClaimInsurance();
+        tokenRaffleWithInsurance.creatorClaimInsurance();
     }
 
     function test_CreatorClaimInsurance_RevertWhen_NoTicketHaveBeenSold() external{
         changePrank(carole);
         utils.goForward(ticketSaleDuration + 1);
         vm.expectRevert(Errors.NOTHING_TO_CLAIM.selector);
-        tokenClooverRaffleWithInsurance.creatorClaimInsurance();
+        tokenRaffleWithInsurance.creatorClaimInsurance();
     }
 
     function test_CreatorClaimInsurance_RevertWhen_TicketSalesAreEqualOrHigherThanInsurance() external{
         changePrank(bob);
-        mockERC20.approve(address(tokenClooverRaffleWithInsurance), 100e18);
-        tokenClooverRaffleWithInsurance.purchaseTickets(5);
+        mockERC20.approve(address(tokenRaffleWithInsurance), 100e18);
+        tokenRaffleWithInsurance.purchaseTickets(5);
 
         changePrank(carole);
         utils.goForward(ticketSaleDuration + 1);
         vm.expectRevert(Errors.SALES_EXCEED_INSURANCE_LIMIT.selector);
-        tokenClooverRaffleWithInsurance.creatorClaimInsurance();
+        tokenRaffleWithInsurance.creatorClaimInsurance();
     }
 
     function test_CreatorClaimInsuranceInEth() external{
         changePrank(bob);
-        ethClooverRaffleWithInsurance.purchaseTicketsInEth{value: ticketPrice * 2}(2);
+        ethRaffleWithInsurance.purchaseTicketsInEth{value: ticketPrice * 2}(2);
         
         changePrank(carole);
         uint256 caroleBalanceBefore = address(carole).balance;
         uint256 treasuryBalanceBefore = address(treasury).balance;
         utils.goForward(ticketSaleDuration + 1);
-        ethClooverRaffleWithInsurance.creatorClaimInsuranceInEth();
+        ethRaffleWithInsurance.creatorClaimInsuranceInEth();
         assertEq(mockERC721.ownerOf(ethWithAssuranceNftId), carole);
-        uint256 insurancePaid = ethClooverRaffleWithInsurance.insurancePaid();
-        uint256 treasuryAmount = insurancePaid.percentMul(PROTOCOL_FEES_PERCENTAGE);
+        uint256 insurancePaid = ethRaffleWithInsurance.insurancePaid();
+        uint256 treasuryAmount = insurancePaid.percentMul(PROTOCOL_FEE_RATE);
         assertEq(address(treasury).balance, treasuryAmount + treasuryBalanceBefore);
         assertEq(address(carole).balance, caroleBalanceBefore);
     }
@@ -116,49 +116,49 @@ contract CreatorClaimInsuranceClooverRaffleTest is Test, SetupClooverRaffles {
         changePrank(carole);       
         utils.goForward(ticketSaleDuration + 1);
         vm.expectRevert(Errors.NOT_ETH_RAFFLE.selector);
-        tokenClooverRaffleWithInsurance.creatorClaimInsuranceInEth();
+        tokenRaffleWithInsurance.creatorClaimInsuranceInEth();
     }
 
     function test_CreatorClaimInsuranceInEth_RevertWhen_CreatorAlreadyExerciceRefund() external{
         changePrank(bob);
-        ethClooverRaffleWithInsurance.purchaseTicketsInEth{value: ticketPrice * 2}(2);
+        ethRaffleWithInsurance.purchaseTicketsInEth{value: ticketPrice * 2}(2);
 
         changePrank(carole);
         utils.goForward(ticketSaleDuration + 1);
-        ethClooverRaffleWithInsurance.creatorClaimInsuranceInEth();
+        ethRaffleWithInsurance.creatorClaimInsuranceInEth();
         vm.expectRevert();
-        ethClooverRaffleWithInsurance.creatorClaimInsuranceInEth();
+        ethRaffleWithInsurance.creatorClaimInsuranceInEth();
     }
 
     function test_CreatorClaimInsuranceInEth_RevertWhen_NotCreatorCalling() external{
         changePrank(bob);
         utils.goForward(ticketSaleDuration + 1);
         vm.expectRevert(Errors.NOT_CREATOR.selector);
-        ethClooverRaffleWithInsurance.creatorClaimInsuranceInEth();
+        ethRaffleWithInsurance.creatorClaimInsuranceInEth();
     }
 
     function test_CreatorClaimInsuranceInEth_RevertWhen_CreatorDidNotTookInsurance() external{
         changePrank(alice);
         utils.goForward(ticketSaleDuration + 1);
         vm.expectRevert(Errors.NO_INSURANCE_TAKEN.selector);
-        ethClooverRaffle.creatorClaimInsuranceInEth();
+        ethRaffle.creatorClaimInsuranceInEth();
     }
 
     function test_CreatorClaimInsuranceInEth_RevertWhen_NoTicketHaveBeenSold() external{
         changePrank(carole);
         utils.goForward(ticketSaleDuration + 1);
         vm.expectRevert(Errors.NOTHING_TO_CLAIM.selector);
-        ethClooverRaffleWithInsurance.creatorClaimInsuranceInEth();
+        ethRaffleWithInsurance.creatorClaimInsuranceInEth();
     }
 
     function test_CreatorClaimInsuranceInEth_RevertWhen_TicketSalesAreEqualOrHigherThanInsurance() external{
         changePrank(bob);
-        ethClooverRaffleWithInsurance.purchaseTicketsInEth{value: ticketPrice * 5}(5);
+        ethRaffleWithInsurance.purchaseTicketsInEth{value: ticketPrice * 5}(5);
 
         changePrank(carole);
         utils.goForward(ticketSaleDuration + 1);
         vm.expectRevert(Errors.SALES_EXCEED_INSURANCE_LIMIT.selector);
-        ethClooverRaffleWithInsurance.creatorClaimInsuranceInEth();
+        ethRaffleWithInsurance.creatorClaimInsuranceInEth();
     }
 
 }

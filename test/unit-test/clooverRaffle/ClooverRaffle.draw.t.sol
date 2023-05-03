@@ -16,94 +16,102 @@ contract DrawClooverRaffleTest is Test, SetupClooverRaffles {
         SetupClooverRaffles.setUp();
 
         changePrank(bob);
-        mockERC20.approve(address(tokenClooverRaffle), 100e18);
-        tokenClooverRaffle.purchaseTickets(2);
-        ethClooverRaffle.purchaseTicketsInEth{value: ticketPrice * 2}(2);
+        mockERC20.approve(address(tokenRaffle), 100e18);
+        tokenRaffle.purchaseTickets(2);
+        ethRaffle.purchaseTicketsInEth{value: ticketPrice * 2}(2);
     }
 
-    function test_Draw_TokenClooverRaffle() external{
+    function test_Draw_TokenRaffle() external{
         changePrank(bob);
         utils.goForward(ticketSaleDuration + 1);
-        tokenClooverRaffle.draw();
-        uint256 requestId = mockRamdomProvider.callerToRequestId(address(tokenClooverRaffle));
+        tokenRaffle.draw();
+        uint256 requestId = mockRamdomProvider.callerToRequestId(address(tokenRaffle));
         mockRamdomProvider.generateRandomNumbers(requestId);
-        assertFalse(tokenClooverRaffle.winnerAddress() == address(0));
-        assertTrue(tokenClooverRaffle.winnerAddress() == bob);
+        assertFalse(tokenRaffle.winnerAddress() == address(0));
+        assertTrue(tokenRaffle.winnerAddress() == bob);
     }
 
-    function test_Draw_TokenClooverRaffle_RevertWhen_TicketSalesStillOpen() external{
+    function test_Draw_TokenRaffle_RevertWhen_TicketSalesStillOpen() external{
         changePrank(bob);
         vm.expectRevert(Errors.RAFFLE_STILL_OPEN.selector);
-        tokenClooverRaffle.draw();
+        tokenRaffle.draw();
     }
 
-    function test_Draw_TokenClooverRaffle_StatusBackToInitWhenRandomNumberTicketDrawnedIsZero() external{
+    function test_Draw_TokenRaffle_StatusBackToInitWhenRandomNumberTicketDrawnedIsZero() external{
         changePrank(bob);
         utils.goForward(ticketSaleDuration + 1);
-        tokenClooverRaffle.draw();
-        uint256 requestId = mockRamdomProvider.callerToRequestId(address(tokenClooverRaffle));
+        tokenRaffle.draw();
+        uint256 requestId = mockRamdomProvider.callerToRequestId(address(tokenRaffle));
         mockRamdomProvider.requestRandomNumberReturnZero(requestId);
-        assertTrue(tokenClooverRaffle.raffleStatus() == ClooverRaffleDataTypes.ClooverRaffleStatus.DEFAULT);
+        assertTrue(tokenRaffle.raffleStatus() == ClooverRaffleDataTypes.RaffleStatus.DEFAULT);
     }
 
     function test_Draw_StatusSetToRefundWhenTicketSoldAmountUnderInsuranceAmount() external{
         changePrank(bob);
-        mockERC20.approve(address(tokenClooverRaffleWithInsurance), 100e18);
-        tokenClooverRaffleWithInsurance.purchaseTickets(2);
+        mockERC20.approve(address(tokenRaffleWithInsurance), 100e18);
+        tokenRaffleWithInsurance.purchaseTickets(2);
         utils.goForward(ticketSaleDuration + 1);
-        tokenClooverRaffleWithInsurance.draw();
-        assertTrue(tokenClooverRaffleWithInsurance.raffleStatus() == ClooverRaffleDataTypes.ClooverRaffleStatus.INSURANCE);
+        tokenRaffleWithInsurance.draw();
+        assertTrue(tokenRaffleWithInsurance.raffleStatus() == ClooverRaffleDataTypes.RaffleStatus.INSURANCE);
     }
 
-    function test_Draw_TokenClooverRaffle_RevertWhen_TicketAlreadyDrawn() external{
+    function test_Draw_TokenRaffle_RevertWhen_TicketAlreadyDrawn() external{
         changePrank(bob);
         utils.goForward(ticketSaleDuration + 1);
-        tokenClooverRaffle.draw();
-        uint256 requestId = mockRamdomProvider.callerToRequestId(address(tokenClooverRaffle));
+        tokenRaffle.draw();
+        uint256 requestId = mockRamdomProvider.callerToRequestId(address(tokenRaffle));
         mockRamdomProvider.generateRandomNumbers(requestId);
         vm.expectRevert(Errors.TICKET_ALREADY_DRAWN.selector);
-        tokenClooverRaffle.draw();
+        tokenRaffle.draw();
     }
 
-    function test_Draw_EthClooverRaffle() external{
+    function test_Draw_EthRaffle() external{
         changePrank(bob);
         utils.goForward(ticketSaleDuration + 1);
-        ethClooverRaffle.draw();
-        uint256 requestId = mockRamdomProvider.callerToRequestId(address(ethClooverRaffle));
+        ethRaffle.draw();
+        uint256 requestId = mockRamdomProvider.callerToRequestId(address(ethRaffle));
         mockRamdomProvider.generateRandomNumbers(requestId);
-        assertFalse(ethClooverRaffle.winnerAddress() == address(0));
-        assertTrue(ethClooverRaffle.winnerAddress() == bob);
+        assertFalse(ethRaffle.winnerAddress() == address(0));
+        assertTrue(ethRaffle.winnerAddress() == bob);
     }
 
-    function test_Draw_EthClooverRaffle_RevertWhen_TicketSalesStillOpen() external{
+    function test_Draw_EthRaffle_RevertWhen_TicketSalesStillOpen() external{
         changePrank(bob);
         vm.expectRevert(Errors.RAFFLE_STILL_OPEN.selector);
-        ethClooverRaffle.draw();
+        ethRaffle.draw();
     }
 
-    function test_Draw_EthClooverRaffle_StatusBackToInitWhenRandomNumberTicketDrawnedIsZero() external{
+    function test_Draw_EthRaffle_StatusBackToInitWhenRandomNumberTicketDrawnedIsZero() external{
         changePrank(bob);
         utils.goForward(ticketSaleDuration + 1);
-        ethClooverRaffle.draw();
-        uint256 requestId = mockRamdomProvider.callerToRequestId(address(ethClooverRaffle));
+        ethRaffle.draw();
+        uint256 requestId = mockRamdomProvider.callerToRequestId(address(ethRaffle));
         mockRamdomProvider.requestRandomNumberReturnZero(requestId);
-        assertTrue(ethClooverRaffle.raffleStatus() == ClooverRaffleDataTypes.ClooverRaffleStatus.DEFAULT);
+        assertTrue(ethRaffle.raffleStatus() == ClooverRaffleDataTypes.RaffleStatus.DEFAULT);
     }
 
-    function test_Draw_EthClooverRaffle_RevertWhen_TicketAlreadyDrawn() external{
+    function test_Draw_EthRaffle_RevertWhen_TicketAlreadyDrawn() external{
         changePrank(bob);
         utils.goForward(ticketSaleDuration + 1);
-        ethClooverRaffle.draw();
-        uint256 requestId = mockRamdomProvider.callerToRequestId(address(ethClooverRaffle));
+        ethRaffle.draw();
+        uint256 requestId = mockRamdomProvider.callerToRequestId(address(ethRaffle));
         mockRamdomProvider.generateRandomNumbers(requestId);
         vm.expectRevert(Errors.TICKET_ALREADY_DRAWN.selector);
-        ethClooverRaffle.draw();
+        ethRaffle.draw();
     }
 
     function test_Draw_StatusSetToRefundWhenNoTicketSoldAfterOpenWindows() external{
         changePrank(bob);
         utils.goForward(ticketSaleDuration + 1);
-        tokenClooverRaffleWithInsurance.draw();
-        assertTrue(tokenClooverRaffleWithInsurance.raffleStatus() == ClooverRaffleDataTypes.ClooverRaffleStatus.INSURANCE);
+        tokenRaffleWithInsurance.draw();
+        assertTrue(tokenRaffleWithInsurance.raffleStatus() == ClooverRaffleDataTypes.RaffleStatus.INSURANCE);
     }
+
+    function test_Draw_RevertWhen_NotRamdonProviderContractCalling() external{
+        uint256[] memory randomNumbers = new uint256[](1);
+        randomNumbers[0] = 1;
+        vm.expectRevert(Errors.NOT_RANDOM_PROVIDER_CONTRACT.selector);
+        tokenRaffle.draw(randomNumbers);
+    }
+    
 }

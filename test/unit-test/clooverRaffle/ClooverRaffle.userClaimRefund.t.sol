@@ -16,20 +16,20 @@ contract UserClaimClooverRaffleTest is Test, SetupClooverRaffles {
         SetupClooverRaffles.setUp();
 
         changePrank(bob);
-        mockERC20.approve(address(tokenClooverRaffleWithInsurance), 100e18);
-        tokenClooverRaffleWithInsurance.purchaseTickets(2);
-        ethClooverRaffleWithInsurance.purchaseTicketsInEth{value: ticketPrice * 2}(2);
+        mockERC20.approve(address(tokenRaffleWithInsurance), 100e18);
+        tokenRaffleWithInsurance.purchaseTickets(2);
+        ethRaffleWithInsurance.purchaseTicketsInEth{value: ticketPrice * 2}(2);
     }
  
     function test_UserClaimRefund() external {
         changePrank(bob);
         utils.goForward(ticketSaleDuration + 1);
         uint256 bobPrevBalance = mockERC20.balanceOf(bob);
-        tokenClooverRaffleWithInsurance.userClaimRefund();
+        tokenRaffleWithInsurance.userClaimRefund();
 
         (,uint256 insurancePartPerTicket) = InsuranceLogic.calculateInsuranceSplit(
-            INSURANCE_SALES_PERCENTAGE, 
-            PROTOCOL_FEES_PERCENTAGE,
+            INSURANCE_RATE, 
+            PROTOCOL_FEE_RATE,
             minTicketSalesInsurance,
             ticketPrice,
             2    
@@ -42,41 +42,41 @@ contract UserClaimClooverRaffleTest is Test, SetupClooverRaffles {
         changePrank(bob);
         utils.goForward(ticketSaleDuration + 1);
         vm.expectRevert(Errors.IS_ETH_RAFFLE.selector);
-        ethClooverRaffleWithInsurance.userClaimRefund();
+        ethRaffleWithInsurance.userClaimRefund();
     }
 
     function test_UserClaimRefund_RevertWhen_TicketSupplyGreaterThanMinInsuranceSales() external{
         changePrank(bob);
-        tokenClooverRaffleWithInsurance.purchaseTickets(5);
+        tokenRaffleWithInsurance.purchaseTickets(5);
         utils.goForward(ticketSaleDuration + 1);
         vm.expectRevert(Errors.SALES_EXCEED_INSURANCE_LIMIT.selector);
-        tokenClooverRaffleWithInsurance.userClaimRefund();
+        tokenRaffleWithInsurance.userClaimRefund();
     }
 
     function test_UserClaimRefund_RevertWhen_UserAlreadyClaimedRefund() external {
         changePrank(bob);
         utils.goForward(ticketSaleDuration + 1);
-        tokenClooverRaffleWithInsurance.userClaimRefund();
+        tokenRaffleWithInsurance.userClaimRefund();
         vm.expectRevert(Errors.ALREADY_CLAIMED.selector);
-        tokenClooverRaffleWithInsurance.userClaimRefund();
+        tokenRaffleWithInsurance.userClaimRefund();
     }
 
     function test_UserClaimRefund_RevertWhen_CallerDidntPurchaseTicket() external {
         changePrank(alice);
         utils.goForward(ticketSaleDuration + 1);
         vm.expectRevert(Errors.NOTHING_TO_CLAIM.selector);
-        tokenClooverRaffleWithInsurance.userClaimRefund();
+        tokenRaffleWithInsurance.userClaimRefund();
     }
 
     function test_UserClaimRefundInEth() external {
         changePrank(bob);
         utils.goForward(ticketSaleDuration + 1);
         uint256 bobPrevBalance = address(bob).balance;
-        ethClooverRaffleWithInsurance.userClaimRefundInEth();
+        ethRaffleWithInsurance.userClaimRefundInEth();
 
         (,uint256 insurancePartPerTicket) = InsuranceLogic.calculateInsuranceSplit(
-            INSURANCE_SALES_PERCENTAGE, 
-            PROTOCOL_FEES_PERCENTAGE,
+            INSURANCE_RATE, 
+            PROTOCOL_FEE_RATE,
             minTicketSalesInsurance,
             ticketPrice,
             2    
@@ -89,29 +89,29 @@ contract UserClaimClooverRaffleTest is Test, SetupClooverRaffles {
         changePrank(bob);
         utils.goForward(ticketSaleDuration + 1);
         vm.expectRevert(Errors.NOT_ETH_RAFFLE.selector);
-        tokenClooverRaffle.userClaimRefundInEth();
+        tokenRaffle.userClaimRefundInEth();
     }
 
     function test_UserClaimRefundInEth_RevertWhen_TicketSupplyGreaterThanMinInsuranceSales() external{
         changePrank(bob);
-        ethClooverRaffleWithInsurance.purchaseTicketsInEth{value: ticketPrice * 5}(5);
+        ethRaffleWithInsurance.purchaseTicketsInEth{value: ticketPrice * 5}(5);
         utils.goForward(ticketSaleDuration + 1);
         vm.expectRevert(Errors.SALES_EXCEED_INSURANCE_LIMIT.selector);
-        ethClooverRaffleWithInsurance.userClaimRefundInEth();
+        ethRaffleWithInsurance.userClaimRefundInEth();
     }
 
     function test_UserClaimRefundInEth_RevertWhen_UserAlreadyClaimedRefund() external {
         changePrank(bob);
         utils.goForward(ticketSaleDuration + 1);
-        ethClooverRaffleWithInsurance.userClaimRefundInEth();
+        ethRaffleWithInsurance.userClaimRefundInEth();
         vm.expectRevert(Errors.ALREADY_CLAIMED.selector);
-        ethClooverRaffleWithInsurance.userClaimRefundInEth();
+        ethRaffleWithInsurance.userClaimRefundInEth();
     }
 
     function test_UserClaimRefundInEth_RevertWhen_CallerDidntPurchaseTicket() external {
         changePrank(alice);
         utils.goForward(ticketSaleDuration + 1);
         vm.expectRevert(Errors.NOTHING_TO_CLAIM.selector);
-        ethClooverRaffleWithInsurance.userClaimRefundInEth();
+        ethRaffleWithInsurance.userClaimRefundInEth();
     }
 }

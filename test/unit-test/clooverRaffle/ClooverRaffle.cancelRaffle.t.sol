@@ -18,12 +18,12 @@ contract CancelClooverRaffleTest is Test, SetupClooverRaffles {
     function test_CancelClooverRaffle() external{
         changePrank(alice);
 
-        tokenClooverRaffle.cancelClooverRaffle();
-        assertEq(mockERC20.balanceOf(address(tokenClooverRaffle)), 0);
+        tokenRaffle.cancelRaffle();
+        assertEq(mockERC20.balanceOf(address(tokenRaffle)), 0);
         assertEq(mockERC721.ownerOf(tokenNftId), alice);
 
-        ethClooverRaffle.cancelClooverRaffle();
-        assertEq(address(ethClooverRaffle).balance, 0);
+        ethRaffle.cancelRaffle();
+        assertEq(address(ethRaffle).balance, 0);
         assertEq(mockERC721.ownerOf(ethNftId), alice);
     }
 
@@ -31,37 +31,37 @@ contract CancelClooverRaffleTest is Test, SetupClooverRaffles {
         changePrank(bob);
 
         vm.expectRevert(Errors.NOT_CREATOR.selector);
-        tokenClooverRaffle.cancelClooverRaffle();
+        tokenRaffle.cancelRaffle();
 
         vm.expectRevert(Errors.NOT_CREATOR.selector);
-        ethClooverRaffle.cancelClooverRaffle();
+        ethRaffle.cancelRaffle();
     }
 
     function test_CancelClooverRaffle_RevertWhen_AtLeastOneTicketHasBeenSold() external{
         changePrank(bob);
-        mockERC20.approve(address(tokenClooverRaffle), 100e18);
-        tokenClooverRaffle.purchaseTickets(1);
+        mockERC20.approve(address(tokenRaffle), 100e18);
+        tokenRaffle.purchaseTickets(1);
         changePrank(alice);
         vm.expectRevert(Errors.SALES_ALREADY_STARTED.selector);
-        tokenClooverRaffle.cancelClooverRaffle();
+        tokenRaffle.cancelRaffle();
         
         changePrank(bob);
-        ethClooverRaffle.purchaseTicketsInEth{value: ticketPrice}(1);
+        ethRaffle.purchaseTicketsInEth{value: ticketPrice}(1);
         changePrank(alice);
         vm.expectRevert(Errors.SALES_ALREADY_STARTED.selector);
-        ethClooverRaffle.cancelClooverRaffle();
+        ethRaffle.cancelRaffle();
     }
 
     function test_CancelClooverRaffle_RefundInsurancePaid() external{
         changePrank(carole);
 
-        tokenClooverRaffleWithInsurance.cancelClooverRaffle();
-        assertEq(mockERC20.balanceOf(address(tokenClooverRaffleWithInsurance)), 0);
+        tokenRaffleWithInsurance.cancelRaffle();
+        assertEq(mockERC20.balanceOf(address(tokenRaffleWithInsurance)), 0);
         assertEq(mockERC20.balanceOf(carole), 100e18);
         assertEq(mockERC721.ownerOf(tokenWithAssuranceNftId), carole);
 
-        ethClooverRaffleWithInsurance.cancelClooverRaffle();
-        assertEq(address(ethClooverRaffleWithInsurance).balance, 0);
+        ethRaffleWithInsurance.cancelRaffle();
+        assertEq(address(ethRaffleWithInsurance).balance, 0);
         assertEq(carole.balance, 100e18);
         assertEq(mockERC721.ownerOf(ethWithAssuranceNftId), carole);
     }

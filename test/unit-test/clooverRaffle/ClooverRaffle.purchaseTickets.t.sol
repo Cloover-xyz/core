@@ -23,52 +23,52 @@ contract PurchaseTicketsClooverRaffleTest is Test, SetupClooverRaffles {
     function test_PurchaseTickets() external{
         changePrank(bob);
 
-        mockERC20.approve(address(tokenClooverRaffle), 100e18);
+        mockERC20.approve(address(tokenRaffle), 100e18);
 
-        tokenClooverRaffle.purchaseTickets(1);
+        tokenRaffle.purchaseTickets(1);
 
-        assertEq(tokenClooverRaffle.ownerOf(0), address(0));
-        assertEq(tokenClooverRaffle.ownerOf(1), bob);
-        uint256[] memory bobTickets = tokenClooverRaffle.balanceOf(bob);
+        assertEq(tokenRaffle.ownerOf(0), address(0));
+        assertEq(tokenRaffle.ownerOf(1), bob);
+        uint16[] memory bobTickets = tokenRaffle.balanceOf(bob);
         assertEq(bobTickets.length, 1);
         assertEq(bobTickets[0], 1);
-        assertEq(tokenClooverRaffle.totalSupply(), 1);
-        assertEq(mockERC20.balanceOf(address(tokenClooverRaffle)), ticketPrice);
+        assertEq(tokenRaffle.currentSupply(), 1);
+        assertEq(mockERC20.balanceOf(address(tokenRaffle)), ticketPrice);
     }
 
     function test_PurchaseTickets_SeveralTimes() external{
         changePrank(bob);
-        mockERC20.approve(address(tokenClooverRaffle), 100e18);
-        tokenClooverRaffle.purchaseTickets(1);
-        tokenClooverRaffle.purchaseTickets(9);
+        mockERC20.approve(address(tokenRaffle), 100e18);
+        tokenRaffle.purchaseTickets(1);
+        tokenRaffle.purchaseTickets(9);
 
-        assertEq(tokenClooverRaffle.ownerOf(0), address(0));
-        assertEq(tokenClooverRaffle.ownerOf(1), bob);
-        assertEq(tokenClooverRaffle.ownerOf(10), bob);
-        uint256[] memory bobTickets = tokenClooverRaffle.balanceOf(bob);
+        assertEq(tokenRaffle.ownerOf(0), address(0));
+        assertEq(tokenRaffle.ownerOf(1), bob);
+        assertEq(tokenRaffle.ownerOf(10), bob);
+        uint16[] memory bobTickets = tokenRaffle.balanceOf(bob);
         assertEq(bobTickets.length, 10);
         assertEq(bobTickets[0], 1);
         assertEq(bobTickets[9], 10);
-        assertEq(tokenClooverRaffle.totalSupply(), 10);
-        assertEq(mockERC20.balanceOf(address(tokenClooverRaffle)), ticketPrice * 10);
+        assertEq(tokenRaffle.currentSupply(), 10);
+        assertEq(mockERC20.balanceOf(address(tokenRaffle)), ticketPrice * 10);
     }
 
     function test_PurchaseTickets_RevertWhen_NewPurchaseMakeTicketSupplyExceedMaxSupply() external{
         changePrank(bob);
-        vm.expectRevert(Errors.MAX_TICKET_SUPPLY_EXCEEDED.selector);
-        tokenClooverRaffle.purchaseTickets(11);
+        vm.expectRevert(Errors.TICKET_SUPPLY_OVERFLOW.selector);
+        tokenRaffle.purchaseTickets(11);
     }
 
     function test_PurchaseTickets_RevertWhen_UserNotHaveEnoughBalance() external{
         changePrank(alice);
         vm.expectRevert("ERC20: insufficient allowance");
-        tokenClooverRaffle.purchaseTickets(1);
+        tokenRaffle.purchaseTickets(1);
     }
 
     function test_PurchaseTickets_RevertWhen_UserPurchaseZeroTicket() external{
         changePrank(bob);
         vm.expectRevert(Errors.CANT_BE_ZERO.selector);
-        tokenClooverRaffle.purchaseTickets(0);
+        tokenRaffle.purchaseTickets(0);
     }
 
     function test_PurchaseTickets_RevertWhen_UserTicketBalanceExceedLimitAllowed() external{
@@ -76,20 +76,19 @@ contract PurchaseTicketsClooverRaffleTest is Test, SetupClooverRaffles {
         uint256 _nftId = 50;
         mockERC721.mint(alice, _nftId);
         ClooverRaffle raffleLimit = new ClooverRaffle();
-        ClooverRaffleDataTypes.InitClooverRaffleParams memory ethData = ClooverRaffleDataTypes.InitClooverRaffleParams(
-            implementationManager,
-            mockERC20,
-            mockERC721,
-            alice,
-            _nftId,
-            maxTicketSupply,
-            ticketPrice,
-            0,
-            ticketSaleDuration,
-            false,
-            5,
-            0
-        );
+        ClooverRaffleDataTypes.InitializeRaffleParams memory ethData = ClooverRaffleDataTypes.InitializeRaffleParams({
+            creator:alice,
+            implementationManager: implementationManager,
+            purchaseCurrency: mockERC20,
+            nftContract: mockERC721,
+            nftId: _nftId,
+            ticketPrice: ticketPrice,
+            ticketSalesDuration: ticketSaleDuration,
+            maxTotalSupply: maxTotalSupply,
+            maxTicketAllowedToPurchase: 5,
+            ticketSalesInsurance: 0,
+            royaltiesRate: 0
+        });
         mockERC721.transferFrom(alice, address(raffleLimit), _nftId);
         raffleLimit.initialize(ethData);
 
@@ -103,117 +102,116 @@ contract PurchaseTicketsClooverRaffleTest is Test, SetupClooverRaffles {
     function test_PurchaseTickets_RevertWhen_IsEthClooverRaffle() external{      
         changePrank(bob);
         vm.expectRevert(Errors.IS_ETH_RAFFLE.selector);
-        ethClooverRaffle.purchaseTickets(1);
+        ethRaffle.purchaseTickets(1);
     }
 
     function test_PurchaseTickets_RevertWhen_TicketSalesClose() external{
         changePrank(bob);
         vm.warp(uint64(block.timestamp) + ticketSaleDuration);
         vm.expectRevert(Errors.RAFFLE_CLOSE.selector);
-        tokenClooverRaffle.purchaseTickets(1);
+        tokenRaffle.purchaseTickets(1);
     }
 
     function test_PurchaseTicketsInEth() external{
         changePrank(bob);
-        ethClooverRaffle.purchaseTicketsInEth{value: ticketPrice}(1);
+        ethRaffle.purchaseTicketsInEth{value: ticketPrice}(1);
 
-        assertEq(ethClooverRaffle.ownerOf(0), address(0));
-        assertEq(ethClooverRaffle.ownerOf(1), bob);
-        uint256[] memory bobTickets = ethClooverRaffle.balanceOf(bob);
+        assertEq(ethRaffle.ownerOf(0), address(0));
+        assertEq(ethRaffle.ownerOf(1), bob);
+        uint16[] memory bobTickets = ethRaffle.balanceOf(bob);
         assertEq(bobTickets.length, 1);
         assertEq(bobTickets[0], 1);
-        assertEq(ethClooverRaffle.totalSupply(), 1);
-        assertEq(address(ethClooverRaffle).balance, ticketPrice);
+        assertEq(ethRaffle.currentSupply(), 1);
+        assertEq(address(ethRaffle).balance, ticketPrice);
     }
 
     function test_PurchaseTicketsInEth_SeveralTimes() external{
         changePrank(bob);
-        ethClooverRaffle.purchaseTicketsInEth{value: ticketPrice}(1);
-        ethClooverRaffle.purchaseTicketsInEth{value: ticketPrice * 9}(9);
+        ethRaffle.purchaseTicketsInEth{value: ticketPrice}(1);
+        ethRaffle.purchaseTicketsInEth{value: ticketPrice * 9}(9);
 
-        assertEq(ethClooverRaffle.ownerOf(0), address(0));
-        assertEq(ethClooverRaffle.ownerOf(1), bob);
-        assertEq(ethClooverRaffle.ownerOf(10), bob);
-        uint256[] memory bobTickets = ethClooverRaffle.balanceOf(bob);
+        assertEq(ethRaffle.ownerOf(0), address(0));
+        assertEq(ethRaffle.ownerOf(1), bob);
+        assertEq(ethRaffle.ownerOf(10), bob);
+        uint16[] memory bobTickets = ethRaffle.balanceOf(bob);
         assertEq(bobTickets.length, 10);
         assertEq(bobTickets[0], 1);
         assertEq(bobTickets[9], 10);
-        assertEq(ethClooverRaffle.totalSupply(), 10);
-        assertEq(address(ethClooverRaffle).balance, ticketPrice * 10);
+        assertEq(ethRaffle.currentSupply(), 10);
+        assertEq(address(ethRaffle).balance, ticketPrice * 10);
     }
 
     function test_PurchaseTicketsInEth_SeveralTickets() external{
         changePrank(bob);
-        ethClooverRaffle.purchaseTicketsInEth{value: ticketPrice * 10}(10);
+        ethRaffle.purchaseTicketsInEth{value: ticketPrice * 10}(10);
 
-        assertEq(ethClooverRaffle.ownerOf(0), address(0));
-        assertEq(ethClooverRaffle.ownerOf(1), bob);
-        assertEq(ethClooverRaffle.ownerOf(10), bob);
-        uint256[] memory bobTickets = ethClooverRaffle.balanceOf(bob);
+        assertEq(ethRaffle.ownerOf(0), address(0));
+        assertEq(ethRaffle.ownerOf(1), bob);
+        assertEq(ethRaffle.ownerOf(10), bob);
+        uint16[] memory bobTickets = ethRaffle.balanceOf(bob);
         assertEq(bobTickets.length, 10);
         assertEq(bobTickets[0], 1);
         assertEq(bobTickets[9], 10);
-        assertEq(ethClooverRaffle.totalSupply(), 10);
-        assertEq(address(ethClooverRaffle).balance, ticketPrice * 10);
+        assertEq(ethRaffle.currentSupply(), 10);
+        assertEq(address(ethRaffle).balance, ticketPrice * 10);
     }
 
     function test_PurchaseTicketsInEth_RevertWhen_NewPurchaseMakeTicketSupplyExceedMaxSupply() external{
         changePrank(bob);
-        vm.expectRevert(Errors.MAX_TICKET_SUPPLY_EXCEEDED.selector);
-        ethClooverRaffle.purchaseTicketsInEth{value: 11e18}(11);
+        vm.expectRevert(Errors.TICKET_SUPPLY_OVERFLOW.selector);
+        ethRaffle.purchaseTicketsInEth{value: 11e18}(11);
     }
 
     function test_PurchaseTicketsInEth_RevertWhen_UserSendWrongAmountOfEthForPurchase() external{
         changePrank(alice);
         vm.expectRevert(Errors.WRONG_MSG_VALUE.selector);
-        ethClooverRaffle.purchaseTicketsInEth{value: 1e19}(1);
+        ethRaffle.purchaseTicketsInEth{value: 1e19}(1);
     }
 
     function test_PurchaseTicketsInEth_RevertWhen_UserPurchaseZeroTicket() external{
         changePrank(bob);
         vm.expectRevert(Errors.CANT_BE_ZERO.selector);
-        ethClooverRaffle.purchaseTicketsInEth(0);
+        ethRaffle.purchaseTicketsInEth(0);
     }
 
     function test_PurchaseTicketsInEth_RevertWhen_NotEthClooverRaffle() external{
         changePrank(bob);
         vm.expectRevert(Errors.NOT_ETH_RAFFLE.selector);
-        tokenClooverRaffle.purchaseTicketsInEth(1);
+        tokenRaffle.purchaseTicketsInEth(1);
     }
 
     function test_PurchaseTicketsInEth_RevertWhen_TicketSalesClose() external{
         changePrank(bob);
         vm.warp(uint64(block.timestamp) + ticketSaleDuration);
         vm.expectRevert(Errors.RAFFLE_CLOSE.selector);
-        ethClooverRaffle.purchaseTicketsInEth{value: ticketPrice}(1);
+        ethRaffle.purchaseTicketsInEth{value: ticketPrice}(1);
     }
 
     function test_PurchaseTicketsInEth_RevertWhen_UserTicketPurchaseExceedLimitAllowed() external{
         changePrank(alice);
         uint256 _nftId = 50;
         mockERC721.mint(alice, _nftId);
-        ClooverRaffle ethClooverRaffleLimit = new ClooverRaffle();
-        ClooverRaffleDataTypes.InitClooverRaffleParams memory ethData = ClooverRaffleDataTypes.InitClooverRaffleParams(
-            implementationManager,
-            IERC20(address(0)),
-            mockERC721,
-            alice,
-            _nftId,
-            maxTicketSupply,
-            ticketPrice,
-            0,
-            ticketSaleDuration,
-            true,
-            5,
-            0
-        );
-        mockERC721.transferFrom(alice, address(ethClooverRaffleLimit), _nftId);
-        ethClooverRaffleLimit.initialize(ethData);
+        ClooverRaffle ethRaffleLimit = new ClooverRaffle();
+        ClooverRaffleDataTypes.InitializeRaffleParams memory ethData = ClooverRaffleDataTypes.InitializeRaffleParams({
+            creator:alice,
+            implementationManager: implementationManager,
+            purchaseCurrency: IERC20(address(0)),
+            nftContract: mockERC721,
+            nftId: _nftId,
+            ticketPrice: ticketPrice,
+            ticketSalesDuration: ticketSaleDuration,
+            maxTotalSupply: maxTotalSupply,
+            maxTicketAllowedToPurchase: 5,
+            ticketSalesInsurance: 0,
+            royaltiesRate: 0
+        });
+        mockERC721.transferFrom(alice, address(ethRaffleLimit), _nftId);
+        ethRaffleLimit.initialize(ethData);
 
         changePrank(bob);
-        ethClooverRaffleLimit.purchaseTicketsInEth{value: ticketPrice * 4}(4);
+        ethRaffleLimit.purchaseTicketsInEth{value: ticketPrice * 4}(4);
         vm.expectRevert(Errors.EXCEED_MAX_TICKET_ALLOWED_TO_PURCHASE.selector);
-        ethClooverRaffleLimit.purchaseTicketsInEth{value: ticketPrice * 5}(5);
+        ethRaffleLimit.purchaseTicketsInEth{value: ticketPrice * 5}(5);
     }
 
 }

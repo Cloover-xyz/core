@@ -4,17 +4,17 @@ pragma solidity ^0.8.0;
 
 interface IConfigManager{
 
-    /// @notice Get the fees percentage to apply on ticket sales amount
-    /// @return The fees percentage
-    function protocolFeesPercentage() external view returns(uint256);
+    /// @notice Get the fees rate to apply on ticket sales amount
+    /// @return The fees rate
+    function protocolFeeRate() external view returns(uint256);
 
-    /// @notice Get the percentage that creator will have to pay as insurance on the min sales defined
-    /// @return The insurance percentage
-    function insuranceSalesPercentage() external view returns(uint256);
+    /// @notice Get the rate that creator will have to pay as insurance on the min sales defined
+    /// @return The insurance rate
+    function insuranceRate() external view returns(uint256);
 
-    /// @notice Get the max ticket supply allowed for a raffle
-    /// @return The max amount of ticket allowed
-    function maxTicketSupplyAllowed() external view returns(uint256);
+    /// @notice Get the max ticket supply allowed in a raffle
+    /// @return The max amount of max ticket supply 
+    function maxTotalSupplyAllowed() external view returns(uint256);
 
     /// @notice Get the min duration for the ticket sales
     /// @return The min duration

@@ -18,8 +18,9 @@ const func: DeployFunction = async function ({
   const args: unknown[] = [
     ImplementationManager.address,
     [
-      configManagerData.baseFeePercentage,
       configManagerData.maxTicketSupplyAllowed,
+      configManagerData.protocolFeesPercentage,
+      configManagerData.insuranceCostPercentage,
       configManagerData.minSalesDuration,
       configManagerData.maxSalesDuration,
     ],

@@ -12,7 +12,7 @@ library Errors {
     error RAFFLE_CLOSE(); // 'Current timestamps greater or equal than the close time'
     error RAFFLE_STILL_OPEN(); // 'Current timestamps lesser or equal than the close time'
     error CANT_BE_ZERO(); // 'Value can't must be higher than 0'
-    error MAX_TICKET_SUPPLY_EXCEEDED(); // 'Maximum amount of ticket sold for the raffle has been reached'
+    error TICKET_SUPPLY_OVERFLOW(); // 'Maximum amount of ticket sold for the raffle has been reached'
     error WRONG_MSG_VALUE(); // 'msg.value not valid'
     error MSG_SENDER_NOT_WINNER(); // 'msg.sender is not winner address'
     error NOT_CREATOR(); // 'msg.sender is not the creator of the raffle'

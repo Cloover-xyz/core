@@ -1,25 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import {IERC20} from "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
-import {IERC721} from "openzeppelin-contracts/contracts/token/ERC721/IERC721.sol";
-
 import {ClooverRaffleDataTypes} from '../libraries/types/ClooverRaffleDataTypes.sol';
 import {ClooverRaffle} from '../raffle/ClooverRaffle.sol';
 
 interface IClooverRaffleFactory {
-    struct Params {
-        IERC20 purchaseCurrency;
-        IERC721 nftContract;
-        uint256 nftId;
-        uint256 maxTicketSupply;
-        uint256 ticketPrice;
-        uint256 minTicketSalesInsurance;
-        uint64 ticketSaleDuration;
-        bool isETHTokenSales;
-        uint256 maxTicketAllowedToPurchase;
-        uint256 royaltiesPercentage;
-    }
 
     /**
      * @notice Deploy a new raffle contract
@@ -27,8 +12,7 @@ interface IClooverRaffleFactory {
      * @param params used for initialization (see Params struct in ClooverRaffleFactory.sol)
      * @return newClooverRaffle the instance of the raffle contract
      */
-    function createNewClooverRaffle(Params memory params) external payable returns(ClooverRaffle newClooverRaffle);
-
+    function createNewRaffle(ClooverRaffleDataTypes.CreateRaffleParams memory params) external payable returns(ClooverRaffle newClooverRaffle);
 
     /**
      * @notice Return if the address is a raffle deployed by this factory

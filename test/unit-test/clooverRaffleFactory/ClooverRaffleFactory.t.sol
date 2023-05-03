@@ -22,7 +22,7 @@ import {IClooverRaffleFactory} from "../../../src/interfaces/IClooverRaffleFacto
 
 import {Errors} from "../../../src/libraries/helpers/Errors.sol";
 import {ImplementationInterfaceNames} from "../../../src/libraries/helpers/ImplementationInterfaceNames.sol";
-import {ConfiguratorInputTypes} from "../../../src/libraries/types/ConfiguratorInputTypes.sol";
+import {ConfigManagerDataTypes} from "../../../src/libraries/types/ConfigManagerDataTypes.sol";
 import {ClooverRaffleDataTypes} from "../../../src/libraries/types/ClooverRaffleDataTypes.sol";
 import {InsuranceLogic} from "../../../src/libraries/math/InsuranceLogic.sol";
 
@@ -44,18 +44,18 @@ contract ClooverRaffleFactoryTest is Test, SetupUsers {
     AccessController accessController;
     ConfigManager configManager;
     
-    uint256 maxTicketSupply = 10;
+    uint16 maxTotalSupply = 10;
     uint256 nftIdOne = 1;
     uint256 nftIdTwo = 2;
     
     uint256 ticketPrice = 1e7; // 10
     uint64 ticketSaleDuration = 1 days;
     
-   uint256 MIN_SALE_DURATION = 1 days;
-   uint256 MAX_SALE_DURATION = 2 weeks;
-   uint256 MAX_TICKET_SUPPLY = 10000;
-   uint256 PROTOCOL_FEES_PERCENTAGE = 1e2;
-   uint256 INSURANCE_SALES_PERCENTAGE = 5e2; //5%
+   uint64 MIN_SALE_DURATION = 1 days;
+   uint64 MAX_SALE_DURATION = 2 weeks;
+   uint16 MAX_TICKET_SUPPLY = 10000;
+   uint16 PROTOCOL_FEE_RATE = 1e2;
+   uint16 INSURANCE_RATE = 5e2; //5%
 
    function setUp() public virtual override {
       SetupUsers.setUp();
@@ -72,12 +72,12 @@ contract ClooverRaffleFactoryTest is Test, SetupUsers {
       tokenWhitelist = new TokenWhitelist(implementationManager);
       factory = new ClooverRaffleFactory(implementationManager);
       mockRamdomProvider = new MockRandomProvider(implementationManager);
-      ConfiguratorInputTypes.InitConfigManagerInput memory configData = ConfiguratorInputTypes.InitConfigManagerInput(
-         PROTOCOL_FEES_PERCENTAGE,
+      ConfigManagerDataTypes.InitConfigManagerParams memory configData = ConfigManagerDataTypes.InitConfigManagerParams(
          MAX_TICKET_SUPPLY,
+         PROTOCOL_FEE_RATE,
+         INSURANCE_RATE,
          MIN_SALE_DURATION,
-         MAX_SALE_DURATION,
-         INSURANCE_SALES_PERCENTAGE
+         MAX_SALE_DURATION
       );
       configManager = new ConfigManager(implementationManager, configData);
 
@@ -106,29 +106,28 @@ contract ClooverRaffleFactoryTest is Test, SetupUsers {
       tokenWhitelist.addToWhitelist(address(mockERC20));
    }
 
-   function test_CreateClooverRaffle_TokenClooverRaffle() external {
+   function test_CreateClooverRaffle_TokenRaffle() external {
       changePrank(alice);
-      IClooverRaffleFactory.Params memory params = IClooverRaffleFactory.Params(
-         mockERC20,
-         mockERC721,
-         nftIdOne,
-         maxTicketSupply,
-         ticketPrice,
-         0,
-         ticketSaleDuration,
-         false,
-         0,
-         0
-      );
+      ClooverRaffleDataTypes.CreateRaffleParams memory params = ClooverRaffleDataTypes.CreateRaffleParams({
+         purchaseCurrency: mockERC20,
+         nftContract: mockERC721,
+         nftId: nftIdOne,
+         ticketPrice: ticketPrice,
+         ticketSalesDuration: ticketSaleDuration,
+         maxTotalSupply: maxTotalSupply,
+         maxTicketAllowedToPurchase: 0,
+         ticketSalesInsurance: 0,
+         royaltiesRate: 0
+      });
       mockERC721.approve(address(factory), nftIdOne);
-      raffle = factory.createNewClooverRaffle(params);
+      raffle = factory.createNewRaffle(params);
       
       assertTrue(factory.isRegisteredClooverRaffle(address(raffle)));
       assertEq(raffle.creator(), alice);
       assertEq(raffle.ticketPrice(), ticketPrice);
       assertEq(raffle.endTicketSales(), uint64(block.timestamp) + ticketSaleDuration);
-      assertEq(raffle.totalSupply(), 0);
-      assertEq(raffle.maxSupply(), maxTicketSupply);
+      assertEq(raffle.currentSupply(), 0);
+      assertEq(raffle.maxTotalSupply(), maxTotalSupply);
       assertEq(address(raffle.purchaseCurrency()), address(mockERC20));
       (IERC721 contractAddress, uint256 id )= raffle.nftToWin();
       assertEq(address(contractAddress) ,address(mockERC721));
@@ -138,126 +137,121 @@ contract ClooverRaffleFactoryTest is Test, SetupUsers {
 
    function test_CreateClooverRaffle_InsuranceTokenClooverRaffle() external {
       changePrank(alice);
-      uint256 minTicketSalesInsurance = 5;
-      IClooverRaffleFactory.Params memory params = IClooverRaffleFactory.Params(
-         mockERC20,
-         mockERC721,
-         nftIdOne,
-         maxTicketSupply,
-         ticketPrice,
-         minTicketSalesInsurance,
-         ticketSaleDuration,
-         false,
-         0,
-         0
-      );
-      uint256 insuranceCost = minTicketSalesInsurance.calculateInsuranceCost(ticketPrice, INSURANCE_SALES_PERCENTAGE);
+      uint16 minTicketSalesInsurance = 5;
+      ClooverRaffleDataTypes.CreateRaffleParams memory params = ClooverRaffleDataTypes.CreateRaffleParams({
+         purchaseCurrency: mockERC20,
+         nftContract: mockERC721,
+         nftId: nftIdOne,
+         ticketPrice: ticketPrice,
+         ticketSalesDuration: ticketSaleDuration,
+         maxTotalSupply: maxTotalSupply,
+         maxTicketAllowedToPurchase: 0,
+         ticketSalesInsurance: minTicketSalesInsurance,
+         royaltiesRate: 0
+      });
+      uint256 insuranceCost = uint256(minTicketSalesInsurance).calculateInsuranceCost(ticketPrice, INSURANCE_RATE);
       mockERC721.approve(address(factory), nftIdOne);
       mockERC20.approve(address(factory), insuranceCost);
-      ClooverRaffle insuranceClooverRaffle = factory.createNewClooverRaffle(params);
+      ClooverRaffle insuranceRaffle = factory.createNewRaffle(params);
       
-      assertTrue(factory.isRegisteredClooverRaffle(address(insuranceClooverRaffle)));
-      assertEq(insuranceClooverRaffle.creator(), alice);
-      assertEq(insuranceClooverRaffle.ticketPrice(), ticketPrice);
-      assertEq(insuranceClooverRaffle.endTicketSales(), uint64(block.timestamp) + ticketSaleDuration);
-      assertEq(insuranceClooverRaffle.totalSupply(), 0);
-      assertEq(insuranceClooverRaffle.maxSupply(), maxTicketSupply);
-      assertEq(address(insuranceClooverRaffle.purchaseCurrency()), address(mockERC20));
-      (IERC721 contractAddress, uint256 id )= insuranceClooverRaffle.nftToWin();
+      assertTrue(factory.isRegisteredClooverRaffle(address(insuranceRaffle)));
+      assertEq(insuranceRaffle.creator(), alice);
+      assertEq(insuranceRaffle.ticketPrice(), ticketPrice);
+      assertEq(insuranceRaffle.endTicketSales(), uint64(block.timestamp) + ticketSaleDuration);
+      assertEq(insuranceRaffle.currentSupply(), 0);
+      assertEq(insuranceRaffle.maxTotalSupply(), maxTotalSupply);
+      assertEq(address(insuranceRaffle.purchaseCurrency()), address(mockERC20));
+      (IERC721 contractAddress, uint256 id )= insuranceRaffle.nftToWin();
       assertEq(address(contractAddress) ,address(mockERC721));
       assertEq(id ,nftIdOne);
-      assertEq(contractAddress.ownerOf(nftIdOne) ,address(insuranceClooverRaffle));
-      assertEq(mockERC20.balanceOf(address(insuranceClooverRaffle)) , insuranceCost);
+      assertEq(contractAddress.ownerOf(nftIdOne) ,address(insuranceRaffle));
+      assertEq(mockERC20.balanceOf(address(insuranceRaffle)) , insuranceCost);
    }
 
    function test_CreateClooverRaffle_InsuranceEthClooverRaffle() external {
       changePrank(alice);
-      uint256 minTicketSalesInsurance = 5;
-      IClooverRaffleFactory.Params memory params = IClooverRaffleFactory.Params(
-         IERC20(address(0)),
-         mockERC721,
-         nftIdOne,
-         maxTicketSupply,
-         ticketPrice,
-         minTicketSalesInsurance,
-         ticketSaleDuration,
-         true,
-         0,
-         0
-      );
-      uint256 insuranceCost = minTicketSalesInsurance.calculateInsuranceCost(ticketPrice, INSURANCE_SALES_PERCENTAGE);
+      uint16 minTicketSalesInsurance = 5;
+      ClooverRaffleDataTypes.CreateRaffleParams memory params = ClooverRaffleDataTypes.CreateRaffleParams({
+         purchaseCurrency: IERC20(address(0)),
+         nftContract: mockERC721,
+         nftId: nftIdOne,
+         ticketPrice: ticketPrice,
+         ticketSalesDuration: ticketSaleDuration,
+         maxTotalSupply: maxTotalSupply,
+         maxTicketAllowedToPurchase: 0,
+         ticketSalesInsurance: minTicketSalesInsurance,
+         royaltiesRate: 0
+      });
+      uint256 insuranceCost = uint256(minTicketSalesInsurance).calculateInsuranceCost(ticketPrice, INSURANCE_RATE);
       mockERC721.approve(address(factory), nftIdOne);
-      ClooverRaffle ethClooverRaffle = factory.createNewClooverRaffle{value: insuranceCost}(params);
+      ClooverRaffle ethRaffle = factory.createNewRaffle{value: insuranceCost}(params);
       
-      assertTrue(factory.isRegisteredClooverRaffle(address(ethClooverRaffle)));
-      assertEq(ethClooverRaffle.creator(), alice);
-      assertEq(ethClooverRaffle.ticketPrice(), ticketPrice);
-      assertEq(ethClooverRaffle.endTicketSales(), uint64(block.timestamp) + ticketSaleDuration);
-      assertEq(ethClooverRaffle.totalSupply(), 0);
-      assertEq(ethClooverRaffle.maxSupply(), maxTicketSupply);
-      assertEq(ethClooverRaffle.isEthTokenSales(), true);
-      assertEq(address(ethClooverRaffle.purchaseCurrency()), address(0));
-      (IERC721 contractAddress, uint256 id )= ethClooverRaffle.nftToWin();
+      assertTrue(factory.isRegisteredClooverRaffle(address(ethRaffle)));
+      assertEq(ethRaffle.creator(), alice);
+      assertEq(ethRaffle.ticketPrice(), ticketPrice);
+      assertEq(ethRaffle.endTicketSales(), uint64(block.timestamp) + ticketSaleDuration);
+      assertEq(ethRaffle.currentSupply(), 0);
+      assertEq(ethRaffle.maxTotalSupply(), maxTotalSupply);
+      assertEq(ethRaffle.isEthRaffle(), true);
+      assertEq(address(ethRaffle.purchaseCurrency()), address(0));
+      (IERC721 contractAddress, uint256 id )= ethRaffle.nftToWin();
       assertEq(address(contractAddress) ,address(mockERC721));
       assertEq(id ,nftIdOne);
-      assertEq(contractAddress.ownerOf(nftIdOne) ,address(ethClooverRaffle));
-      assertEq(address(ethClooverRaffle).balance, insuranceCost);
+      assertEq(contractAddress.ownerOf(nftIdOne) ,address(ethRaffle));
+      assertEq(address(ethRaffle).balance, insuranceCost);
    }
 
-   function test_CreateClooverRaffle_EthClooverRaffle() external {
+   function test_CreateClooverRaffle_EthRaffle() external {
       changePrank(alice);
-      IClooverRaffleFactory.Params memory params = IClooverRaffleFactory.Params(
-         IERC20(address(0)),
-         mockERC721,
-         nftIdOne,
-         maxTicketSupply,
-         ticketPrice,
-         0,
-         ticketSaleDuration,
-         true,
-         0,
-         0
-      );
+      ClooverRaffleDataTypes.CreateRaffleParams memory params = ClooverRaffleDataTypes.CreateRaffleParams({
+         purchaseCurrency: IERC20(address(0)),
+         nftContract: mockERC721,
+         nftId: nftIdOne,
+         ticketPrice: ticketPrice,
+         ticketSalesDuration: ticketSaleDuration,
+         maxTotalSupply: maxTotalSupply,
+         maxTicketAllowedToPurchase: 0,
+         ticketSalesInsurance: 0,
+         royaltiesRate: 0
+      });
       mockERC721.approve(address(factory), nftIdOne);
-      ClooverRaffle ethClooverRaffle = factory.createNewClooverRaffle(params);
+      ClooverRaffle ethRaffle = factory.createNewRaffle(params);
       
-      assertTrue(factory.isRegisteredClooverRaffle(address(ethClooverRaffle)));
-      assertEq(ethClooverRaffle.creator(), alice);
-      assertEq(ethClooverRaffle.ticketPrice(), ticketPrice);
-      assertEq(ethClooverRaffle.endTicketSales(), uint64(block.timestamp) + ticketSaleDuration);
-      assertEq(ethClooverRaffle.totalSupply(), 0);
-      assertEq(ethClooverRaffle.maxSupply(), maxTicketSupply);
-      assertEq(ethClooverRaffle.isEthTokenSales(), true);
-      assertEq(address(ethClooverRaffle.purchaseCurrency()), address(0));
-      (IERC721 contractAddress, uint256 id )= ethClooverRaffle.nftToWin();
+      assertTrue(factory.isRegisteredClooverRaffle(address(ethRaffle)));
+      assertEq(ethRaffle.creator(), alice);
+      assertEq(ethRaffle.ticketPrice(), ticketPrice);
+      assertEq(ethRaffle.endTicketSales(), uint64(block.timestamp) + ticketSaleDuration);
+      assertEq(ethRaffle.currentSupply(), 0);
+      assertEq(ethRaffle.maxTotalSupply(), maxTotalSupply);
+      assertEq(ethRaffle.isEthRaffle(), true);
+      assertEq(address(ethRaffle.purchaseCurrency()), address(0));
+      (IERC721 contractAddress, uint256 id )= ethRaffle.nftToWin();
       assertEq(address(contractAddress) ,address(mockERC721));
       assertEq(id ,nftIdOne);
-      assertEq(contractAddress.ownerOf(nftIdOne) ,address(ethClooverRaffle));
+      assertEq(contractAddress.ownerOf(nftIdOne) ,address(ethRaffle));
    }
 
    function test_CorrectlyRequestRandomNumberForAClooverRaffle() external {
       changePrank(alice);
-
-      IClooverRaffleFactory.Params memory params = IClooverRaffleFactory.Params(
-         mockERC20,
-         mockERC721,
-         nftIdOne,
-         maxTicketSupply,
-         ticketPrice,
-         0,
-         ticketSaleDuration,
-         false,
-         0,
-         0
-      );
+      ClooverRaffleDataTypes.CreateRaffleParams memory params = ClooverRaffleDataTypes.CreateRaffleParams({
+         purchaseCurrency: mockERC20,
+         nftContract: mockERC721,
+         nftId: nftIdOne,
+         ticketPrice: ticketPrice,
+         ticketSalesDuration: ticketSaleDuration,
+         maxTotalSupply: maxTotalSupply,
+         maxTicketAllowedToPurchase: 0,
+         ticketSalesInsurance: 0,
+         royaltiesRate: 0
+      });
       mockERC721.approve(address(factory), nftIdOne);
-      raffle = factory.createNewClooverRaffle(params);
+      raffle = factory.createNewRaffle(params);
 
       changePrank(bob);
       mockERC20.approve(address(raffle), 100e6);
       raffle.purchaseTickets(2);
       utils.goForward(ticketSaleDuration + 1);
-      assertFalse(raffle.raffleStatus() == ClooverRaffleDataTypes.ClooverRaffleStatus.DRAWN);
+      assertFalse(raffle.raffleStatus() == ClooverRaffleDataTypes.RaffleStatus.DRAWN);
   
       address[] memory raffleContract = new address[](1);
       raffleContract[0] = address(raffle);
@@ -265,7 +259,7 @@ contract ClooverRaffleFactoryTest is Test, SetupUsers {
 
       uint256 requestId = mockRamdomProvider.callerToRequestId(address(raffle));
       mockRamdomProvider.generateRandomNumbers(requestId);
-      assertTrue(raffle.raffleStatus() == ClooverRaffleDataTypes.ClooverRaffleStatus.DRAWN);
+      assertTrue(raffle.raffleStatus() == ClooverRaffleDataTypes.RaffleStatus.DRAWN);
    }
    
    function test_CorrectlyRequestRandomNumberForSeveralClooverRaffles() external {
@@ -273,23 +267,21 @@ contract ClooverRaffleFactoryTest is Test, SetupUsers {
       changePrank(alice);
       mockERC721.approve(address(factory), nftIdOne);
       mockERC721.approve(address(factory), nftIdTwo);
-
-      IClooverRaffleFactory.Params memory params = IClooverRaffleFactory.Params(
-         mockERC20,
-         mockERC721,
-         nftIdOne,
-         maxTicketSupply,
-         ticketPrice,
-         0,
-         ticketSaleDuration,
-         false,
-         0,
-         0
-      );
-      ClooverRaffle raffleOne = factory.createNewClooverRaffle(params);
+      ClooverRaffleDataTypes.CreateRaffleParams memory params = ClooverRaffleDataTypes.CreateRaffleParams({
+         purchaseCurrency: mockERC20,
+         nftContract: mockERC721,
+         nftId: nftIdOne,
+         ticketPrice: ticketPrice,
+         ticketSalesDuration: ticketSaleDuration,
+         maxTotalSupply: maxTotalSupply,
+         maxTicketAllowedToPurchase: 0,
+         ticketSalesInsurance: 0,
+         royaltiesRate: 0
+      });
+      ClooverRaffle raffleOne = factory.createNewRaffle(params);
       
       params.nftId = nftIdTwo;
-      ClooverRaffle raffleTwo = factory.createNewClooverRaffle(params);
+      ClooverRaffle raffleTwo = factory.createNewRaffle(params);
 
       changePrank(bob);
       mockERC20.approve(address(raffleOne), 100e6);
@@ -297,8 +289,8 @@ contract ClooverRaffleFactoryTest is Test, SetupUsers {
       mockERC20.approve(address(raffleTwo), 100e6);
       raffleTwo.purchaseTickets(1);
       utils.goForward(ticketSaleDuration + 1);
-      assertFalse(raffleOne.raffleStatus() == ClooverRaffleDataTypes.ClooverRaffleStatus.DRAWN);
-      assertFalse(raffleTwo.raffleStatus() == ClooverRaffleDataTypes.ClooverRaffleStatus.DRAWN);
+      assertFalse(raffleOne.raffleStatus() == ClooverRaffleDataTypes.RaffleStatus.DRAWN);
+      assertFalse(raffleTwo.raffleStatus() == ClooverRaffleDataTypes.RaffleStatus.DRAWN);
   
       address[] memory raffleContract = new address[](2);
       raffleContract[0] = address(raffleOne);
@@ -309,8 +301,8 @@ contract ClooverRaffleFactoryTest is Test, SetupUsers {
       mockRamdomProvider.generateRandomNumbers(requestId);
       requestId = mockRamdomProvider.callerToRequestId(address(raffleTwo));
       mockRamdomProvider.generateRandomNumbers(requestId);
-      assertTrue(raffleOne.raffleStatus() == ClooverRaffleDataTypes.ClooverRaffleStatus.DRAWN);
-      assertTrue(raffleTwo.raffleStatus() == ClooverRaffleDataTypes.ClooverRaffleStatus.DRAWN);
+      assertTrue(raffleOne.raffleStatus() == ClooverRaffleDataTypes.RaffleStatus.DRAWN);
+      assertTrue(raffleTwo.raffleStatus() == ClooverRaffleDataTypes.RaffleStatus.DRAWN);
    }
 
    function test_RevertIf_OneOfTheClooverRaffleHasAlreadyBeenDrawned() external {
@@ -319,22 +311,21 @@ contract ClooverRaffleFactoryTest is Test, SetupUsers {
       mockERC721.approve(address(factory), nftIdOne);
       mockERC721.approve(address(factory), nftIdTwo);
 
-      IClooverRaffleFactory.Params memory params = IClooverRaffleFactory.Params(
-         mockERC20,
-         mockERC721,
-         nftIdOne,
-         maxTicketSupply,
-         ticketPrice,
-         0,
-         ticketSaleDuration,
-         false,
-         0,
-         0
-      );
-      ClooverRaffle raffleOne = factory.createNewClooverRaffle(params);
+      ClooverRaffleDataTypes.CreateRaffleParams memory params = ClooverRaffleDataTypes.CreateRaffleParams({
+         purchaseCurrency: mockERC20,
+         nftContract: mockERC721,
+         nftId: nftIdOne,
+         ticketPrice: ticketPrice,
+         ticketSalesDuration: ticketSaleDuration,
+         maxTotalSupply: maxTotalSupply,
+         maxTicketAllowedToPurchase: 0,
+         ticketSalesInsurance: 0,
+         royaltiesRate: 0
+      });
+      ClooverRaffle raffleOne = factory.createNewRaffle(params);
       
       params.nftId = nftIdTwo;
-      ClooverRaffle raffleTwo = factory.createNewClooverRaffle(params);
+      ClooverRaffle raffleTwo = factory.createNewRaffle(params);
 
       changePrank(bob);
       mockERC20.approve(address(raffleOne), 100e6);
@@ -347,8 +338,8 @@ contract ClooverRaffleFactoryTest is Test, SetupUsers {
       uint256 requestId = mockRamdomProvider.callerToRequestId(address(raffleOne));
       mockRamdomProvider.generateRandomNumbers(requestId);
       raffleOne.winningTicket();
-      assertTrue(raffleOne.raffleStatus() == ClooverRaffleDataTypes.ClooverRaffleStatus.DRAWN);
-      assertFalse(raffleTwo.raffleStatus() == ClooverRaffleDataTypes.ClooverRaffleStatus.DRAWN);
+      assertTrue(raffleOne.raffleStatus() == ClooverRaffleDataTypes.RaffleStatus.DRAWN);
+      assertFalse(raffleTwo.raffleStatus() == ClooverRaffleDataTypes.RaffleStatus.DRAWN);
 
       address[] memory raffleContract = new address[](2);
       raffleContract[0] = address(raffleOne);
@@ -359,22 +350,21 @@ contract ClooverRaffleFactoryTest is Test, SetupUsers {
 
    function test_DeregisterClooverRaffle() external{
       changePrank(alice);
-      IClooverRaffleFactory.Params memory params = IClooverRaffleFactory.Params(
-         IERC20(address(0)),
-         mockERC721,
-         nftIdOne,
-         maxTicketSupply,
-         ticketPrice,
-         0,
-         ticketSaleDuration,
-         true,
-         0,
-         0
-      );
+      ClooverRaffleDataTypes.CreateRaffleParams memory params = ClooverRaffleDataTypes.CreateRaffleParams({
+         purchaseCurrency: IERC20(address(0)),
+         nftContract: mockERC721,
+         nftId: nftIdOne,
+         ticketPrice: ticketPrice,
+         ticketSalesDuration: ticketSaleDuration,
+         maxTotalSupply: maxTotalSupply,
+         maxTicketAllowedToPurchase: 0,
+         ticketSalesInsurance: 0,
+         royaltiesRate: 0
+      });
       mockERC721.approve(address(factory), nftIdOne);
-      ClooverRaffle ethClooverRaffle = factory.createNewClooverRaffle(params);
-      assertTrue(factory.isRegisteredClooverRaffle(address(ethClooverRaffle)));
-      ethClooverRaffle.cancelClooverRaffle();
-      assertFalse(factory.isRegisteredClooverRaffle(address(ethClooverRaffle)));
+      ClooverRaffle ethRaffle = factory.createNewRaffle(params);
+      assertTrue(factory.isRegisteredClooverRaffle(address(ethRaffle)));
+      ethRaffle.cancelRaffle();
+      assertFalse(factory.isRegisteredClooverRaffle(address(ethRaffle)));
    }
 }

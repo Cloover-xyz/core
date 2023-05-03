@@ -16,82 +16,70 @@ contract WinnerClaimClooverRaffleTest is Test, SetupClooverRaffles {
         SetupClooverRaffles.setUp();
 
         changePrank(bob);
-        mockERC20.approve(address(tokenClooverRaffle), 100e18);
-        tokenClooverRaffle.purchaseTickets(2);
-        ethClooverRaffle.purchaseTicketsInEth{value: ticketPrice * 2}(2);
+        mockERC20.approve(address(tokenRaffle), 100e18);
+        tokenRaffle.purchaseTickets(2);
+        ethRaffle.purchaseTicketsInEth{value: ticketPrice * 2}(2);
     }
 
-    function test_WinnerClaim_TokenClooverRaffle() external{
+    function test_WinnerClaim_TokenRaffle() external{
         changePrank(bob);
         utils.goForward(ticketSaleDuration + 1);
-        tokenClooverRaffle.draw();
-        uint256 requestId = mockRamdomProvider.callerToRequestId(address(tokenClooverRaffle));
+        tokenRaffle.draw();
+        uint256 requestId = mockRamdomProvider.callerToRequestId(address(tokenRaffle));
         mockRamdomProvider.generateRandomNumbers(requestId);
-        uint256 winningTicketNumber = 1;
-        vm.store(address(tokenClooverRaffle),bytes32(uint256(12)), bytes32(winningTicketNumber));
-        assertEq(tokenClooverRaffle.winningTicket(), winningTicketNumber);
-        tokenClooverRaffle.winnerClaim();
+        assertFalse(tokenRaffle.winningTicket() == 0);
+        assertFalse(tokenRaffle.winningTicket() > tokenRaffle.currentSupply());
+        tokenRaffle.winnerClaim();
         assertEq(mockERC721.ownerOf(tokenNftId),bob);
-        assertEq(tokenClooverRaffle.winnerAddress(), bob);
+        assertEq(tokenRaffle.winnerAddress(), bob);
     }
 
-    function test_WinnerClaim_TokenClooverRaffle_RevertWhen_ClooverRaffleStillOpen() external{
-        vm.expectRevert(Errors.RAFFLE_STILL_OPEN.selector);
-        tokenClooverRaffle.winnerClaim();
-    }
-
-    function test_WinnerClaim_TokenClooverRaffle_RevertWhen_NotWinnerTryToClaimPrice() external{
+    function test_WinnerClaim_TokenRaffle_RevertWhen_NotWinnerTryToClaimPrice() external{
         changePrank(bob);
         utils.goForward(ticketSaleDuration + 1);
-        tokenClooverRaffle.draw();
-        uint256 requestId = mockRamdomProvider.callerToRequestId(address(tokenClooverRaffle));
+        tokenRaffle.draw();
+        uint256 requestId = mockRamdomProvider.callerToRequestId(address(tokenRaffle));
         mockRamdomProvider.generateRandomNumbers(requestId);
         changePrank(alice);
         vm.expectRevert(Errors.MSG_SENDER_NOT_WINNER.selector);
-        tokenClooverRaffle.winnerClaim();
+        tokenRaffle.winnerClaim();
     }
 
-    function test_WinnerClaim_TokenClooverRaffle_RevertWhen_DrawnHasNotBeDone() external{
+    function test_WinnerClaim_TokenRaffle_RevertWhen_DrawnHasNotBeDone() external{
         changePrank(bob);
         utils.goForward(ticketSaleDuration + 1);
         vm.expectRevert(Errors.TICKET_NOT_DRAWN.selector);
-        tokenClooverRaffle.winnerClaim();
+        tokenRaffle.winnerClaim();
     }
 
-    function test_WinnerClaim_EthClooverRaffle() external{
+    function test_WinnerClaim_EthRaffle() external{
         changePrank(bob);
         utils.goForward(ticketSaleDuration + 1);
-        ethClooverRaffle.draw();
-        uint256 requestId = mockRamdomProvider.callerToRequestId(address(ethClooverRaffle));
+        ethRaffle.draw();
+        uint256 requestId = mockRamdomProvider.callerToRequestId(address(ethRaffle));
         mockRamdomProvider.generateRandomNumbers(requestId);
-        uint256 winningTicketNumber = 1;
-        vm.store(address(ethClooverRaffle),bytes32(uint256(12)), bytes32(winningTicketNumber));
-        assertEq(ethClooverRaffle.winningTicket(), winningTicketNumber);
-        ethClooverRaffle.winnerClaim();
+        assertFalse(ethRaffle.winningTicket() == 0);
+        assertFalse(ethRaffle.winningTicket() > ethRaffle.currentSupply());
+        ethRaffle.winnerClaim();
         assertEq(mockERC721.ownerOf(ethNftId),bob);
-        assertEq(ethClooverRaffle.winnerAddress(), bob);
+        assertEq(ethRaffle.winnerAddress(), bob);
     }
 
-    function test_WinnerClaim_EthClooverRaffle_RevertWhen_ClooverRaffleStillOpen() external{
-        vm.expectRevert(Errors.RAFFLE_STILL_OPEN.selector);
-        ethClooverRaffle.winnerClaim();
-    }
-
-    function test_WinnerClaim_EthClooverRaffle_RevertWhen_NotWinnerTryToClaimPrice() external{
+    function test_WinnerClaim_EthRaffle_RevertWhen_NotWinnerTryToClaimPrice() external{
         changePrank(bob);
         utils.goForward(ticketSaleDuration + 1);
-        ethClooverRaffle.draw();
-        uint256 requestId = mockRamdomProvider.callerToRequestId(address(ethClooverRaffle));
+        ethRaffle.draw();
+        uint256 requestId = mockRamdomProvider.callerToRequestId(address(ethRaffle));
         mockRamdomProvider.generateRandomNumbers(requestId);
         changePrank(alice);
         vm.expectRevert(Errors.MSG_SENDER_NOT_WINNER.selector);
-        ethClooverRaffle.winnerClaim();
+        ethRaffle.winnerClaim();
     }
 
-    function test_WinnerClaim_EthClooverRaffle_RevertWhen_DrawnHasNotBeDone() external{
+    function test_WinnerClaim_EthRaffle_RevertWhen_DrawnHasNotBeDone() external{
         changePrank(bob);
         utils.goForward(ticketSaleDuration + 1);
         vm.expectRevert(Errors.TICKET_NOT_DRAWN.selector);
-        ethClooverRaffle.winnerClaim();
+        ethRaffle.winnerClaim();
     }
 }

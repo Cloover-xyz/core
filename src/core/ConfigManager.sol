@@ -12,36 +12,29 @@ import {IConfigManager} from "../interfaces/IConfigManager.sol";
 import {ImplementationInterfaceNames} from "../libraries/helpers/ImplementationInterfaceNames.sol";
 import {Errors} from "../libraries/helpers/Errors.sol";
 import {PercentageMath} from "../libraries/math/PercentageMath.sol";
-import {ConfiguratorInputTypes} from "../libraries/types/ConfiguratorInputTypes.sol";
+import {ConfigManagerDataTypes} from "../libraries/types/ConfigManagerDataTypes.sol";
 
 contract ConfigManager is IConfigManager {
-    using PercentageMath for uint256;
 
-    struct ClooverRaffleConfigData{
-        uint256 protocolFeesPercentage;
-        uint256 maxTicketSupplyAllowed;
-        uint256 minTicketSalesDuration;
-        uint256 maxTicketSalesDuration;
-        uint256 insuranceSalesPercentage;
-    }
-    
+    using PercentageMath for uint256;
+   
     //----------------------------------------
     // Storage
     //----------------------------------------
 
     IImplementationManager public _implementationManager;
 
-    ClooverRaffleConfigData private _raffleConfigData;
+    ConfigManagerDataTypes.ProtocolConfigData private _config;
 
     //----------------------------------------
     // Events
     //----------------------------------------
 
-    event ProtocolFeesPercentageUpdated(uint256 newFeePercentage);
-    event MaxTicketSupplyAllowedUpdated(uint256 newMaxTicketSupplyAllowed);
+    event ProtocolFeeRateUpdated(uint256 newFeeRate);
+    event MaxTotalSupplyAllowedUpdated(uint256 newMaxTicketSupply);
     event MinTicketSalesDurationUpdated(uint256 newMinTicketSalesDuration);
     event MaxTicketSalesDurationUpdated(uint256 newMaxTicketSalesDuration);
-    event InsuranceSalesPercentageUpdated(uint256 newInsuranceSalesPercentage);
+    event InsuranceRateUpdated(uint256 newinsuranceRate);
 
     //----------------------------------------
     // Modifiers
@@ -55,79 +48,79 @@ contract ConfigManager is IConfigManager {
     //----------------------------------------
     // Initialization function
     //----------------------------------------
-    constructor(IImplementationManager implManager, ConfiguratorInputTypes.InitConfigManagerInput memory _data){
-        if(_data.protocolFeesPercentage > PercentageMath.PERCENTAGE_FACTOR) revert Errors.EXCEED_MAX_PERCENTAGE();
-        if(_data.insuranceSalesPercentage > PercentageMath.PERCENTAGE_FACTOR) revert Errors.EXCEED_MAX_PERCENTAGE();
+    constructor(IImplementationManager implManager, ConfigManagerDataTypes.InitConfigManagerParams memory _data){
+        if(_data.protocolFeeRate > PercentageMath.PERCENTAGE_FACTOR) revert Errors.EXCEED_MAX_PERCENTAGE();
+        if(_data.insuranceRate > PercentageMath.PERCENTAGE_FACTOR) revert Errors.EXCEED_MAX_PERCENTAGE();
         if(_data.minTicketSalesDuration > _data.maxTicketSalesDuration) revert Errors.WRONG_DURATION_LIMITS();
-        if(_data.maxTicketSupplyAllowed == 0) revert Errors.CANT_BE_ZERO();
+        if(_data.maxTotalSupplyAllowed == 0) revert Errors.CANT_BE_ZERO();
         _implementationManager = implManager;
-        _raffleConfigData = ClooverRaffleConfigData(
-            _data.protocolFeesPercentage,
-            _data.maxTicketSupplyAllowed,
-            _data.minTicketSalesDuration,
-            _data.maxTicketSalesDuration, 
-            _data.insuranceSalesPercentage
-        );
+        _config = ConfigManagerDataTypes.ProtocolConfigData({
+            maxTotalSupplyAllowed:_data.maxTotalSupplyAllowed,
+            protocolFeeRate: _data.protocolFeeRate,
+            insuranceRate: _data.insuranceRate,
+            minTicketSalesDuration: _data.minTicketSalesDuration,
+            maxTicketSalesDuration: _data.maxTicketSalesDuration
+        });
     }
 
     //----------------------------------------
     // External function
     //----------------------------------------
 
-    function setProtocolFeesPercentage(uint256 newFeePercentage) external onlyMaintainer{
-        if(newFeePercentage > PercentageMath.PERCENTAGE_FACTOR) revert Errors.EXCEED_MAX_PERCENTAGE();
-        _raffleConfigData.protocolFeesPercentage = newFeePercentage;
-        emit ProtocolFeesPercentageUpdated(newFeePercentage);
+    function setProtocolFeeRate(uint16 newFeeRate) external onlyMaintainer {
+        if(newFeeRate > PercentageMath.PERCENTAGE_FACTOR) revert Errors.EXCEED_MAX_PERCENTAGE();
+        _config.protocolFeeRate = newFeeRate;
+        emit ProtocolFeeRateUpdated(newFeeRate);
     }
 
-    function protocolFeesPercentage() external view override returns(uint256) {
-        return _raffleConfigData.protocolFeesPercentage;
+    function protocolFeeRate() external view override returns(uint256) {
+        return _config.protocolFeeRate;
     }
     
-    function setInsuranceSalesPercentage(uint256 newInsuranceSalesPercentage) external onlyMaintainer{
-        if(newInsuranceSalesPercentage > PercentageMath.PERCENTAGE_FACTOR) revert Errors.EXCEED_MAX_PERCENTAGE();
-        _raffleConfigData.insuranceSalesPercentage = newInsuranceSalesPercentage;
-        emit InsuranceSalesPercentageUpdated(newInsuranceSalesPercentage);
+    function setInsuranceRate(uint16 newinsuranceRate) external onlyMaintainer {
+        if(newinsuranceRate > PercentageMath.PERCENTAGE_FACTOR) revert Errors.EXCEED_MAX_PERCENTAGE();
+        _config.insuranceRate = newinsuranceRate;
+        emit InsuranceRateUpdated(newinsuranceRate);
     }
 
-    function insuranceSalesPercentage() external view override returns(uint256) {
-        return _raffleConfigData.insuranceSalesPercentage;
+    function insuranceRate() external view override returns(uint256) {
+        return _config.insuranceRate;
     }
 
-    function setMinTicketSalesDuration(uint256 newMinTicketSalesDuration) external onlyMaintainer{
-        if(newMinTicketSalesDuration > _raffleConfigData.maxTicketSalesDuration) revert Errors.WRONG_DURATION_LIMITS();
-        _raffleConfigData.minTicketSalesDuration = newMinTicketSalesDuration;
+    function setMinTicketSalesDuration(uint64 newMinTicketSalesDuration) external onlyMaintainer {
+        if(newMinTicketSalesDuration > _config.maxTicketSalesDuration) revert Errors.WRONG_DURATION_LIMITS();
+        _config.minTicketSalesDuration = newMinTicketSalesDuration;
         emit MinTicketSalesDurationUpdated(newMinTicketSalesDuration);
     }
 
     function minTicketSalesDuration() external view override returns(uint256) {
-        return _raffleConfigData.minTicketSalesDuration;
+        return _config.minTicketSalesDuration;
     }
 
-    function setMaxTicketSalesDuration(uint256 newMaxTicketSalesDuration) external onlyMaintainer{
-        if(newMaxTicketSalesDuration < _raffleConfigData.minTicketSalesDuration) revert Errors.WRONG_DURATION_LIMITS();
-        _raffleConfigData.maxTicketSalesDuration = newMaxTicketSalesDuration;
+    function setMaxTicketSalesDuration(uint64 newMaxTicketSalesDuration) external onlyMaintainer {
+        if(newMaxTicketSalesDuration < _config.minTicketSalesDuration) revert Errors.WRONG_DURATION_LIMITS();
+        _config.maxTicketSalesDuration = newMaxTicketSalesDuration;
         emit MaxTicketSalesDurationUpdated(newMaxTicketSalesDuration);
     }
 
     function maxTicketSalesDuration() external view override returns(uint256) {
-        return _raffleConfigData.maxTicketSalesDuration;
+        return _config.maxTicketSalesDuration;
     }
 
-    function setMaxTicketSupplyAllowed(uint256 newMaxTicketSupplyAllowed) external onlyMaintainer{
-        _raffleConfigData.maxTicketSupplyAllowed = newMaxTicketSupplyAllowed;
-        emit MaxTicketSupplyAllowedUpdated(newMaxTicketSupplyAllowed);
+    function setMaxTotalSupplyAllowed(uint16 newMaxTotalSupplyAllowed) external onlyMaintainer {
+        _config.maxTotalSupplyAllowed = newMaxTotalSupplyAllowed;
+        emit MaxTotalSupplyAllowedUpdated(newMaxTotalSupplyAllowed);
     }
 
-    function maxTicketSupplyAllowed() external view override returns(uint256) {
-        return _raffleConfigData.maxTicketSupplyAllowed;
+    function maxTotalSupplyAllowed() external view override returns(uint256) {
+        return _config.maxTotalSupplyAllowed;
     }
 
     function implementationManager() external view returns(IImplementationManager) {
         return _implementationManager;
     }
 
-    function ticketSalesDurationLimits() external view returns(uint256 minDuration, uint256 maxDuration){
-        return (_raffleConfigData.minTicketSalesDuration,_raffleConfigData.maxTicketSalesDuration);
+    function ticketSalesDurationLimits() external view returns(uint256 minDuration, uint256 maxDuration) {
+        return (_config.minTicketSalesDuration,_config.maxTicketSalesDuration);
     }
 }

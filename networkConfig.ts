@@ -9,7 +9,8 @@ type NetworkConfig = {
       subscriptionId?: number;
     };
     configManager: {
-      baseFeePercentage: number;
+      protocolFeesPercentage: number;
+      insuranceCostPercentage: number;
       maxTicketSupplyAllowed: number;
       minSalesDuration: number;
       maxSalesDuration: number;
@@ -30,7 +31,8 @@ export const networkConfig: NetworkConfig = {
       subscriptionId: Number(process.env.CHAINLINK_VRF_SUBSCRIPTION_ID),
     },
     configManager: {
-      baseFeePercentage: 250, // 2.5%
+      protocolFeesPercentage: 250, // 2.5%
+      insuranceCostPercentage: 200, // 2%
       maxTicketSupplyAllowed: 10000,
       minSalesDuration: 86400, // 1 day
       maxSalesDuration: 5270400, // 61 days

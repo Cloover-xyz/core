@@ -12,101 +12,110 @@ interface IClooverRaffle {
      * @dev must be tag by the initializer function 
      * @param params used for initialization (see InitClooverRaffleParams struct)
      */
-    function initialize(ClooverRaffleDataTypes.InitClooverRaffleParams memory params) external payable;
+    function initialize(ClooverRaffleDataTypes.InitializeRaffleParams memory params) external payable;
 
     /**
      * @notice Allows users to purchase tickets
-     * @dev Only accessible if raffle still open to particpants
-     * @param nbOfTickets number of tickets purchased
+     * @dev Only callable if ticket sales still open
+     * @param nbOfTickets number of tickets to purchase
      */
-    function purchaseTickets(uint256 nbOfTickets) external;
+    function purchaseTickets(uint16 nbOfTickets) external;
 
     /**
      * @notice Allows users to purchase tickets with ETH
-     * @dev Only accessible if raffle still open to particpants
-     * @param nbOfTickets number of tickets purchased
+     * @dev Only callable if ticket sales still open
+     * @param nbOfTickets number of tickets to purchase
      */
-    function purchaseTicketsInEth(uint256 nbOfTickets) external payable;
+    function purchaseTicketsInEth(uint16 nbOfTickets) external payable;
     
     /**
      * @notice Request a random numbers
-     * @dev must call the RandomProvider that use ChainLinkVRFv2 
+     * @dev must call the RandomProvider that use Chainlink's VRFConsumerBaseV2
      */
     function draw() external;
 
     /**
-     * @notice Select the winning tickets number received from the RandomProvider contract
-     * @dev must be only called by the RandomProvider contract or the ClooverRaffleFactory
-     * function must not revert to avoid multi drawn to revert
+     * @notice Select the winning ticket number using the random number from Chainlink's VRFConsumerBaseV2
+     * @dev must be only called by the RandomProvider contract
+     * function must not revert to avoid multi drawn to revert and block contract in case of wrong value received
      * @param randomNumbers random numbers requested in array
      */
     function draw(uint256[] memory randomNumbers) external;
     
     /**
-     * @notice Allows the creator to excerce his insurance and claim back his nft
+     * @notice Allows the creator to exerce the insurance he paid for and claim back his nft
      * @dev Only callable if ticket sales is close and amount of ticket sold is lower than raffle insurance
+     * in case no ticket has been sold, the creator can claim back his nft with the insurance he paid
+     * Only callable if raffle is in ERC20
      */
     function creatorClaimInsurance() external;
 
     /**
-     * @notice Allows the creator to excerce his insurance and claim back his nft
+     * @notice Allows the creator to exerce the insurance he paid for and claim back his nft
      * @dev Only callable if ticket sales is close and amount of ticket sold is lower than raffle insurance
+     * in case no ticket has been sold, the creator can claim back his nft with the insurance he paid
+     * Only callable if raffle is in Eth
      */
     function creatorClaimInsuranceInEth() external;
 
     /**
      * @notice Allows the creator to claim the amount related to the ticket sales
-     * @dev The functions should send to the creator his part after fees + insurance paid
-     * Only callable if tickets has been sold in ERC20
+     * @dev The functions should send to the creator his part after fees
+     * In case creator paid insurance, the function should send the insurance to the creator
+     * Only callable if raffle is in ERC20
      */
     function creatorClaimTicketSales() external;
 
     /**
      * @notice Allows the creator to claim the amount related to the ticket sales
-     * @dev The functions should send to the creator his part after fees + insurance paid
+     * @dev The functions should send to the creator his part after fees
+     * In case creator paid insurance, the function should send the insurance to the creator
      * Only callable if tickets has been sold in Eth
      */
     function creatorClaimTicketSalesInEth() external;
 
     /**
-     * @notice Allows the winner to claim his price(s)
-     * @dev Ticket(s) must be draw and raffle close to new participants
+     * @notice Allows the winner to claim his price
+     * @dev Ticket sales must be over and winning ticket drawn
      */
     function winnerClaim() external;
 
    /**
-     * @notice Allows tickets owner to claim refund if raffle in insurance mode
-     * @dev Only callable if ticket sales is close and amount of ticket sold is lower than raffle insurance
-     * Only callable if tickets has been sold in Tokens 
+    * @notice Allow tickets owner to claim refund if raffle is in insurance mode
+    * @dev Only callable if ticket sales is over and amount of ticket sold is lower than insurance defined by creator
+    * user must receive the amount he paid for his tickets + a part of the insurance
+    * Only callable if tickets has been sold in Tokens 
     */
     function userClaimRefund() external;
 
    /**
-     * @notice Allows tickets owner to claim refund if raffle in insurance mode
-     * @dev Only callable if ticket sales is close and amount of ticket sold is lower than raffle insurance
-     * Only callable if tickets has been sold in Tokens 
+    * @notice Allow tickets owner to claim refund if raffle is in insurance mode
+    * @dev Only callable if ticket sales is over and amount of ticket sold is lower than insurance defined by creator
+    * user must receive the amount he paid for his tickets + a part of the insurance
+     * Only callable if tickets has been sold in Eth 
     */
     function userClaimRefundInEth() external;
 
     /**
-     * @notice Allows the creator to cancel the raffle
+     * @notice Allow the creator to cancel the raffle
      * @dev Only callable if no ticket has been sold
+     * must sent back the nft to the creator
      * must refund the creator insurance if paid
      * must remove the raffle from the ClooverRaffleFactory whitelist
      */
-    function cancelClooverRaffle() external;
+    function cancelRaffle() external;
 
     /**
     * @notice get the total amount of tickets sold
     * @return The total amount of tickets sold
     */
-    function totalSupply() external view returns(uint256);
+    function currentSupply() external view returns(uint16);
 
     /**
     * @notice get the max amount of tickets that can be sold
     * @return The total amount of tickets sold
     */
-    function maxSupply() external view returns(uint256);
+    function maxTotalSupply() external view returns(uint16);
 
     /**
     * @notice get the address of the wallet that initiated the raffle
@@ -124,7 +133,7 @@ interface IClooverRaffle {
     * @notice get if the raffle accept only ETH
     * @return The True if ticket can only be purchase in ETH, False otherwise
     */
-    function isEthTokenSales() external view returns(bool);
+    function isEthRaffle() external view returns(bool);
 
     /**
     * @notice get the price of one ticket
@@ -143,7 +152,7 @@ interface IClooverRaffle {
     * @dev revert if ticket sales not close and if ticket number hasn't be drawn
     * @return The ticket number that win the raffle
     */
-    function winningTicket() external view returns(uint256);
+    function winningTicket() external view returns(uint16);
     
     /**
     * @notice get the winner address
@@ -161,21 +170,21 @@ interface IClooverRaffle {
 
     /**
     * @notice get info regarding the workflow status of the raffle
-    * @return The status regarding the ClooverRaffleStatus enum 
+    * @return The status regarding the RaffleStatus enum 
     */
-    function raffleStatus() external view returns(ClooverRaffleDataTypes.ClooverRaffleStatus);
+    function raffleStatus() external view returns(ClooverRaffleDataTypes.RaffleStatus);
 
     /**
     * @notice get all tickets number bought by a user
     * @return True if ticket has been drawn, False otherwise
     */
-    function balanceOf(address user) external view returns(uint256[] memory);
+    function balanceOf(address user) external view returns(uint16[] memory);
 
     /**
     * @notice get the wallet that bought a specific ticket number
     * @return The address that bought the own the ticket
     */
-    function ownerOf(uint256 id) external view returns(address);
+    function ownerOf(uint16 id) external view returns(address);
 
    /**
     * @notice get the randomProvider contract address from the implementationManager
