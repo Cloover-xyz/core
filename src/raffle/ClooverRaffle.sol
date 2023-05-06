@@ -1,9 +1,13 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity 0.8.19;
+
+import {console2} from 'forge-std/console2.sol';
 
 import {Math} from "openzeppelin-contracts/contracts/utils/math/Math.sol";
 import {Initializable} from "openzeppelin-contracts/contracts/proxy/utils/Initializable.sol";
 import {IERC20} from "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
+import {IERC20Permit} from "openzeppelin-contracts/contracts/token/ERC20/extensions/IERC20Permit.sol";
+
 import {IERC721} from "openzeppelin-contracts/contracts/token/ERC721/IERC721.sol";
 
 import {ImplementationInterfaceNames} from "../libraries/helpers/ImplementationInterfaceNames.sol";
@@ -31,9 +35,9 @@ contract ClooverRaffle is IClooverRaffle, Initializable {
     // Mapping owner address to PurchasedEntries index
     mapping(address => ClooverRaffleDataTypes.ParticipantInfo) internal participantInfoMap;
 
-    ClooverRaffleDataTypes.RaffleConfigurationData internal config;
+    ClooverRaffleDataTypes.ConfigData internal config;
 
-    ClooverRaffleDataTypes.RaffleLifeCycleData internal lifeCycleData;
+    ClooverRaffleDataTypes.LifeCycleData internal lifeCycleData;
 
     //----------------------------------------
     // Events
@@ -110,7 +114,7 @@ contract ClooverRaffle is IClooverRaffle, Initializable {
         (uint16 _insuranceRate, uint16 _protocolFeeRate, bool _isEthRaffle) =_checkData(params);
         
         
-        config = ClooverRaffleDataTypes.RaffleConfigurationData({
+        config = ClooverRaffleDataTypes.ConfigData({
             creator: params.creator,
             implementationManager: params.implementationManager,
             purchaseCurrency: params.purchaseCurrency,
@@ -136,26 +140,24 @@ contract ClooverRaffle is IClooverRaffle, Initializable {
     function purchaseTickets(
         uint16 nbOfTickets
     ) external override ticketSalesOpen {
-        if (isEthRaffle()) revert Errors.IS_ETH_RAFFLE();
-        if (nbOfTickets == 0) revert Errors.CANT_BE_ZERO();
-        uint16 _maxTicketAllowedToPurchase = config.maxTicketAllowedToPurchase;
-        if(_maxTicketAllowedToPurchase > 0 && participantInfoMap[msg.sender].nbOfTicketsPurchased + nbOfTickets > _maxTicketAllowedToPurchase)
-            revert Errors.EXCEED_MAX_TICKET_ALLOWED_TO_PURCHASE();
-       
-        uint16 _currentSupply = currentSupply();
-        if (_currentSupply + nbOfTickets > maxTotalSupply())
-            revert Errors.TICKET_SUPPLY_OVERFLOW();
-        
-        uint256 ticketCost =  _calculateTicketsCost(nbOfTickets);
-        config.purchaseCurrency.transferFrom(
+        _purchaseTicketInToken(nbOfTickets);
+    }
+
+    /// @inheritdoc IClooverRaffle
+    function purchaseTicketsWithPermit(
+        uint16 nbOfTickets,
+        ClooverRaffleDataTypes.PermitData calldata permitData
+    ) external override ticketSalesOpen {
+         IERC20Permit(address(config.purchaseCurrency)).permit(
             msg.sender,
             address(this),
-            ticketCost
+            permitData.amount,
+            permitData.deadline,
+            permitData.v,
+            permitData.r,
+            permitData.s
         );
-
-         _purchaseTicket(nbOfTickets);
-
-        emit TicketPurchased(msg.sender, _currentSupply, uint16(nbOfTickets));
+        _purchaseTicketInToken(nbOfTickets);
     }
 
     /// @inheritdoc IClooverRaffle
@@ -204,12 +206,10 @@ contract ClooverRaffle is IClooverRaffle, Initializable {
     ) external override onlyRandomProviderContract {
         if (randomNumbers[0] == 0) {
             lifeCycleData.status = ClooverRaffleDataTypes.RaffleStatus.DEFAULT;
-            
         } else {
-            uint16 winningTicketNumber = uint16((randomNumbers[0] % currentSupply()) + 1);
+            uint16 winningTicketNumber = uint16((randomNumbers[0] % lifeCycleData.currentSupply) + 1);
             lifeCycleData.winningTicketNumber = winningTicketNumber;
             lifeCycleData.status = ClooverRaffleDataTypes.RaffleStatus.DRAWN;
-
             emit WinningTicketDrawn(winningTicketNumber);
         }
         emit RaffleStatus(lifeCycleData.status);
@@ -507,9 +507,9 @@ contract ClooverRaffle is IClooverRaffle, Initializable {
         view
         override
         ticketSalesOver
-        winningTicketDrawn
         returns (address)
     {
+        if (lifeCycleData.winningTicketNumber == 0) return address(0);
         uint256 index = findUpperBound(purchasedEntries, lifeCycleData.winningTicketNumber);
         return purchasedEntries[index].owner;
     }
@@ -551,7 +551,7 @@ contract ClooverRaffle is IClooverRaffle, Initializable {
             uint16 nbOfTicketsPurchased = _purchasedEntries[entryIndex].nbOfTickets;
             uint16 startNumber = _purchasedEntries[entryIndex].currentTicketsSold - nbOfTicketsPurchased;
             for(uint16 j; j < nbOfTicketsPurchased; ){
-                userTickets[i+j] = startNumber + j;
+                userTickets[i+j] = startNumber + j + 1;
                 unchecked {
                     ++j;
                 }
@@ -669,6 +669,32 @@ contract ClooverRaffle is IClooverRaffle, Initializable {
         return(uint16(_insuranceRate), uint16(_protocolFeeRate), _isEthRaffle);
     }
 
+    function _purchaseTicketInToken(uint16 nbOfTickets) internal {
+        if (isEthRaffle()) revert Errors.IS_ETH_RAFFLE();
+        if (nbOfTickets == 0) revert Errors.CANT_BE_ZERO();
+        uint16 _maxTicketAllowedToPurchase = config.maxTicketAllowedToPurchase;
+        if(_maxTicketAllowedToPurchase > 0 && participantInfoMap[msg.sender].nbOfTicketsPurchased + nbOfTickets > _maxTicketAllowedToPurchase)
+            revert Errors.EXCEED_MAX_TICKET_ALLOWED_TO_PURCHASE();
+       
+        uint16 _currentSupply = currentSupply();
+        if (_currentSupply + nbOfTickets > maxTotalSupply())
+            revert Errors.TICKET_SUPPLY_OVERFLOW();
+        
+        uint256 ticketCost =  _calculateTicketsCost(nbOfTickets);
+
+       
+
+        config.purchaseCurrency.transferFrom(
+            msg.sender,
+            address(this),
+            ticketCost
+        );
+
+        _purchaseTicket(nbOfTickets);
+
+        emit TicketPurchased(msg.sender, _currentSupply, uint16(nbOfTickets));
+    }
+
    /**
      * @notice attribute ticket to msg.sender
      * @param nbOfTickets the amount of ticket that the msg.sender to purchasing
@@ -681,7 +707,7 @@ contract ClooverRaffle is IClooverRaffle, Initializable {
 
         ClooverRaffleDataTypes.PurchasedEntries memory entryPurchase = ClooverRaffleDataTypes.PurchasedEntries({
             owner: msg.sender,
-            currentTicketsSold: currentTicketsSold + 1,
+            currentTicketsSold: currentTicketsSold,
             nbOfTickets: nbOfTickets
         });
         purchasedEntries.push(entryPurchase);

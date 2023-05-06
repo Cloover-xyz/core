@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity 0.8.19;
 
-import {IImplementationManager} from "../interfaces/IImplementationManager.sol";
-import {IClooverRaffleFactory} from "../interfaces/IClooverRaffleFactory.sol";
-import {IClooverRaffle} from "../interfaces/IClooverRaffle.sol";
-import {IRandomProvider} from "../interfaces/IRandomProvider.sol";
+import {IImplementationManager} from "../../src/interfaces/IImplementationManager.sol";
+import {IClooverRaffleFactory} from "../../src/interfaces/IClooverRaffleFactory.sol";
+import {IClooverRaffle} from "../../src/interfaces/IClooverRaffle.sol";
+import {IRandomProvider} from "../../src/interfaces/IRandomProvider.sol";
 
-import {ImplementationInterfaceNames} from "../libraries/helpers/ImplementationInterfaceNames.sol";
+import {ImplementationInterfaceNames} from "../../src/libraries/helpers/ImplementationInterfaceNames.sol";
 
 contract MockRandomProvider is IRandomProvider {
 

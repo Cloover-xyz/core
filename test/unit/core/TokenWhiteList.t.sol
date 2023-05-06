@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity 0.8.19;
 
 import {Test} from "forge-std/Test.sol";
 import {IERC721} from "openzeppelin-contracts/contracts/token/ERC721/IERC721.sol";
-import {MockERC20} from "../../../src/mocks/MockERC20.sol";
+import {MockERC20WithPermit} from "../../mocks/MockERC20WithPermit.sol";
 
 import {SetupUsers} from "../../utils/SetupUsers.sol";
 
@@ -16,8 +16,8 @@ import {ImplementationInterfaceNames} from "../../../src/libraries/helpers/Imple
 
 
 contract TokenWhitelistTest is Test, SetupUsers {
-    MockERC20 tokenA;
-    MockERC20 tokenB;
+    MockERC20WithPermit tokenA;
+    MockERC20WithPermit tokenB;
 
     AccessController accessController;
     ImplementationManager implementationManager;
@@ -27,8 +27,8 @@ contract TokenWhitelistTest is Test, SetupUsers {
         SetupUsers.setUp();
 
         vm.startPrank(deployer);
-        tokenA = new MockERC20("Token A", "A", 18);
-        tokenB = new MockERC20("Token B", "B", 18);
+        tokenA = new MockERC20WithPermit("Token A", "A", 18);
+        tokenB = new MockERC20WithPermit("Token B", "B", 18);
         accessController = new AccessController(maintainer);
         implementationManager = new ImplementationManager(address(accessController));
         tokenWhitelist = new TokenWhitelist(implementationManager);

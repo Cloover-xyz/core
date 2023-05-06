@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity 0.8.19;
 
 import {IERC20} from "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 import {IERC721} from "openzeppelin-contracts/contracts/token/ERC721/IERC721.sol";
@@ -7,8 +7,16 @@ import {IERC721} from "openzeppelin-contracts/contracts/token/ERC721/IERC721.sol
 import {IImplementationManager} from "../../interfaces/IImplementationManager.sol";
 
 library ClooverRaffleDataTypes {
+    
+    struct PermitData{
+        uint256 amount;
+        uint256 deadline;
+        uint8 v;
+        bytes32 r;
+        bytes32 s;
+    }
 
-    struct RaffleConfigurationData {
+    struct ConfigData {
         address creator;    
         IImplementationManager implementationManager;
         IERC20 purchaseCurrency;
@@ -34,7 +42,7 @@ library ClooverRaffleDataTypes {
         CANCELLED
     }
 
-    struct RaffleLifeCycleData {
+    struct LifeCycleData {
         RaffleStatus status;
         uint16 currentSupply;
         uint16 winningTicketNumber;

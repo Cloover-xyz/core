@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity 0.8.19;
 
 import {Test} from "forge-std/Test.sol";
 
@@ -16,7 +16,7 @@ contract UserClaimClooverRaffleTest is Test, SetupClooverRaffles {
         SetupClooverRaffles.setUp();
 
         changePrank(bob);
-        mockERC20.approve(address(tokenRaffleWithInsurance), 100e18);
+        mockERC20WithPermit.approve(address(tokenRaffleWithInsurance), 100e18);
         tokenRaffleWithInsurance.purchaseTickets(2);
         ethRaffleWithInsurance.purchaseTicketsInEth{value: ticketPrice * 2}(2);
     }
@@ -24,7 +24,7 @@ contract UserClaimClooverRaffleTest is Test, SetupClooverRaffles {
     function test_UserClaimRefund() external {
         changePrank(bob);
         utils.goForward(ticketSaleDuration + 1);
-        uint256 bobPrevBalance = mockERC20.balanceOf(bob);
+        uint256 bobPrevBalance = mockERC20WithPermit.balanceOf(bob);
         tokenRaffleWithInsurance.userClaimRefund();
 
         (,uint256 insurancePartPerTicket) = InsuranceLogic.calculateInsuranceSplit(
@@ -35,7 +35,7 @@ contract UserClaimClooverRaffleTest is Test, SetupClooverRaffles {
             2    
         );
         uint256 expectedBobRefunds = insurancePartPerTicket * 2 + ticketPrice * 2;
-        assertEq(mockERC20.balanceOf(bob),bobPrevBalance+ expectedBobRefunds );
+        assertEq(mockERC20WithPermit.balanceOf(bob),bobPrevBalance+ expectedBobRefunds );
     }
 
     function test_UserClaimRefund_RevertWhen_NotEthClooverRaffle() external{

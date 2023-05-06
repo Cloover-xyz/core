@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity 0.8.19;
 
 import {Test} from "forge-std/Test.sol";
 
@@ -19,7 +19,7 @@ contract CancelClooverRaffleTest is Test, SetupClooverRaffles {
         changePrank(alice);
 
         tokenRaffle.cancelRaffle();
-        assertEq(mockERC20.balanceOf(address(tokenRaffle)), 0);
+        assertEq(mockERC20WithPermit.balanceOf(address(tokenRaffle)), 0);
         assertEq(mockERC721.ownerOf(tokenNftId), alice);
 
         ethRaffle.cancelRaffle();
@@ -39,7 +39,7 @@ contract CancelClooverRaffleTest is Test, SetupClooverRaffles {
 
     function test_CancelClooverRaffle_RevertWhen_AtLeastOneTicketHasBeenSold() external{
         changePrank(bob);
-        mockERC20.approve(address(tokenRaffle), 100e18);
+        mockERC20WithPermit.approve(address(tokenRaffle), 100e18);
         tokenRaffle.purchaseTickets(1);
         changePrank(alice);
         vm.expectRevert(Errors.SALES_ALREADY_STARTED.selector);
@@ -56,8 +56,8 @@ contract CancelClooverRaffleTest is Test, SetupClooverRaffles {
         changePrank(carole);
 
         tokenRaffleWithInsurance.cancelRaffle();
-        assertEq(mockERC20.balanceOf(address(tokenRaffleWithInsurance)), 0);
-        assertEq(mockERC20.balanceOf(carole), 100e18);
+        assertEq(mockERC20WithPermit.balanceOf(address(tokenRaffleWithInsurance)), 0);
+        assertEq(mockERC20WithPermit.balanceOf(carole), 100e18);
         assertEq(mockERC721.ownerOf(tokenWithAssuranceNftId), carole);
 
         ethRaffleWithInsurance.cancelRaffle();

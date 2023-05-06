@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity 0.8.19;
 
 import {Test} from "forge-std/Test.sol";
 
@@ -17,9 +17,9 @@ contract CreatorClaimTicketSalesClooverRaffleTest is Test, SetupClooverRaffles {
         SetupClooverRaffles.setUp();
 
         changePrank(bob);
-        mockERC20.approve(address(tokenRaffle), 100e18);
+        mockERC20WithPermit.approve(address(tokenRaffle), 100e18);
         tokenRaffle.purchaseTickets(2);
-        mockERC20.approve(address(tokenRaffleWithRoyalties), 100e18);
+        mockERC20WithPermit.approve(address(tokenRaffleWithRoyalties), 100e18);
         tokenRaffleWithRoyalties.purchaseTickets(2);
 
         ethRaffle.purchaseTicketsInEth{value: ticketPrice * 2}(2);
@@ -32,13 +32,13 @@ contract CreatorClaimTicketSalesClooverRaffleTest is Test, SetupClooverRaffles {
         tokenRaffle.draw();
         uint256 requestId = mockRamdomProvider.callerToRequestId(address(tokenRaffle));
         mockRamdomProvider.generateRandomNumbers(requestId);
-        uint256 aliceBalanceBefore = mockERC20.balanceOf(alice);
-        uint256 treasuryBalanceBefore = mockERC20.balanceOf(treasury);
+        uint256 aliceBalanceBefore = mockERC20WithPermit.balanceOf(alice);
+        uint256 treasuryBalanceBefore = mockERC20WithPermit.balanceOf(treasury);
         uint256 totalSalesAmount = ticketPrice * 2;
         tokenRaffle.creatorClaimTicketSales();
-        assertEq(mockERC20.balanceOf(treasury), treasuryBalanceBefore + totalSalesAmount.percentMul(PROTOCOL_FEE_RATE));
-        assertEq(mockERC20.balanceOf(alice), aliceBalanceBefore + totalSalesAmount - totalSalesAmount.percentMul(PROTOCOL_FEE_RATE));
-        assertEq(mockERC20.balanceOf(address(tokenRaffle)), 0);
+        assertEq(mockERC20WithPermit.balanceOf(treasury), treasuryBalanceBefore + totalSalesAmount.percentMul(PROTOCOL_FEE_RATE));
+        assertEq(mockERC20WithPermit.balanceOf(alice), aliceBalanceBefore + totalSalesAmount - totalSalesAmount.percentMul(PROTOCOL_FEE_RATE));
+        assertEq(mockERC20WithPermit.balanceOf(address(tokenRaffle)), 0);
     }
 
     function test_CreatorClaimTicketSales_WithRoyalties() external{
@@ -47,9 +47,9 @@ contract CreatorClaimTicketSalesClooverRaffleTest is Test, SetupClooverRaffles {
         tokenRaffleWithRoyalties.draw();
         uint256 requestId = mockRamdomProvider.callerToRequestId(address(tokenRaffleWithRoyalties));
         mockRamdomProvider.generateRandomNumbers(requestId);
-        uint256 nftCollectionCreatorBalanceBefore = mockERC20.balanceOf(admin);
-        uint256 aliceBalanceBefore = mockERC20.balanceOf(alice);
-        uint256 treasuryBalanceBefore = mockERC20.balanceOf(treasury);
+        uint256 nftCollectionCreatorBalanceBefore = mockERC20WithPermit.balanceOf(admin);
+        uint256 aliceBalanceBefore = mockERC20WithPermit.balanceOf(alice);
+        uint256 treasuryBalanceBefore = mockERC20WithPermit.balanceOf(treasury);
         uint256 totalSalesAmount = ticketPrice * 2;
         tokenRaffleWithRoyalties.creatorClaimTicketSales();
         uint256 protocolFees = totalSalesAmount.percentMul(
@@ -58,10 +58,10 @@ contract CreatorClaimTicketSalesClooverRaffleTest is Test, SetupClooverRaffles {
         uint256 royaltiesAmount = totalSalesAmount.percentMul(
             royaltiesRate
         );
-        assertEq(mockERC20.balanceOf(treasury), treasuryBalanceBefore + protocolFees);
-        assertEq(mockERC20.balanceOf(admin), nftCollectionCreatorBalanceBefore + royaltiesAmount);
-        assertEq(mockERC20.balanceOf(alice), aliceBalanceBefore + totalSalesAmount - protocolFees - royaltiesAmount);
-        assertEq(mockERC20.balanceOf(address(tokenRaffleWithRoyalties)), 0);
+        assertEq(mockERC20WithPermit.balanceOf(treasury), treasuryBalanceBefore + protocolFees);
+        assertEq(mockERC20WithPermit.balanceOf(admin), nftCollectionCreatorBalanceBefore + royaltiesAmount);
+        assertEq(mockERC20WithPermit.balanceOf(alice), aliceBalanceBefore + totalSalesAmount - protocolFees - royaltiesAmount);
+        assertEq(mockERC20WithPermit.balanceOf(address(tokenRaffleWithRoyalties)), 0);
     }
 
     function test_CreatorClaimTicketSales_RevertWhen_IsEthClooverRaffle() external{

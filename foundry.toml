@@ -14,9 +14,9 @@ gas_reports = [
 ]
 
 [rpc_endpoints]
-sepolia = "${SEPOLIA_RPC_URL}"
+sepolia = "https://sepolia.infura.io/v3/${SEPOLIA_RPC_URL}"
 [etherscan]
-mainnet = { key = "${ETHERSCAN_KEY}" }
+
 sepolia = {key = "${ETHERSCAN_KEY}" }
 
 # See more config options https://github.com/foundry-rs/foundry/tree/master/config

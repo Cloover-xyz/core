@@ -1,13 +1,14 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity 0.8.19;
 
 import {Test} from "forge-std/Test.sol";
 
 import {IERC20} from "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 import {IERC721} from "openzeppelin-contracts/contracts/token/ERC721/IERC721.sol";
+import {IERC20Permit} from "openzeppelin-contracts/contracts/token/ERC20/extensions/IERC20Permit.sol";
 
-import {MockERC20} from "../../../src/mocks/MockERC20.sol";
-import {MockERC721} from "../../../src/mocks/MockERC721.sol";
+import {MockERC20WithPermit} from "../../mocks/MockERC20WithPermit.sol";
+import {MockERC721} from "../../mocks/MockERC721.sol";
 
 import {ClooverRaffle} from "../../../src/raffle/ClooverRaffle.sol";
 import {ImplementationManager} from "../../../src/core/ImplementationManager.sol";
@@ -33,7 +34,7 @@ contract InitializeClooverRaffleTest is Test, SetupClooverRaffles {
         assertEq(tokenRaffle.currentSupply(), 0);
         assertEq(tokenRaffle.maxTotalSupply(), maxTotalSupply);
         assertFalse(tokenRaffle.isEthRaffle());
-        assertEq(address(tokenRaffle.purchaseCurrency()), address(mockERC20));
+        assertEq(address(tokenRaffle.purchaseCurrency()), address(mockERC20WithPermit));
         (IERC721 contractAddress, uint256 id )= tokenRaffle.nftToWin();
         assertEq(address(contractAddress) ,address(mockERC721));
         assertEq(id ,tokenNftId);
@@ -48,7 +49,7 @@ contract InitializeClooverRaffleTest is Test, SetupClooverRaffles {
         assertEq(tokenRaffleWithInsurance.maxTotalSupply(), maxTotalSupply);
         assertEq(tokenRaffleWithInsurance.insurancePaid(), insuranceCost);
         assertFalse(tokenRaffleWithInsurance.isEthRaffle());
-        assertEq(address(tokenRaffleWithInsurance.purchaseCurrency()), address(mockERC20));
+        assertEq(address(tokenRaffleWithInsurance.purchaseCurrency()), address(mockERC20WithPermit));
         (contractAddress, id )= tokenRaffleWithInsurance.nftToWin();
         assertEq(address(contractAddress) ,address(mockERC721));
         assertEq(id ,tokenWithAssuranceNftId);
@@ -60,7 +61,7 @@ contract InitializeClooverRaffleTest is Test, SetupClooverRaffles {
             .InitializeRaffleParams({
                 creator:alice,
                 implementationManager: implementationManager,
-                purchaseCurrency: mockERC20,
+                purchaseCurrency: mockERC20WithPermit,
                 nftContract: mockERC721,
                 nftId: tokenNftId,
                 ticketPrice: ticketPrice,
@@ -85,7 +86,7 @@ contract InitializeClooverRaffleTest is Test, SetupClooverRaffles {
             .InitializeRaffleParams({
                 creator:alice,
                 implementationManager: ImplementationManager(address(0)),
-                purchaseCurrency: mockERC20,
+                purchaseCurrency: mockERC20WithPermit,
                 nftContract: mockERC721,
                 nftId: _nftId,
                 ticketPrice: ticketPrice,
@@ -102,7 +103,7 @@ contract InitializeClooverRaffleTest is Test, SetupClooverRaffles {
         data = ClooverRaffleDataTypes.InitializeRaffleParams({
             creator:alice,
             implementationManager: implementationManager,
-            purchaseCurrency: MockERC20(address(deployer)),
+            purchaseCurrency: MockERC20WithPermit(address(deployer)),
             nftContract: mockERC721,
             nftId: _nftId,
             ticketPrice: ticketPrice,
@@ -120,7 +121,7 @@ contract InitializeClooverRaffleTest is Test, SetupClooverRaffles {
         data = ClooverRaffleDataTypes.InitializeRaffleParams({
             creator:alice,
             implementationManager: implementationManager,
-            purchaseCurrency: mockERC20,
+            purchaseCurrency: mockERC20WithPermit,
             nftContract: notWhitelistedCollection,
             nftId: _nftId,
             ticketPrice: ticketPrice,
@@ -137,7 +138,7 @@ contract InitializeClooverRaffleTest is Test, SetupClooverRaffles {
         data = ClooverRaffleDataTypes.InitializeRaffleParams({
             creator:alice,
             implementationManager: implementationManager,
-            purchaseCurrency: mockERC20,
+            purchaseCurrency: mockERC20WithPermit,
             nftContract: mockERC721,
             nftId: _nftId,
             ticketPrice: 0,
@@ -154,7 +155,7 @@ contract InitializeClooverRaffleTest is Test, SetupClooverRaffles {
         data = ClooverRaffleDataTypes.InitializeRaffleParams({
             creator:alice,
             implementationManager: implementationManager,
-            purchaseCurrency: mockERC20,
+            purchaseCurrency: mockERC20WithPermit,
             nftContract: mockERC721,
             nftId: _nftId,
             ticketPrice: ticketPrice,
@@ -171,7 +172,7 @@ contract InitializeClooverRaffleTest is Test, SetupClooverRaffles {
         data = ClooverRaffleDataTypes.InitializeRaffleParams({
             creator:alice,
             implementationManager: implementationManager,
-            purchaseCurrency: mockERC20,
+            purchaseCurrency: mockERC20WithPermit,
             nftContract: mockERC721,
             nftId: _nftId,
             ticketPrice: ticketPrice,
@@ -188,7 +189,7 @@ contract InitializeClooverRaffleTest is Test, SetupClooverRaffles {
         data = ClooverRaffleDataTypes.InitializeRaffleParams({
             creator:alice,
             implementationManager: implementationManager,
-            purchaseCurrency: mockERC20,
+            purchaseCurrency: mockERC20WithPermit,
             nftContract: mockERC721,
             nftId: _nftId,
             ticketPrice: ticketPrice,
@@ -205,7 +206,7 @@ contract InitializeClooverRaffleTest is Test, SetupClooverRaffles {
         data = ClooverRaffleDataTypes.InitializeRaffleParams({
             creator:alice,
             implementationManager: implementationManager,
-            purchaseCurrency: mockERC20,
+            purchaseCurrency: mockERC20WithPermit,
             nftContract: mockERC721,
             nftId: _nftId,
             ticketPrice: ticketPrice,
@@ -222,7 +223,7 @@ contract InitializeClooverRaffleTest is Test, SetupClooverRaffles {
         data = ClooverRaffleDataTypes.InitializeRaffleParams({
             creator:alice,
             implementationManager: implementationManager,
-            purchaseCurrency: mockERC20,
+            purchaseCurrency: mockERC20WithPermit,
             nftContract: mockERC721,
             nftId: _nftId,
             ticketPrice: ticketPrice,

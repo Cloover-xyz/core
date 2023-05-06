@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity 0.8.19;
 
 import {Test} from "forge-std/Test.sol";
 
 import {IERC20} from "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 
-import {MockERC20} from "../../../src/mocks/MockERC20.sol";
-import {MockERC721} from "../../../src/mocks/MockERC721.sol";
-import {MockRandomProvider} from "../../../src/mocks/MockRandomProvider.sol";
+import {MockERC20WithPermit} from "../../mocks/MockERC20WithPermit.sol";
+import {MockERC721} from "../../mocks/MockERC721.sol";
+import {MockRandomProvider} from "../../mocks/MockRandomProvider.sol";
 
 import {AccessController} from "../../../src/core/AccessController.sol";
 import {ImplementationManager} from "../../../src/core/ImplementationManager.sol";
@@ -23,11 +23,14 @@ import {ClooverRaffleDataTypes} from "../../../src/libraries/types/ClooverRaffle
 import {InsuranceLogic} from "../../../src/libraries/math/InsuranceLogic.sol";
 
 import {SetupUsers} from "../../utils/SetupUsers.sol";
+import {SigUtils} from "../../utils/SigUtils.sol";
 
 contract SetupClooverRaffles is Test, SetupUsers {
     using InsuranceLogic for uint;
 
-    MockERC20 mockERC20;
+    SigUtils internal sigUtils;
+
+    MockERC20WithPermit mockERC20WithPermit;
     MockERC721 mockERC721;
     MockRandomProvider mockRamdomProvider;
 
@@ -72,9 +75,11 @@ contract SetupClooverRaffles is Test, SetupUsers {
 
         vm.startPrank(deployer);
 
-        mockERC20 = new MockERC20("Mocked Test", "Test", 18);
-        mockERC20.mint(bob, 100e18);
-        mockERC20.mint(carole, 100e18);
+        mockERC20WithPermit = new MockERC20WithPermit("Mocked Test", "Test", 18);
+        mockERC20WithPermit.mint(bob, 100e18);
+        mockERC20WithPermit.mint(carole, 100e18);
+        
+        sigUtils = new SigUtils(mockERC20WithPermit.DOMAIN_SEPARATOR());
 
         mockERC721 = new MockERC721("Mocked NFT", "NFT");
 
@@ -125,7 +130,7 @@ contract SetupClooverRaffles is Test, SetupUsers {
         );
 
         nftCollectionWhitelist.addToWhitelist(address(mockERC721), admin);
-        tokenWhitelist.addToWhitelist(address(mockERC20));
+        tokenWhitelist.addToWhitelist(address(mockERC20WithPermit));
     }
 
     function setUp() public virtual override {
@@ -142,7 +147,7 @@ contract SetupClooverRaffles is Test, SetupUsers {
             .InitializeRaffleParams({
                 creator:alice,
                 implementationManager: implementationManager,
-                purchaseCurrency: mockERC20,
+                purchaseCurrency: mockERC20WithPermit,
                 nftContract: mockERC721,
                 nftId: tokenNftId,
                 ticketPrice: ticketPrice,
@@ -178,7 +183,7 @@ contract SetupClooverRaffles is Test, SetupUsers {
             .InitializeRaffleParams({
                 creator: alice,
                 implementationManager: implementationManager,
-                purchaseCurrency: mockERC20,
+                purchaseCurrency: mockERC20WithPermit,
                 nftContract: mockERC721,
                 nftId: tokenWithRoyaltiesNftId,
                 ticketPrice: ticketPrice,
@@ -217,7 +222,7 @@ contract SetupClooverRaffles is Test, SetupUsers {
             .InitializeRaffleParams({
                 creator: carole,
                 implementationManager: implementationManager,
-                purchaseCurrency: mockERC20,
+                purchaseCurrency: mockERC20WithPermit,
                 nftContract: mockERC721,
                 nftId: tokenWithAssuranceNftId,
                 ticketPrice: ticketPrice,
@@ -234,7 +239,7 @@ contract SetupClooverRaffles is Test, SetupUsers {
         );
         tokenRaffleInsuranceCost = uint256(minTicketSalesInsurance)
             .calculateInsuranceCost(ticketPrice, INSURANCE_RATE);
-        mockERC20.transfer(
+        mockERC20WithPermit.transfer(
             address(tokenRaffleWithInsurance),
             tokenRaffleInsuranceCost
         );

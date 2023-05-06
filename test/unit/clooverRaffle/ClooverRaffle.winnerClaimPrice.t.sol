@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity 0.8.19;
 
 import {Test} from "forge-std/Test.sol";
 
@@ -16,7 +16,7 @@ contract WinnerClaimClooverRaffleTest is Test, SetupClooverRaffles {
         SetupClooverRaffles.setUp();
 
         changePrank(bob);
-        mockERC20.approve(address(tokenRaffle), 100e18);
+        mockERC20WithPermit.approve(address(tokenRaffle), 100e18);
         tokenRaffle.purchaseTickets(2);
         ethRaffle.purchaseTicketsInEth{value: ticketPrice * 2}(2);
     }

@@ -1,13 +1,14 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity 0.8.19;
 
 import {Test} from "forge-std/Test.sol";
 
 import {IERC20} from "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 import {IERC721} from "openzeppelin-contracts/contracts/token/ERC721/IERC721.sol";
+import {IERC20Permit} from "openzeppelin-contracts/contracts/token/ERC20/extensions/IERC20Permit.sol";
 
-import {MockERC20} from "../../../src/mocks/MockERC20.sol";
-import {MockERC721} from "../../../src/mocks/MockERC721.sol";
+import {MockERC20WithPermit} from "../../mocks/MockERC20WithPermit.sol";
+import {MockERC721} from "../../mocks/MockERC721.sol";
 
 import {ClooverRaffle} from "../../../src/raffle/ClooverRaffle.sol";
 import {ImplementationManager} from "../../../src/core/ImplementationManager.sol";
@@ -31,18 +32,18 @@ contract CreatorClaimInsuranceClooverRaffleTest is Test, SetupClooverRaffles {
 
     function test_CreatorClaimInsurance() external {
         changePrank(bob);
-        mockERC20.approve(address(tokenRaffleWithInsurance), 100e18);
+        mockERC20WithPermit.approve(address(tokenRaffleWithInsurance), 100e18);
         tokenRaffleWithInsurance.purchaseTickets(2);
         utils.goForward(ticketSaleDuration + 1);
         
         changePrank(carole);
-        uint256 caroleBalanceBefore = mockERC20.balanceOf(carole);
+        uint256 caroleBalanceBefore = mockERC20WithPermit.balanceOf(carole);
         tokenRaffleWithInsurance.creatorClaimInsurance();
         assertEq(mockERC721.ownerOf(tokenWithAssuranceNftId), carole);
         uint256 insurancePaid = tokenRaffleWithInsurance.insurancePaid();
         uint256 treasuryAmount = insurancePaid.percentMul(PROTOCOL_FEE_RATE);
-        assertEq(mockERC20.balanceOf(treasury),treasuryAmount);
-        assertEq(mockERC20.balanceOf(carole),caroleBalanceBefore);
+        assertEq(mockERC20WithPermit.balanceOf(treasury),treasuryAmount);
+        assertEq(mockERC20WithPermit.balanceOf(carole),caroleBalanceBefore);
     }
 
     function test_CreatorClaimInsurance_RevertWhen_IsEthRaffe() external{
@@ -61,7 +62,7 @@ contract CreatorClaimInsuranceClooverRaffleTest is Test, SetupClooverRaffles {
 
     function test_CreatorClaimInsurance_RevertWhen_CreatorAlreadyExerciceRefund() external{
         changePrank(bob);
-        mockERC20.approve(address(tokenRaffleWithInsurance), 100e18);
+        mockERC20WithPermit.approve(address(tokenRaffleWithInsurance), 100e18);
         tokenRaffleWithInsurance.purchaseTickets(2);
 
         changePrank(carole);
@@ -87,7 +88,7 @@ contract CreatorClaimInsuranceClooverRaffleTest is Test, SetupClooverRaffles {
 
     function test_CreatorClaimInsurance_RevertWhen_TicketSalesAreEqualOrHigherThanInsurance() external{
         changePrank(bob);
-        mockERC20.approve(address(tokenRaffleWithInsurance), 100e18);
+        mockERC20WithPermit.approve(address(tokenRaffleWithInsurance), 100e18);
         tokenRaffleWithInsurance.purchaseTickets(5);
 
         changePrank(carole);

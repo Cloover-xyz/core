@@ -1,7 +1,7 @@
 {
   "_format": "hh-sol-artifact-1",
-  "contractName": "MockERC20",
-  "sourceName": "src/mocks/MockERC20.sol",
+  "contractName": "mockERC20WithPermit",
+  "sourceName": "src/mocks/mockERC20WithPermit.sol",
   "abi": [
     {
       "inputs": [
