@@ -739,22 +739,6 @@ contract ClooverRaffle is IClooverRaffle, Initializable, ClooverRaffleStorage {
         }
     }
 
-    /**
-     * @notice calculate the amount in insurance creator paid
-     * @param ticketSalesInsurance is the amount of ticket cover by the insurance
-     * @param ticketCost is the price of one ticket
-     * @param insuranceRate is the percentage that the creator has to pay as insurance
-     * @return insuranceCost the total cost
-     */
-    function _calculateInsuranceCost(
-        uint256 ticketSalesInsurance,
-        uint256 ticketCost,
-        uint256 insuranceRate
-    ) internal pure returns (uint256 insuranceCost) {
-        insuranceCost = (ticketSalesInsurance * ticketCost).percentMul(
-            insuranceRate
-        );
-    }
 
     function _calculateAmountToTransfer(
         uint256 ticketSalesAmount

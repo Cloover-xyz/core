@@ -4,17 +4,27 @@ pragma solidity 0.8.19;
 
 import {PercentageMath} from '../math/PercentageMath.sol';
 
-library InsuranceLogic {
+/// @title InsuranceLib
+/// @author Cloover
+/// @notice Library used to calculate insurance data
+library InsuranceLib {
     
     using PercentageMath for uint256;
 
+    /**
+     * @notice calculate the amount in insurance creator paid
+     * @param minTicketSalesInsurance is the amount of ticket cover by the insurance
+     * @param ticketPrice is the price of one ticket
+     * @param insuranceRate is the percentage that the creator has to pay as insurance
+     * @return insuranceCost the total cost
+     */
     function calculateInsuranceCost(
         uint256 minTicketSalesInsurance,
         uint256 ticketPrice,
-        uint256 insurancePercentage
-    ) internal pure returns(uint256 insuranceAmount){
-        insuranceAmount = (minTicketSalesInsurance * ticketPrice).percentMul(
-                insurancePercentage
+        uint256 insuranceRate
+    ) internal pure returns(uint256 insuranceCost){
+        insuranceCost = (minTicketSalesInsurance * ticketPrice).percentMul(
+                insuranceRate
         );
     }
 
