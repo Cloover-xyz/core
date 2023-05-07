@@ -30,11 +30,11 @@ contract ConfigManager is IConfigManager {
     // Events
     //----------------------------------------
 
-    event ProtocolFeeRateUpdated(uint256 newFeeRate);
+    event ProtocolFeeRateUpdated(uint256 newProtocolFeeRate);
     event MaxTotalSupplyAllowedUpdated(uint256 newMaxTicketSupply);
     event MinTicketSalesDurationUpdated(uint256 newMinTicketSalesDuration);
     event MaxTicketSalesDurationUpdated(uint256 newMaxTicketSalesDuration);
-    event InsuranceRateUpdated(uint256 newinsuranceRate);
+    event InsuranceRateUpdated(uint256 newInsuranceRate);
 
     //----------------------------------------
     // Modifiers

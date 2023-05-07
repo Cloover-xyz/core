@@ -20,3 +20,4 @@ coverage
 # Env setup
 *.DS_Store
 .idea
+.gas-snapshot
