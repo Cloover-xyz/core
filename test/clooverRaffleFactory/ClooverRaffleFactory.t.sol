@@ -27,7 +27,6 @@ contract ClooverRaffleFactoryTest is IntegrationTest {
       _mintERC20(address(participant1), 1000e6);
       
       _mintNFT(address(creator), nftIdOne);
-  
    }
 
    function test_CreateClooverRaffle_TokenRaffle() external {
