@@ -1,5 +1,5 @@
 {
-  "name": "@cloover/core",
+  "name": "cloover-core",
   "version": "1.0.0",
   "description": "Core contracts of Cloover's protocol",
   "author": "Cloover",
@@ -29,8 +29,8 @@
   },
   "lint-staged": {
     "*.sol": "forge fmt",
-    "*.json": "yarn prettier",
-    "*.yml": "yarn prettier"
+    "*.json": "pnpm prettier",
+    "*.yml": "pnpm prettier"
   },
   "commitlint": {
     "extends": [
