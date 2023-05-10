@@ -4,16 +4,19 @@ pragma solidity 0.8.19;
 import {IAccessController} from "../interfaces/IAccessController.sol";
 import {IImplementationManager} from "../interfaces/IImplementationManager.sol";
 
-import {ImplementationInterfaceNames} from "../libraries/helpers/ImplementationInterfaceNames.sol";
-import {Errors} from "../libraries/helpers/Errors.sol";
+import {ImplementationInterfaceNames} from "../libraries/ImplementationInterfaceNames.sol";
+import {Errors} from "../libraries/Errors.sol";
 
+/// @title ImplementationManager
+/// @author Cloover
+/// @notice Contract that manages the list of contracts deployed for the protocol
 contract ImplementationManager is IImplementationManager {
 
   //----------------------------------------
   // Storage
   //----------------------------------------
 
-  mapping(bytes32 => address) public interfacesImplemented;
+  mapping(bytes32 => address) public _interfacesImplemented;
 
   //----------------------------------------
   // Events
@@ -29,7 +32,7 @@ contract ImplementationManager is IImplementationManager {
   //----------------------------------------
 
   modifier onlyMaintainer() {
-      IAccessController accessController = IAccessController(interfacesImplemented[ImplementationInterfaceNames.AccessController]);
+      IAccessController accessController = IAccessController(_interfacesImplemented[ImplementationInterfaceNames.AccessController]);
       if(!accessController.hasRole(accessController.MAINTAINER_ROLE(), msg.sender)) revert Errors.NOT_MAINTAINER();
       _;
   }
@@ -38,7 +41,7 @@ contract ImplementationManager is IImplementationManager {
   // Initialization function
   //----------------------------------------
   constructor(address accessController) {
-      interfacesImplemented[ImplementationInterfaceNames.AccessController] = accessController;
+      _interfacesImplemented[ImplementationInterfaceNames.AccessController] = accessController;
   }
 
   //----------------------------------------
@@ -50,7 +53,7 @@ contract ImplementationManager is IImplementationManager {
     bytes32 interfaceName,
     address implementationAddress
   ) external override onlyMaintainer {
-    interfacesImplemented[interfaceName] = implementationAddress;
+    _interfacesImplemented[interfaceName] = implementationAddress;
 
     emit InterfaceImplementationChanged(interfaceName, implementationAddress);
   }
@@ -62,7 +65,7 @@ contract ImplementationManager is IImplementationManager {
     override
     returns (address implementationAddress)
   {
-    implementationAddress = interfacesImplemented[interfaceName];
+    implementationAddress = _interfacesImplemented[interfaceName];
     if(implementationAddress == address(0x0)) revert Errors.IMPLEMENTATION_NOT_FOUND();
   }
 
