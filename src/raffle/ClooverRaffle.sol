@@ -1,14 +1,13 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity 0.8.19;
 
-import {console2} from 'forge-std/console2.sol';
+import {console2} from "forge-std/console2.sol";
 
 import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
 import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
-import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import {ERC20, SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
-import {ERC20 as ERC20Permit2,Permit2Lib} from "@permit2/libraries/Permit2Lib.sol";
+import {ERC721} from "@solmate/tokens/ERC721.sol";
+import {Permit2Lib} from "@permit2/libraries/Permit2Lib.sol";
 
 import {ImplementationInterfaceNames} from "../libraries/ImplementationInterfaceNames.sol";
 import {Errors} from "../libraries/Errors.sol";
@@ -28,9 +27,9 @@ import {ClooverRaffleGetters} from "./ClooverRaffleGetters.sol";
 import {ClooverRaffleInternal} from "./ClooverRaffleInternal.sol";
 
 contract ClooverRaffle is IClooverRaffle, Initializable, ClooverRaffleGetters {
-    using PercentageMath for uint;
+    using PercentageMath for uint256;
     using SafeTransferLib for ERC20;
-    using Permit2Lib for ERC20Permit2;
+    using Permit2Lib for ERC20;
 
     //----------------------------------------
     // Modifiers
@@ -42,28 +41,26 @@ contract ClooverRaffle is IClooverRaffle, Initializable, ClooverRaffleGetters {
     }
 
     modifier ticketSalesOver() {
-        if (block.timestamp < _config.endTicketSales)
+        if (block.timestamp < _config.endTicketSales) {
             revert Errors.RAFFLE_STILL_OPEN();
+        }
         _;
     }
 
     modifier ticketHasNotBeDrawn() {
-        if (
-            _lifeCycleData.status == ClooverRaffleTypes.Status.DRAWN
-        ) revert Errors.TICKET_ALREADY_DRAWN();
+        if (_lifeCycleData.status == ClooverRaffleTypes.Status.DRAWN) revert Errors.TICKET_ALREADY_DRAWN();
         _;
     }
 
     modifier winningTicketDrawn() {
-        if (
-            _lifeCycleData.status != ClooverRaffleTypes.Status.DRAWN
-        ) revert Errors.TICKET_NOT_DRAWN();
+        if (_lifeCycleData.status != ClooverRaffleTypes.Status.DRAWN) revert Errors.TICKET_NOT_DRAWN();
         _;
     }
 
-    modifier onlyCreator(){
-        if (_config.creator != msg.sender)
+    modifier onlyCreator() {
+        if (_config.creator != msg.sender) {
             revert Errors.NOT_CREATOR();
+        }
         _;
     }
 
@@ -71,9 +68,12 @@ contract ClooverRaffle is IClooverRaffle, Initializable, ClooverRaffleGetters {
     // Initializer
     //----------------------------------------
 
-    function initialize(
-        ClooverRaffleTypes.InitializeRaffleParams memory params
-    ) external override payable initializer {
+    function initialize(ClooverRaffleTypes.InitializeRaffleParams memory params)
+        external
+        payable
+        override
+        initializer
+    {
         _config = ClooverRaffleTypes.ConfigData({
             creator: params.creator,
             implementationManager: params.implementationManager,
@@ -95,65 +95,58 @@ contract ClooverRaffle is IClooverRaffle, Initializable, ClooverRaffleGetters {
     //----------------------------------------
     // Externals Functions
     //----------------------------------------
-    
+
     /// @inheritdoc IClooverRaffle
-    function purchaseTickets(
-        uint16 nbOfTickets
-    ) external override ticketSalesOpen {
+    function purchaseTickets(uint16 nbOfTickets) external override ticketSalesOpen {
         _purchaseTicketsInToken(nbOfTickets);
     }
 
     /// @inheritdoc IClooverRaffle
-    function purchaseTicketsWithPermit(
-        uint16 nbOfTickets,
-        ClooverRaffleTypes.PermitDataParams calldata permitData
-    ) external override ticketSalesOpen {
-         ERC20Permit2(address(_config.purchaseCurrency)).simplePermit2(
-            msg.sender,
-            address(this),
-            permitData.amount,
-            permitData.deadline,
-            permitData.v,
-            permitData.r,
-            permitData.s
+    function purchaseTicketsWithPermit(uint16 nbOfTickets, ClooverRaffleTypes.PermitDataParams calldata permitData)
+        external
+        override
+        ticketSalesOpen
+    {
+        ERC20(_config.purchaseCurrency).permit(
+            msg.sender, address(this), permitData.amount, permitData.deadline, permitData.v, permitData.r, permitData.s
         );
         _purchaseTicketsInToken(nbOfTickets);
     }
 
     /// @inheritdoc IClooverRaffle
-    function purchaseTicketsInEth(
-        uint16 nbOfTickets
-    ) external payable override ticketSalesOpen {
-        if (!_config.isEthRaffle) revert Errors.NOT_ETH_RAFFLE();                    
-        if (_calculateTicketsCost(nbOfTickets) != msg.value)
+    function purchaseTicketsInEth(uint16 nbOfTickets) external payable override ticketSalesOpen {
+        if (!_config.isEthRaffle) revert Errors.NOT_ETH_RAFFLE();
+        if (_calculateTicketsCost(nbOfTickets) != msg.value) {
             revert Errors.WRONG_MSG_VALUE();
+        }
         _purchaseTickets(nbOfTickets);
     }
 
     /// @inheritdoc IClooverRaffle
-    function draw()
-        external
-        override
-        ticketSalesOver
-        ticketHasNotBeDrawn
-    {
+    function draw() external override ticketSalesOver {
+        if (uint256(_lifeCycleData.status) >= uint256(ClooverRaffleTypes.Status.DRAWNING)) {
+            revert Errors.DRAW_NOT_POSSIBLE();
+        }
         uint16 _currentSupply = _lifeCycleData.currentSupply;
-        if (_currentSupply > 0 && _currentSupply >= _config.ticketSalesInsurance){
-            _lifeCycleData.status = ClooverRaffleTypes.Status.DRAWNING;
-            IRandomProvider(_config.implementationManager.getImplementationAddress(
-                ImplementationInterfaceNames.RandomProvider
-            )).requestRandomNumbers(1);
-        } else {
+        if (_currentSupply == 0) {
+            _lifeCycleData.status = ClooverRaffleTypes.Status.CANCELLED;
+        } else if (_currentSupply < _config.ticketSalesInsurance) {
             _lifeCycleData.status = ClooverRaffleTypes.Status.INSURANCE;
+        } else {
+            _lifeCycleData.status = ClooverRaffleTypes.Status.DRAWNING;
+            IRandomProvider(
+                IImplementationManager(_config.implementationManager).getImplementationAddress(
+                    ImplementationInterfaceNames.RandomProvider
+                )
+            ).requestRandomNumbers(1);
         }
         emit ClooverRaffleEvents.RaffleStatus(_lifeCycleData.status);
     }
 
     /// @inheritdoc IClooverRaffle
-    function draw(
-        uint256[] memory randomNumbers
-    ) external override {
-       if (_config.implementationManager.getImplementationAddress(
+    function draw(uint256[] memory randomNumbers) external override {
+        if (
+            IImplementationManager(_config.implementationManager).getImplementationAddress(
                 ImplementationInterfaceNames.RandomProvider
             ) != msg.sender
         ) revert Errors.NOT_RANDOM_PROVIDER_CONTRACT();
@@ -170,215 +163,137 @@ contract ClooverRaffle is IClooverRaffle, Initializable, ClooverRaffleGetters {
     }
 
     /// @inheritdoc IClooverRaffle
-    function creatorClaimTicketSales()
-        external
-        override
-        winningTicketDrawn
-        onlyCreator
-    {
+    function creatorClaimTicketSales() external override winningTicketDrawn onlyCreator {
         if (_config.isEthRaffle) revert Errors.IS_ETH_RAFFLE();
-        ERC20 purchaseCurrency = ERC20(address(_config.purchaseCurrency));
-        IImplementationManager _implementationManager = _config.implementationManager;
-        
-        (
-            uint256 creatorAmount,
-            uint256 protocolFees,
-            uint256 royaltiesAmount
-        ) = _calculateAmountToTransfer(purchaseCurrency.balanceOf(address(this)));
-        
+        ERC20 purchaseCurrency = ERC20(_config.purchaseCurrency);
+        IImplementationManager _implementationManager = IImplementationManager(_config.implementationManager);
+
+        (uint256 creatorAmount, uint256 protocolFees, uint256 royaltiesAmount) =
+            _calculateAmountToTransfer(purchaseCurrency.balanceOf(address(this)));
+
         purchaseCurrency.safeTransfer(
-            _implementationManager.getImplementationAddress(
-                ImplementationInterfaceNames.Treasury
-            ),
-            protocolFees
+            _implementationManager.getImplementationAddress(ImplementationInterfaceNames.Treasury), protocolFees
         );
-        
-        if(royaltiesAmount > 0){
+
+        if (royaltiesAmount > 0) {
             purchaseCurrency.safeTransfer(
                 INFTWhitelist(
-                    _implementationManager.getImplementationAddress(
-                        ImplementationInterfaceNames.NFTWhitelist
-                    )
+                    _implementationManager.getImplementationAddress(ImplementationInterfaceNames.NFTWhitelist)
                 ).getCollectionCreator(address(_config.nftContract)),
                 royaltiesAmount
             );
         }
-        
+
         purchaseCurrency.safeTransfer(msg.sender, creatorAmount);
 
-        emit ClooverRaffleEvents.CreatorClaimed(
-            creatorAmount,
-            protocolFees,
-            royaltiesAmount
-        );
+        emit ClooverRaffleEvents.CreatorClaimed(creatorAmount, protocolFees, royaltiesAmount);
     }
 
     /// @inheritdoc IClooverRaffle
-    function creatorClaimTicketSalesInEth()
-        external
-        override
-        winningTicketDrawn
-        onlyCreator
-    {
+    function creatorClaimTicketSalesInEth() external override winningTicketDrawn onlyCreator {
         if (!_config.isEthRaffle) revert Errors.NOT_ETH_RAFFLE();
-        IImplementationManager _implementationManager = _config.implementationManager;
-        
-        (
-            uint256 creatorAmount,
-            uint256 protocolFees,
-            uint256 royaltiesAmount
-        ) = _calculateAmountToTransfer(address(this).balance);
+        IImplementationManager _implementationManager = IImplementationManager(_config.implementationManager);
+
+        (uint256 creatorAmount, uint256 protocolFees, uint256 royaltiesAmount) =
+            _calculateAmountToTransfer(address(this).balance);
 
         SafeTransferLib.safeTransferETH(
-            _implementationManager.getImplementationAddress(
-                ImplementationInterfaceNames.Treasury
-            ),
-            protocolFees
+            _implementationManager.getImplementationAddress(ImplementationInterfaceNames.Treasury), protocolFees
         );
 
-        if(royaltiesAmount > 0){
+        if (royaltiesAmount > 0) {
             SafeTransferLib.safeTransferETH(
                 INFTWhitelist(
-                   _implementationManager.getImplementationAddress(
-                        ImplementationInterfaceNames.NFTWhitelist
-                    )
+                    _implementationManager.getImplementationAddress(ImplementationInterfaceNames.NFTWhitelist)
                 ).getCollectionCreator(address(_config.nftContract)),
                 royaltiesAmount
             );
         }
-        
+
         SafeTransferLib.safeTransferETH(msg.sender, creatorAmount);
-        
-        emit ClooverRaffleEvents.CreatorClaimed(
-            creatorAmount,
-            protocolFees,
-            royaltiesAmount
-        );
+
+        emit ClooverRaffleEvents.CreatorClaimed(creatorAmount, protocolFees, royaltiesAmount);
     }
 
     /// @inheritdoc IClooverRaffle
     function winnerClaim() external override winningTicketDrawn {
-        if (msg.sender != _winnerAddress())
+        if (msg.sender != _winnerAddress()) {
             revert Errors.MSG_SENDER_NOT_WINNER();
-        _config.nftContract.safeTransferFrom(
-            address(this),
-            msg.sender,
-            _config.nftId
-        );
+        }
+        ERC721(_config.nftContract).safeTransferFrom(address(this), msg.sender, _config.nftId);
         emit ClooverRaffleEvents.WinnerClaimed(msg.sender);
     }
 
     /// @inheritdoc IClooverRaffle
-    function userClaimRefund()
-        external
-        override
-        ticketSalesOver
-        ticketHasNotBeDrawn
-    {
+    function userClaimRefund() external override ticketSalesOver ticketHasNotBeDrawn {
         if (_config.isEthRaffle) revert Errors.IS_ETH_RAFFLE();
 
         uint256 totalRefundAmount = _calculateUserRefundAmount();
 
-        ERC20(address(_config.purchaseCurrency)).safeTransfer(msg.sender, totalRefundAmount);
+        ERC20(_config.purchaseCurrency).safeTransfer(msg.sender, totalRefundAmount);
 
         emit ClooverRaffleEvents.UserClaimedRefund(msg.sender, totalRefundAmount);
     }
 
     /// @inheritdoc IClooverRaffle
-    function userClaimRefundInEth()
-        external
-        override
-        ticketSalesOver
-        ticketHasNotBeDrawn
-    {
+    function userClaimRefundInEth() external override ticketSalesOver ticketHasNotBeDrawn {
         if (!_config.isEthRaffle) revert Errors.NOT_ETH_RAFFLE();
-        
+
         uint256 totalRefundAmount = _calculateUserRefundAmount();
 
-        SafeTransferLib.safeTransferETH(msg.sender, totalRefundAmount);       
-        
+        SafeTransferLib.safeTransferETH(msg.sender, totalRefundAmount);
+
         emit ClooverRaffleEvents.UserClaimedRefund(msg.sender, totalRefundAmount);
     }
 
     /// @inheritdoc IClooverRaffle
-    function creatorClaimInsurance()
-        external
-        override
-        ticketSalesOver
-        ticketHasNotBeDrawn
-        onlyCreator
-    {
+    function creatorClaimInsurance() external override ticketSalesOver ticketHasNotBeDrawn onlyCreator {
         if (_config.isEthRaffle) revert Errors.IS_ETH_RAFFLE();
-       
-        (uint256 treasuryAmountToTransfer, address treasuryAddress) = _handleCreatorInsurance();
-   
-        ERC20(address(_config.purchaseCurrency)).safeTransfer(
-            treasuryAddress,
-            treasuryAmountToTransfer
-        );
 
-        _config.nftContract.safeTransferFrom(
-            address(this),
-            _config.creator,
-            _config.nftId
-        );
+        (uint256 treasuryAmountToTransfer, address treasuryAddress) = _handleCreatorInsurance();
+
+        ERC20(_config.purchaseCurrency).safeTransfer(treasuryAddress, treasuryAmountToTransfer);
+
+        ERC721(_config.nftContract).safeTransferFrom(address(this), _config.creator, _config.nftId);
 
         emit ClooverRaffleEvents.CreatorClaimedInsurance();
     }
-      
+
     /// @inheritdoc IClooverRaffle
-    function creatorClaimInsuranceInEth()
-        external
-        override
-        ticketSalesOver
-        ticketHasNotBeDrawn
-        onlyCreator
-    {
+    function creatorClaimInsuranceInEth() external override ticketSalesOver ticketHasNotBeDrawn onlyCreator {
         if (!_config.isEthRaffle) revert Errors.NOT_ETH_RAFFLE();
-        
+
         (uint256 treasuryAmountToTransfer, address treasuryAddress) = _handleCreatorInsurance();
 
         SafeTransferLib.safeTransferETH(treasuryAddress, treasuryAmountToTransfer);
 
-        _config.nftContract.safeTransferFrom(
-            address(this),
-            _config.creator,
-            _config.nftId
-        );
+        ERC721(_config.nftContract).safeTransferFrom(address(this), _config.creator, _config.nftId);
         emit ClooverRaffleEvents.CreatorClaimedInsurance();
     }
 
     /// @inheritdoc IClooverRaffle
     function cancelRaffle() external override onlyCreator {
-        if(_lifeCycleData.currentSupply > 0) revert Errors.SALES_ALREADY_STARTED();
-
+        if (_lifeCycleData.currentSupply > 0) revert Errors.SALES_ALREADY_STARTED();
+        if (_lifeCycleData.status != ClooverRaffleTypes.Status.CANCELLED) {
+            _lifeCycleData.status = ClooverRaffleTypes.Status.CANCELLED;
+            emit ClooverRaffleEvents.RaffleStatus(ClooverRaffleTypes.Status.CANCELLED);
+        }
         IClooverRaffleFactory(
-            _config.implementationManager.getImplementationAddress(
+            IImplementationManager(_config.implementationManager).getImplementationAddress(
                 ImplementationInterfaceNames.ClooverRaffleFactory
             )
         ).removeClooverRaffleFromRegister();
-            
-        if(_config.ticketSalesInsurance > 0){
-            if(_config.isEthRaffle) {
-                SafeTransferLib.safeTransferETH(
-                    _config.creator,
-                    _calculateInsuranceCost()
-                );
+
+        if (_config.ticketSalesInsurance > 0) {
+            uint256 insurancePaid = _calculateInsuranceCost();
+            if (_config.isEthRaffle) {
+                SafeTransferLib.safeTransferETH(_config.creator, insurancePaid);
             } else {
-                ERC20(address(_config.purchaseCurrency)).safeTransfer(
-                    _config.creator,
-                    _calculateInsuranceCost()
-                );
+                ERC20(_config.purchaseCurrency).safeTransfer(_config.creator, insurancePaid);
             }
         }
-        
-        _config.nftContract.safeTransferFrom(
-            address(this),
-            _config.creator,
-            _config.nftId
-        );
-        emit ClooverRaffleEvents.RaffleCancelled();
-        emit ClooverRaffleEvents.RaffleStatus(_lifeCycleData.status);
-    }
 
+        ERC721(_config.nftContract).safeTransferFrom(address(this), _config.creator, _config.nftId);
+        emit ClooverRaffleEvents.RaffleCancelled();
+    }
 }

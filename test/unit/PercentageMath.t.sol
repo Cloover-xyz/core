@@ -13,13 +13,12 @@ contract PercentageMathTest is BaseTest {
         assertEq(amount.percentMul(10_00), 1e19); // 10%
         assertEq(amount.percentMul(1_000_00), 1e21); // 1000%
     }
-    
+
     function test_PercentMul_RevertWhen_OverFlow() external {
         uint256 amount = type(uint256).max;
         uint256 percentage = 10_00; // 10%
         vm.expectRevert();
         amount.percentMul(percentage);
-        
     }
 
     function test_PercentDiv() external {

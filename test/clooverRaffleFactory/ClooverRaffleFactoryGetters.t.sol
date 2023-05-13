@@ -3,8 +3,7 @@ pragma solidity 0.8.19;
 
 import "test/helpers/IntegrationTest.sol";
 
-contract ClooverRaffleFactorySettersTest is IntegrationTest {
-
+contract ClooverRaffleFactoryGettersTest is IntegrationTest {
     function setUp() public virtual override {
         super.setUp();
     }
@@ -30,7 +29,7 @@ contract ClooverRaffleFactorySettersTest is IntegrationTest {
     }
 
     function test_ImplementationManager() external {
-        assertEq(factory.implementationManager(), address(implementationManager));
+        assertEq(address(factory.implementationManager()), address(implementationManager));
     }
 
     function test_TicketSalesDurationLimits() external {
@@ -45,10 +44,15 @@ contract ClooverRaffleFactorySettersTest is IntegrationTest {
 
     function test_GetRegisteredRaffle() external {
         assertEq(factory.getRegisteredRaffle().length, 0);
+
+        erc721Mock = _mockERC721(collectionCreator);
+        address raffle = _createDummyRaffle();
+
+        assertEq(factory.getRegisteredRaffle().length, 1);
+        assertEq(factory.getRegisteredRaffle()[0], raffle);
     }
 
     function test_Version() external {
         assertEq(factory.version(), "1");
     }
-
 }

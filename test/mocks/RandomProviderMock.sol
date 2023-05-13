@@ -9,8 +9,7 @@ import {IRandomProvider} from "src/interfaces/IRandomProvider.sol";
 import {ImplementationInterfaceNames} from "src/libraries/ImplementationInterfaceNames.sol";
 
 contract RandomProviderMock is IRandomProvider {
-
-    IImplementationManager private _implementationManager;
+    address private _implementationManager;
 
     mapping(address => uint256) public callerToRequestId;
     mapping(uint256 => address) private _requestIdToCaller;
@@ -18,11 +17,11 @@ contract RandomProviderMock is IRandomProvider {
     ChainlinkVRFData private _chainlinkVRFData;
     uint256 nonce;
 
-    constructor(IImplementationManager implementationManager_){
+    constructor(address implementationManager_) {
         _implementationManager = implementationManager_;
     }
- 
-    function requestRandomNumbers(uint32 numWords) external override returns(uint256 requestId){
+
+    function requestRandomNumbers(uint32 numWords) external override returns (uint256 requestId) {
         requestId = uint256(keccak256(abi.encode(blockhash(block.number - 1), msg.sender, nonce)));
         callerToRequestId[msg.sender] = requestId;
         _requestIdToCaller[requestId] = msg.sender;
@@ -33,46 +32,46 @@ contract RandomProviderMock is IRandomProvider {
     function generateRandomNumbers(uint256 requestId) external {
         uint256 numWordsRequested = requestIdToNumWords[requestId];
         uint256[] memory randomNumbers = new uint256[](numWordsRequested);
-        for(uint256 i;i<numWordsRequested;i++){
-            if(i ==0){
-                 randomNumbers[i] = uint256(keccak256(abi.encode(blockhash(block.number - 1), msg.sender)));
+        for (uint256 i; i < numWordsRequested; i++) {
+            if (i == 0) {
+                randomNumbers[i] = uint256(keccak256(abi.encode(blockhash(block.number - 1), msg.sender))) + 1;
             } else {
-                randomNumbers[i] =  uint256(keccak256(abi.encode(randomNumbers[i-1], blockhash(block.number - 1))));
+                randomNumbers[i] = uint256(keccak256(abi.encode(randomNumbers[i - 1], blockhash(block.number - 1)))) + 1;
             }
         }
         address requestorAddress = _requestIdToCaller[requestId];
-        IClooverRaffle(requestorAddress).draw(randomNumbers); 
+        IClooverRaffle(requestorAddress).draw(randomNumbers);
     }
 
     function requestRandomNumberReturnZero(uint256 requestId) external {
         address requestorAddress = _requestIdToCaller[requestId];
         uint256 numWordsRequested = requestIdToNumWords[requestId];
         uint256[] memory zeroNumbers = new uint256[](numWordsRequested);
-        for(uint256 i;i<numWordsRequested;i++){
+        for (uint256 i; i < numWordsRequested; i++) {
             zeroNumbers[i] = 0;
         }
-        IClooverRaffle(requestorAddress).draw(zeroNumbers); 
-    }
-
-       
-    /// @inheritdoc IRandomProvider
-    function clooverRaffleFactory() external view override returns(address){
-       return _implementationManager.getImplementationAddress(ImplementationInterfaceNames.ClooverRaffleFactory);
+        IClooverRaffle(requestorAddress).draw(zeroNumbers);
     }
 
     /// @inheritdoc IRandomProvider
-    function implementationManager() external view override returns(IImplementationManager){
+    function clooverRaffleFactory() external view override returns (address) {
+        return IImplementationManager(_implementationManager).getImplementationAddress(
+            ImplementationInterfaceNames.ClooverRaffleFactory
+        );
+    }
+
+    /// @inheritdoc IRandomProvider
+    function implementationManager() external view override returns (address) {
         return _implementationManager;
     }
 
     /// @inheritdoc IRandomProvider
-    function requestorAddressFromRequestId(uint256 requestId) external view override returns(address){
+    function requestorAddressFromRequestId(uint256 requestId) external view override returns (address) {
         return _requestIdToCaller[requestId];
     }
 
     /// @inheritdoc IRandomProvider
-    function chainlinkVRFData() external view override returns(ChainlinkVRFData memory){
+    function chainlinkVRFData() external view override returns (ChainlinkVRFData memory) {
         return _chainlinkVRFData;
     }
-
 }

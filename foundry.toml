@@ -14,6 +14,13 @@ gas_reports = [
     "ClooverRaffle"
 ]
 
+[fuzz]
+runs = 32
+
+[invariant]
+runs = 4
+depth = 64
+
 [rpc_endpoints]
 sepolia = "https://sepolia.infura.io/v3/${SEPOLIA_RPC_URL}"
 

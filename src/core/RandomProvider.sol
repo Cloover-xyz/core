@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity 0.8.19;
 
-import {VRFCoordinatorV2Interface } from "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
-import {VRFConsumerBaseV2} from "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
+import {VRFCoordinatorV2Interface} from "@chainlink/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
+import {VRFConsumerBaseV2} from "@chainlink/v0.8/vrf/VRFConsumerBaseV2.sol";
 
 import {IImplementationManager} from "../interfaces/IImplementationManager.sol";
 import {IAccessController} from "../interfaces/IAccessController.sol";
@@ -17,46 +17,40 @@ import {Errors} from "../libraries/Errors.sol";
 /// @author Cloover
 /// @notice Contract that manage the link with the ChainLink VRF
 contract RandomProvider is VRFConsumerBaseV2, IRandomProvider {
-
     //----------------------------------------
     // Storage
     //----------------------------------------
 
     VRFCoordinatorV2Interface public COORDINATOR;
-    
-    IImplementationManager private _implementationManager;
+
+    address private _implementationManager;
 
     ChainlinkVRFData private _chainlinkVRFData;
 
     mapping(uint256 => address) private _requestIdToCaller;
 
-
     //----------------------------------------
-    // Initialization 
+    // Initialization
     //----------------------------------------
 
-   constructor(
-        IImplementationManager implementationManager_,
-        ChainlinkVRFData memory data
-    )
-        VRFConsumerBaseV2(data.vrfCoordinator)
-    {
+    constructor(address implementationManager_, ChainlinkVRFData memory data) VRFConsumerBaseV2(data.vrfCoordinator) {
         _implementationManager = implementationManager_;
-        COORDINATOR = VRFCoordinatorV2Interface(
-            data.vrfCoordinator
-        );
+        COORDINATOR = VRFCoordinatorV2Interface(data.vrfCoordinator);
         _chainlinkVRFData = data;
     }
 
-
     //----------------------------------------
-    // External functions 
+    // External functions
     //----------------------------------------
 
     /// @inheritdoc IRandomProvider
-    function requestRandomNumbers(uint32 numWords) external override returns(uint256 requestId){
-        IClooverRaffleFactory raffleFactory = IClooverRaffleFactory(_implementationManager.getImplementationAddress(ImplementationInterfaceNames.ClooverRaffleFactory));
-         if(!raffleFactory.isRegistered(msg.sender)) revert Errors.NOT_REGISTERED_RAFFLE();
+    function requestRandomNumbers(uint32 numWords) external override returns (uint256 requestId) {
+        IClooverRaffleFactory raffleFactory = IClooverRaffleFactory(
+            IImplementationManager(_implementationManager).getImplementationAddress(
+                ImplementationInterfaceNames.ClooverRaffleFactory
+            )
+        );
+        if (!raffleFactory.isRegistered(msg.sender)) revert Errors.NOT_REGISTERED_RAFFLE();
         requestId = COORDINATOR.requestRandomWords(
             _chainlinkVRFData.keyHash,
             _chainlinkVRFData.subscriptionId,
@@ -67,42 +61,36 @@ contract RandomProvider is VRFConsumerBaseV2, IRandomProvider {
         _requestIdToCaller[requestId] = msg.sender;
     }
 
-    
     /// @inheritdoc IRandomProvider
-    function clooverRaffleFactory() external view override returns(address){
-       return _implementationManager.getImplementationAddress(ImplementationInterfaceNames.ClooverRaffleFactory);
+    function clooverRaffleFactory() external view override returns (address) {
+        return IImplementationManager(_implementationManager).getImplementationAddress(
+            ImplementationInterfaceNames.ClooverRaffleFactory
+        );
     }
 
     /// @inheritdoc IRandomProvider
-    function implementationManager() external view override returns(IImplementationManager){
+    function implementationManager() external view override returns (address) {
         return _implementationManager;
     }
 
     /// @inheritdoc IRandomProvider
-    function requestorAddressFromRequestId(uint256 requestId) external view override returns(address){
+    function requestorAddressFromRequestId(uint256 requestId) external view override returns (address) {
         return _requestIdToCaller[requestId];
     }
 
     /// @inheritdoc IRandomProvider
-    function chainlinkVRFData() external view override returns(ChainlinkVRFData memory){
+    function chainlinkVRFData() external view override returns (ChainlinkVRFData memory) {
         return _chainlinkVRFData;
     }
 
     //----------------------------------------
-    // Internal functions 
+    // Internal functions
     //----------------------------------------
 
-
-    
     /// @notice internal function call by the ChainLink VRFConsumerBaseV2 fallback
     /// @dev only callable by the vrfCoordinator (cf.VRFConsumerBaseV2 and ChainLinkVRFv2 docs)
-    function fulfillRandomWords(
-        uint256 requestId,
-        uint256[] memory randomWords
-    ) internal override {
+    function fulfillRandomWords(uint256 requestId, uint256[] memory randomWords) internal override {
         address requestorAddress = _requestIdToCaller[requestId];
-        IClooverRaffle(requestorAddress).draw(randomWords); 
+        IClooverRaffle(requestorAddress).draw(randomWords);
     }
-
-
 }

@@ -2,7 +2,6 @@
 pragma solidity 0.8.19;
 
 import {SafeTransferLib, ERC20} from "@solmate/utils/SafeTransferLib.sol";
-import {UserMock} from "test/mocks/UserMock.sol";
 
 import {ImplementationInterfaceNames} from "src/libraries/ImplementationInterfaceNames.sol";
 import {Errors} from "src/libraries/Errors.sol";
@@ -16,55 +15,7 @@ import {Test} from "@forge-std/Test.sol";
 contract BaseTest is Test {
     uint256 internal constant BLOCK_TIME = 12;
 
-    uint256 private constant MAX_AMOUNT = 1e20 ether;
-    uint256 constant INITIAL_BALANCE = 100 ether;
-
-    UserMock internal deployer;
-    UserMock internal admin;
-    UserMock internal treasury;
-    UserMock internal maintainer;
-    UserMock internal collectionCreator;
-    UserMock internal creator;
-    UserMock internal participant1;
-    UserMock internal participant2;
-
-    function setUp() public virtual{
-        
-        deployer = _initUser(1);
-        admin = _initUser(2);
-        treasury = _initUser(3);
-        maintainer = _initUser(4);
-        collectionCreator = _initUser(5);
-        creator = _initUser(6);
-        participant1 = _initUser(7);
-        participant2 = _initUser(8);
-
-        _label();
-    }
-
-    function _label() internal {
-        vm.label(address(deployer), "Deployer");
-        vm.label(address(admin), "Admin");
-        vm.label(address(treasury), "Treasury");
-        vm.label(address(maintainer), "Maintainer");
-        vm.label(address(collectionCreator), "CollectionCreator");
-        vm.label(address(creator), "Creator");
-        vm.label(address(participant1), "Participant1");
-        vm.label(address(participant2), "Participant2");
-    }
-
-    function _setEthBalances(address user, uint256 balance) internal {
-        vm.deal(user, balance);
-    }
-
-    function _setERC20Balances(address token, address user, uint256 balance) internal {
-        deal(token, user, balance / (10 ** (18 - ERC20(token).decimals())));
-    }
-
-    function _initUser(uint256 privateKey) internal returns (UserMock newUser) {
-        newUser = new UserMock(privateKey);
-        _setEthBalances(address(newUser), INITIAL_BALANCE);
-    }
+    uint256 internal constant MAX_AMOUNT = 10e18 ether;
 
     /// @dev Rolls & warps the given number of blocks forward the blockchain.
     function _forward(uint256 blocks) internal {
@@ -73,9 +24,9 @@ contract BaseTest is Test {
     }
 
     /// @dev Rolls & warps the given number of time forward the blockchain.
-    function _forwardByTimestamp(uint256 timestamp) external {
-         vm.warp(uint64(block.timestamp) + timestamp);
-         vm.roll(block.number + timestamp / BLOCK_TIME);
+    function _forwardByTimestamp(uint64 timestamp) internal {
+        vm.warp(uint64(block.timestamp) + timestamp);
+        vm.roll(block.number + timestamp / BLOCK_TIME);
     }
 
     /// @dev Bounds the fuzzing input to a realistic number of blocks.
@@ -83,7 +34,7 @@ contract BaseTest is Test {
         return bound(blocks, 1, type(uint24).max);
     }
 
-       /// @dev Bounds the fuzzing input to a realistic amount.
+    /// @dev Bounds the fuzzing input to a realistic amount.
     function _boundAmount(uint256 amount) internal view virtual returns (uint256) {
         return bound(amount, 0, MAX_AMOUNT);
     }
@@ -93,9 +44,18 @@ contract BaseTest is Test {
         return bound(amount, 1, MAX_AMOUNT);
     }
 
-    /// @dev Bounds the fuzzing input to a non-zero 256 bits unsigned integer.
-    function _boundNotZero(uint256 input) internal view virtual returns (uint256) {
-        return bound(input, 1, type(uint256).max);
+    function _boundAmountNotZeroUnderOf(uint256 input, uint256 max) internal view virtual returns (uint256) {
+        return bound(input, 1, max);
+    }
+
+    /// @dev Bounds the fuzzing input to a number between min defined to max uint256.
+    function _boundAmountAboveOf(uint256 input, uint256 min) internal view virtual returns (uint256) {
+        return bound(input, min, MAX_AMOUNT);
+    }
+
+    /// @dev Bounds the fuzzing input to a number between 0 to max defined.
+    function _boundAmountUnderOf(uint256 input, uint256 max) internal view virtual returns (uint256) {
+        return bound(input, 0, max);
     }
 
     /// @dev Bounds the fuzzing input to a non-zero address.
@@ -103,4 +63,18 @@ contract BaseTest is Test {
         return address(uint160(bound(uint256(uint160(input)), 1, type(uint160).max)));
     }
 
+    /// @dev Bounds the fuzzing input to a realistic rate.
+    function _boundPercentage(uint16 rate) internal view returns (uint16) {
+        return uint16(bound(rate, 0, PercentageMath.PERCENTAGE_FACTOR));
+    }
+
+    /// @dev Bounds the fuzzing input to a realistic rate under max defined.
+    function _boundPercentageUnderOf(uint16 rate, uint16 max) internal view returns (uint16) {
+        return uint16(bound(rate, 0, max));
+    }
+
+    /// @dev Bounds the fuzzing input to a none realistic rate.
+    function _boundPercentageExceed(uint16 rate) internal view returns (uint16) {
+        return uint16(bound(rate, PercentageMath.PERCENTAGE_FACTOR + 1, type(uint16).max));
+    }
 }

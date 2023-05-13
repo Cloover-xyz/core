@@ -1,10 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity 0.8.19;
 
-import {IImplementationManager} from "../interfaces/IImplementationManager.sol";
-
 interface IRandomProvider {
-
     struct ChainlinkVRFData {
         // see https://docs.chain.link/docs/vrf-contracts/#configurations
         address vrfCoordinator;
@@ -17,22 +14,21 @@ interface IRandomProvider {
         uint32 callbackGasLimit;
         // The default is 3, but you can set this higher.
         uint16 requestConfirmations;
-        
         uint64 subscriptionId;
     }
-    
+
     /// @notice Request a random numbers using ChainLinkVRFv2
-    function requestRandomNumbers(uint32 numWords) external returns(uint256 requestId);
+    function requestRandomNumbers(uint32 numWords) external returns (uint256 requestId);
 
     /// @notice Return the raffle factory contract addres
-    function clooverRaffleFactory() external view returns(address);
+    function clooverRaffleFactory() external view returns (address);
 
     /// @notice Return the implementationManager contract address
-    function implementationManager() external view returns(IImplementationManager);
+    function implementationManager() external view returns (address);
 
     /// @notice Return the address of the contract that requested the random number from the requestId
-    function requestorAddressFromRequestId(uint256 requestId) external view returns(address);
+    function requestorAddressFromRequestId(uint256 requestId) external view returns (address);
 
     /// @notice Return the ChainlinkVRFData struct
-    function chainlinkVRFData() external view returns(ChainlinkVRFData memory);
+    function chainlinkVRFData() external view returns (ChainlinkVRFData memory);
 }

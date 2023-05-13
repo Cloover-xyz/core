@@ -7,10 +7,9 @@ import {ClooverRaffleTypes} from "./ClooverRaffleTypes.sol";
 /// @author Cloover
 /// @notice Library exposing events used in ClooverRaffle.
 library ClooverRaffleEvents {
- 
     /// @notice Emitted when a purchase tickets happens.
     /// @param user The address of the user that purchased tickets
-    /// @param firstTicketnumber The first ticket number purchased at the call (use to calculate tickets number purchased) 
+    /// @param firstTicketnumber The first ticket number purchased at the call (use to calculate tickets number purchased)
     /// @param nbOfTicketsPurchased The number of tickets purchased
     event TicketsPurchased(address indexed user, uint16 firstTicketnumber, uint16 nbOfTicketsPurchased);
 
@@ -21,11 +20,7 @@ library ClooverRaffleEvents {
     /// @param creatorAmountReceived The amount received by the creator
     /// @param protocolFeeAmount The amount received by the protocol
     /// @param royaltiesAmount The amount received by the nft collection creator as royalties
-    event CreatorClaimed(
-        uint256 creatorAmountReceived,
-        uint256 protocolFeeAmount,
-        uint256 royaltiesAmount
-    );
+    event CreatorClaimed(uint256 creatorAmountReceived, uint256 protocolFeeAmount, uint256 royaltiesAmount);
 
     /// @notice Emitted when the random ticket number is drawn.
     event WinningTicketDrawn(uint16 winningTicket);
@@ -48,7 +43,7 @@ library ClooverRaffleEvents {
 /// @title ClooverRaffleFactoryEvents
 /// @author Cloover
 /// @notice Library exposing events used in ClooverRaffleFactory.
-library ClooverRaffleFactoryEvents{
+library ClooverRaffleFactoryEvents {
     /// @notice Emitted when a new raffle is created
     event NewRaffle(address indexed raffleContract, ClooverRaffleTypes.InitializeRaffleParams raffleParams);
 

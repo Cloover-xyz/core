@@ -1,8 +1,7 @@
-
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity 0.8.19;
 
-import {EnumerableSet} from '@openzeppelin/contracts/utils/structs/EnumerableSet.sol';
+import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
 import {IAccessController} from "../interfaces/IAccessController.sol";
 import {IImplementationManager} from "../interfaces/IImplementationManager.sol";
@@ -14,7 +13,7 @@ import {Errors} from "../libraries/Errors.sol";
 /// @title NFTWhitelist
 /// @author Cloover
 /// @notice Contract managing the list of NFT collections that are allowed to be used in the protocol
-contract NFTWhitelist is INFTWhitelist{
+contract NFTWhitelist is INFTWhitelist {
     using EnumerableSet for EnumerableSet.AddressSet;
 
     //----------------------------------------
@@ -22,8 +21,8 @@ contract NFTWhitelist is INFTWhitelist{
     //----------------------------------------
 
     EnumerableSet.AddressSet private _nftCollections;
-    
-    IImplementationManager private _implementationManager;
+
+    address private _implementationManager;
 
     mapping(address => address) private _collectionToCreator;
 
@@ -38,51 +37,42 @@ contract NFTWhitelist is INFTWhitelist{
     // Modifiers
     //----------------------------------------
     modifier onlyMaintainer() {
-        IAccessController accessController = IAccessController(_implementationManager.getImplementationAddress(ImplementationInterfaceNames.AccessController));
-        if(!accessController.hasRole(accessController.MAINTAINER_ROLE(), msg.sender)) revert Errors.NOT_MAINTAINER();
+        IAccessController accessController = IAccessController(
+            IImplementationManager(_implementationManager).getImplementationAddress(
+                ImplementationInterfaceNames.AccessController
+            )
+        );
+        if (!accessController.hasRole(accessController.MAINTAINER_ROLE(), msg.sender)) revert Errors.NOT_MAINTAINER();
         _;
     }
 
     //----------------------------------------
     // Initialization function
     //----------------------------------------
-    constructor(IImplementationManager implementationManager_){
+    constructor(address implementationManager_) {
         _implementationManager = implementationManager_;
     }
 
     //----------------------------------------
     // External function
     //----------------------------------------
-    
+
     /// @inheritdoc INFTWhitelist
-    function addToWhitelist(address newNftCollection, address creator)
-    external
-    override
-    onlyMaintainer
-    {
-        if(!_nftCollections.add(newNftCollection)) revert Errors.ALREADY_WHITELISTED();
+    function addToWhitelist(address newNftCollection, address creator) external override onlyMaintainer {
+        if (!_nftCollections.add(newNftCollection)) revert Errors.ALREADY_WHITELISTED();
         _collectionToCreator[newNftCollection] = creator;
         emit AddedToWhitelist(newNftCollection, creator);
     }
 
     /// @inheritdoc INFTWhitelist
-    function removeFromWhitelist(address nftCollectionToRemove)
-    external
-    override
-    onlyMaintainer
-    {
-        if(!_nftCollections.remove(nftCollectionToRemove)) revert Errors.NOT_WHITELISTED();
+    function removeFromWhitelist(address nftCollectionToRemove) external override onlyMaintainer {
+        if (!_nftCollections.remove(nftCollectionToRemove)) revert Errors.NOT_WHITELISTED();
         delete _collectionToCreator[nftCollectionToRemove];
         emit RemovedFromWhitelist(nftCollectionToRemove);
     }
 
     /// @inheritdoc INFTWhitelist
-    function isWhitelisted(address nftCollectionToCheck)
-    external
-    view
-    override
-    returns (bool)
-    {
+    function isWhitelisted(address nftCollectionToCheck) external view override returns (bool) {
         return _nftCollections.contains(nftCollectionToCheck);
     }
 
@@ -97,18 +87,12 @@ contract NFTWhitelist is INFTWhitelist{
     }
 
     /// @inheritdoc INFTWhitelist
-    function getCollectionCreator(address nftCollection)
-    external
-    view
-    override
-    returns (address creator)
-    {
+    function getCollectionCreator(address nftCollection) external view override returns (address creator) {
         return _collectionToCreator[nftCollection];
     }
 
     /// @inheritdoc INFTWhitelist
-    function implementationManager() external view override returns(IImplementationManager){
+    function implementationManager() external view override returns (address) {
         return _implementationManager;
     }
-
 }

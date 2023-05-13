@@ -7,16 +7,16 @@ import "@openzeppelin/contracts/access/AccessControl.sol";
 /// @author Cloover
 /// @notice AccessController contract for Cloover protocol
 contract AccessController is AccessControl {
-  //----------------------------------------
-  // Roles
-  //----------------------------------------
-  bytes32 public constant MAINTAINER_ROLE = keccak256("MAINTAINER_ROLE");
+    //----------------------------------------
+    // Roles
+    //----------------------------------------
+    bytes32 public constant MAINTAINER_ROLE = keccak256("MAINTAINER_ROLE");
 
-  //----------------------------------------
-  // Initialization function
-  //----------------------------------------
-  constructor(address maintainer) {
-    _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
-    _setupRole(MAINTAINER_ROLE, maintainer);
-  }
+    //----------------------------------------
+    // Initialization function
+    //----------------------------------------
+    constructor(address maintainer) {
+        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _setupRole(MAINTAINER_ROLE, maintainer);
+    }
 }

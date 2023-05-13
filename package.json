@@ -14,7 +14,7 @@
   "scripts": {
     "build": "forge build",
     "compile": "forge compile",
-    "remap": "forge remappings > remappings.txt",
+    "remap": "forge remappings",
     "test": "forge test -vvv",
     "gas": "forge test -vvv --gas-report",
     "coverage": "forge coverage --report lcov && genhtml lcov.info --branch-coverage --output-dir coverage",

@@ -11,62 +11,59 @@ import {Errors} from "../libraries/Errors.sol";
 /// @author Cloover
 /// @notice Contract that manages the list of contracts deployed for the protocol
 contract ImplementationManager is IImplementationManager {
+    //----------------------------------------
+    // Storage
+    //----------------------------------------
 
-  //----------------------------------------
-  // Storage
-  //----------------------------------------
+    mapping(bytes32 => address) public _interfacesImplemented;
 
-  mapping(bytes32 => address) public _interfacesImplemented;
+    //----------------------------------------
+    // Events
+    //----------------------------------------
 
-  //----------------------------------------
-  // Events
-  //----------------------------------------
+    event InterfaceImplementationChanged(bytes32 indexed interfaceName, address indexed newImplementationAddress);
 
-  event InterfaceImplementationChanged(
-      bytes32 indexed interfaceName,
-      address indexed newImplementationAddress
-  );
+    //----------------------------------------
+    // Modifiers
+    //----------------------------------------
 
-  //----------------------------------------
-  // Modifiers
-  //----------------------------------------
+    modifier onlyMaintainer() {
+        IAccessController accessController =
+            IAccessController(_interfacesImplemented[ImplementationInterfaceNames.AccessController]);
+        if (!accessController.hasRole(accessController.MAINTAINER_ROLE(), msg.sender)) revert Errors.NOT_MAINTAINER();
+        _;
+    }
 
-  modifier onlyMaintainer() {
-      IAccessController accessController = IAccessController(_interfacesImplemented[ImplementationInterfaceNames.AccessController]);
-      if(!accessController.hasRole(accessController.MAINTAINER_ROLE(), msg.sender)) revert Errors.NOT_MAINTAINER();
-      _;
-  }
+    //----------------------------------------
+    // Initialization function
+    //----------------------------------------
+    constructor(address accessController) {
+        _interfacesImplemented[ImplementationInterfaceNames.AccessController] = accessController;
+    }
 
-  //----------------------------------------
-  // Initialization function
-  //----------------------------------------
-  constructor(address accessController) {
-      _interfacesImplemented[ImplementationInterfaceNames.AccessController] = accessController;
-  }
+    //----------------------------------------
+    // Externals functions
+    //----------------------------------------
 
-  //----------------------------------------
-  // Externals functions
-  //----------------------------------------
+    /// @inheritdoc IImplementationManager
+    function changeImplementationAddress(bytes32 interfaceName, address implementationAddress)
+        external
+        override
+        onlyMaintainer
+    {
+        _interfacesImplemented[interfaceName] = implementationAddress;
 
-  /// @inheritdoc IImplementationManager
-  function changeImplementationAddress(
-    bytes32 interfaceName,
-    address implementationAddress
-  ) external override onlyMaintainer {
-    _interfacesImplemented[interfaceName] = implementationAddress;
+        emit InterfaceImplementationChanged(interfaceName, implementationAddress);
+    }
 
-    emit InterfaceImplementationChanged(interfaceName, implementationAddress);
-  }
-
-  /// @inheritdoc IImplementationManager
-  function getImplementationAddress(bytes32 interfaceName)
-    external
-    view
-    override
-    returns (address implementationAddress)
-  {
-    implementationAddress = _interfacesImplemented[interfaceName];
-    if(implementationAddress == address(0x0)) revert Errors.IMPLEMENTATION_NOT_FOUND();
-  }
-
+    /// @inheritdoc IImplementationManager
+    function getImplementationAddress(bytes32 interfaceName)
+        external
+        view
+        override
+        returns (address implementationAddress)
+    {
+        implementationAddress = _interfacesImplemented[interfaceName];
+        if (implementationAddress == address(0x0)) revert Errors.IMPLEMENTATION_NOT_FOUND();
+    }
 }
