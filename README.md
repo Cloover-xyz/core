@@ -10,18 +10,20 @@
 ```
 # Cloover Protocol
 
-This repository contains the smart contracts source code and markets configuration for Cloover Protocol. The repository uses Foundry as development environment for compilation, testing and Hardhat as deployment tasks.
+This repository contains the smart contracts source code and markets configuration for Cloover Protocol.
 
 ---
 
 ## What is Cloover Raffle?
 
-ClooverRaffle  is a decentralized non-custodial NFT Raffle protocol where users can create and participate in raffle. Raffles' creators make their own NFT as winning price.
+ClooverRaffle is a decentralized non-custodial NFT Raffle protocol where users can create and participate in raffle. Raffles' creators make their own NFT as winning price.
 
-- ClooverRaffle's rates stay the same as soone the raffle is created.
-- Raffle's creator can subscribe to an insurance to be certains that the NFT will not be sold under a certains price.
+- Raffle's creator can set the number of tickets, the price of each ticket and the duration of the raffle. Creator can also set a minimum amount of ticket's sales as an insurance, if the amount of ticket's sales is under the insurance's amount, the creator can claim back the NFT.
+- User can purchase tickets with token defined by the raffle's creator.
+- When the raffle is over, a random winner is selected using ChainLinkVRF subscription. The winner will be able to claim the NFT and the raffle's creator to claim ticket's sales amount.
+- If creator set an insurance and the amount of ticket's sales is under the insurance's amount, user can claim back their ticket's price plus a bonus link to a part of the insurance per tickets purchased.
 
-TL;DR: Instead of selling your NFT for a fixed price, you create a raffle with your own condition and let the market decide the price of it.
+TL;DR: Instead of selling your NFT for a fix price, you can create a raffle with your own condition (insurance, ticket prices, etc.) and let's user participate to win your NFT.
 
 ---
 
