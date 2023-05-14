@@ -1,6 +1,8 @@
 # Compiler files
 cache/
 out/
+
+# Node_modules
 node_modules/
 
 # Ignores development broadcast logs
@@ -14,9 +16,13 @@ docs/
 # Dotenv file
 .env
 
+# Coverage
 lcov.info
 coverage
 
 # Env setup
 *.DS_Store
 .idea
+.vscode
+
+.gas-snapshot

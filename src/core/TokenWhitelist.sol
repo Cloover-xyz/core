@@ -1,26 +1,28 @@
+// SPDX-License-Identifier: AGPL-3.0-only
+pragma solidity 0.8.19;
 
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
-
-import {EnumerableSet} from 'openzeppelin-contracts/contracts/utils/structs/EnumerableSet.sol';
+import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
 import {IAccessController} from "../interfaces/IAccessController.sol";
 import {IImplementationManager} from "../interfaces/IImplementationManager.sol";
 import {ITokenWhitelist} from "../interfaces/ITokenWhitelist.sol";
 
-import {ImplementationInterfaceNames} from "../libraries/helpers/ImplementationInterfaceNames.sol";
-import {Errors} from "../libraries/helpers/Errors.sol";
+import {ImplementationInterfaceNames} from "../libraries/ImplementationInterfaceNames.sol";
+import {Errors} from "../libraries/Errors.sol";
 
-contract TokenWhitelist is ITokenWhitelist{
+/// @title TokenWhitelist
+/// @author Cloover
+/// @notice Contract managing the list of ERC20 that are allowed to be used in the protocol
+contract TokenWhitelist is ITokenWhitelist {
     using EnumerableSet for EnumerableSet.AddressSet;
 
     //----------------------------------------
     // Storage
     //----------------------------------------
 
-    EnumerableSet.AddressSet private tokens;
-    
-    IImplementationManager public implementationManager;
+    EnumerableSet.AddressSet private _tokens;
+
+    address private _implementationManager;
 
     //----------------------------------------
     // Events
@@ -33,62 +35,55 @@ contract TokenWhitelist is ITokenWhitelist{
     // Modifiers
     //----------------------------------------
     modifier onlyMaintainer() {
-        IAccessController accessController = IAccessController(implementationManager.getImplementationAddress(ImplementationInterfaceNames.AccessController));
-        if(!accessController.hasRole(accessController.MAINTAINER_ROLE(), msg.sender)) revert Errors.NOT_MAINTAINER();
+        IAccessController accessController = IAccessController(
+            IImplementationManager(_implementationManager).getImplementationAddress(
+                ImplementationInterfaceNames.AccessController
+            )
+        );
+        if (!accessController.hasRole(accessController.MAINTAINER_ROLE(), msg.sender)) revert Errors.NOT_MAINTAINER();
         _;
     }
 
     //----------------------------------------
     // Initialization function
     //----------------------------------------
-    constructor(IImplementationManager _implementationManager){
-        implementationManager = _implementationManager;
+    constructor(address implementationManager_) {
+        _implementationManager = implementationManager_;
     }
 
     //----------------------------------------
     // External function
     //----------------------------------------
-    
+
     /// @inheritdoc ITokenWhitelist
-    function addToWhitelist(address newToken)
-    external
-    override
-    onlyMaintainer
-    {
-        if(!tokens.add(newToken)) revert Errors.TOKEN_ALREADY_WHITELISTED();
+    function addToWhitelist(address newToken) external override onlyMaintainer {
+        if (!_tokens.add(newToken)) revert Errors.ALREADY_WHITELISTED();
         emit AddedToWhitelist(newToken);
     }
 
     /// @inheritdoc ITokenWhitelist
-    function removeFromWhitelist(address tokenToRemove)
-    external
-    override
-    onlyMaintainer
-    {
-        if(!tokens.remove(tokenToRemove)) revert Errors.TOKEN_NOT_WHITELISTED();
+    function removeFromWhitelist(address tokenToRemove) external override onlyMaintainer {
+        if (!_tokens.remove(tokenToRemove)) revert Errors.NOT_WHITELISTED();
         emit RemovedFromWhitelist(tokenToRemove);
     }
 
     /// @inheritdoc ITokenWhitelist
-    function isWhitelisted(address tokenToCheck)
-    external
-    view
-    override
-    returns (bool)
-    {
-        return tokens.contains(tokenToCheck);
+    function isWhitelisted(address tokenToCheck) external view override returns (bool) {
+        return _tokens.contains(tokenToCheck);
     }
 
-    /**
-     * @notice Gets all addresses that are currently included in the whitelist.
-     * @return The list of addresses on the whitelist.
-     */
-    function getWhitelist() external view returns (address[] memory) {
-        uint256 numberOfElements = tokens.length();
+    /// @inheritdoc ITokenWhitelist
+    function getWhitelist() external view override returns (address[] memory) {
+        uint256 numberOfElements = _tokens.length();
         address[] memory activeTokens = new address[](numberOfElements);
         for (uint256 i = 0; i < numberOfElements; ++i) {
-            activeTokens[i] = tokens.at(i);
+            activeTokens[i] = _tokens.at(i);
         }
         return activeTokens;
+    }
+
+    /// @inheritdoc ITokenWhitelist
+    function implementationManager() external view override returns (address) {
+        return _implementationManager;
     }
 }
