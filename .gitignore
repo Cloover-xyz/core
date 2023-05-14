@@ -27,3 +27,7 @@ coverage
 .vscode
 
 .gas-snapshot
+
+# Ignore yarn logs
+yarn-error.log
+yarn-debug.log*
