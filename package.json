@@ -12,12 +12,7 @@
     "raffle"
   ],
   "scripts": {
-    "build": "forge build",
-    "compile": "forge compile",
     "remap": "forge remappings",
-    "test": "forge test -vvv",
-    "gas": "forge test -vvv --gas-report",
-    "coverage": "forge coverage --report lcov && genhtml lcov.info --branch-coverage --output-dir coverage",
     "postinstall": "husky install"
   },
   "dependencies": {
