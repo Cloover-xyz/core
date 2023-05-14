@@ -1,6 +1,29 @@
 [profile.default]
-src = 'src'
-out = 'out'
-libs = ['lib']
+names = true
+sizes = true
+libs = ["node_modules", "lib"]
+fs_permissions = [{ access = "read", path = "./config/"}]
+
+gas_reports = [
+    "AccessController",
+    "ImplementationManager",
+    "TokenWhitelist",
+    "NFTCollectionWhitelist",
+    "ClooverRaffleFactory",
+    "ClooverRaffle"
+]
+
+[fuzz]
+runs = 32
+
+[invariant]
+runs = 4
+depth = 64
+
+[rpc_endpoints]
+sepolia = "https://sepolia.infura.io/v3/${INFURA_KEY}"
+
+[etherscan]
+sepolia = {key = "${ETHERSCAN_API_KEY}" }
 
 # See more config options https://github.com/foundry-rs/foundry/tree/master/config

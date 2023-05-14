@@ -2,6 +2,9 @@
 cache/
 out/
 
+# Node_modules
+node_modules/
+
 # Ignores development broadcast logs
 !/broadcast
 /broadcast/*/31337/
@@ -12,3 +15,14 @@ docs/
 
 # Dotenv file
 .env
+
+# Coverage
+lcov.info
+coverage
+
+# Env setup
+*.DS_Store
+.idea
+.vscode
+
+.gas-snapshot

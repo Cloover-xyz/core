@@ -1,6 +1,13 @@
-name: test
+name: Tests
 
-on: workflow_dispatch
+on:
+  workflow_dispatch:
+  push:
+    paths-ignore:
+      - "**.md"
+  pull_request:
+    paths-ignore:
+      - "**.md"
 
 env:
   FOUNDRY_PROFILE: ci
@@ -10,7 +17,6 @@ jobs:
     strategy:
       fail-fast: true
 
-    name: Foundry project
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -22,13 +28,13 @@ jobs:
         with:
           version: nightly
 
-      - name: Run Forge build
+      - name: Run build
         run: |
           forge --version
           forge build --sizes
         id: build
 
-      - name: Run Forge tests
+      - name: Run tests
         run: |
-          forge test -vvv
+          forge test -vvv --gas-report
         id: test
