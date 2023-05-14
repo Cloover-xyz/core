@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity 0.8.19;
 
-import "test/helpers/RaffleTest.sol";
+import "test/helpers/IntegrationTest.sol";
 
-contract ClooverRafflePurchaseTicketsTest is RaffleTest {
+contract ClooverRafflePurchaseTicketsTest is IntegrationTest {
     function setUp() public virtual override {
         super.setUp();
         changePrank(creator);
@@ -15,39 +15,40 @@ contract ClooverRafflePurchaseTicketsTest is RaffleTest {
         ClooverRaffle raffle =
             _createRaffle(address(erc20Mock), address(erc721Mock), nftId, ticketPrice, 1 days, 100, 0, 0, 0);
 
-        changePrank(participant1);
+        changePrank(participant);
         uint256 amount = ticketPrice * nbOfTicketsPurchase;
-        erc20Mock.mint(participant1, amount);
+        erc20Mock.mint(participant, amount);
         erc20Mock.approve(address(raffle), amount);
 
         vm.expectEmit(true, true, true, true);
-        emit ClooverRaffleEvents.TicketsPurchased(participant1, 0, nbOfTicketsPurchase);
+        emit ClooverRaffleEvents.TicketsPurchased(participant, 0, nbOfTicketsPurchase);
         raffle.purchaseTickets(nbOfTicketsPurchase);
 
         assertEq(raffle.currentSupply(), nbOfTicketsPurchase);
-        assertEq(raffle.balanceOf(participant1).length, nbOfTicketsPurchase);
+        assertEq(raffle.balanceOf(participant).length, nbOfTicketsPurchase);
     }
 
-    function test_PurchaseTickets_TokenRaffleWithPermit(uint16 nbOfTicketsPurchase) external {
+    function test_PurchaseTickets_TokenRaffleWithPermit(uint16 nbOfTicketsPurchase, uint256 privateKey) external {
+        privateKey = bound(privateKey, 1, type(uint160).max);
+        address buyer = vm.addr(privateKey);
         nbOfTicketsPurchase = uint16(bound(nbOfTicketsPurchase, 1, 100));
         uint256 ticketPrice = 1e18;
         ClooverRaffle raffle =
             _createRaffle(address(erc20Mock), address(erc721Mock), nftId, ticketPrice, 1 days, 100, 0, 0, 0);
 
-        changePrank(participant1);
+        changePrank(buyer);
 
         uint256 amount = ticketPrice * nbOfTicketsPurchase;
-        erc20Mock.mint(participant1, amount);
+        erc20Mock.mint(buyer, amount);
 
-        ClooverRaffleTypes.PermitDataParams memory permitData =
-            _permitData(participant1_privateKey, address(raffle), amount);
+        ClooverRaffleTypes.PermitDataParams memory permitData = _signPermitData(privateKey, address(raffle), amount);
 
         vm.expectEmit(true, true, true, true);
-        emit ClooverRaffleEvents.TicketsPurchased(participant1, 0, nbOfTicketsPurchase);
+        emit ClooverRaffleEvents.TicketsPurchased(buyer, 0, nbOfTicketsPurchase);
         raffle.purchaseTicketsWithPermit(nbOfTicketsPurchase, permitData);
 
         assertEq(raffle.currentSupply(), nbOfTicketsPurchase);
-        assertEq(raffle.balanceOf(participant1).length, nbOfTicketsPurchase);
+        assertEq(raffle.balanceOf(buyer).length, nbOfTicketsPurchase);
     }
 
     function test_PurchaseTickets_EthRaffle(uint16 nbOfTicketsPurchase) external {
@@ -55,15 +56,15 @@ contract ClooverRafflePurchaseTicketsTest is RaffleTest {
         uint256 ticketPrice = 1e18;
         ClooverRaffle raffle = _createRaffle(address(0), address(erc721Mock), nftId, ticketPrice, 1 days, 100, 0, 0, 0);
 
-        changePrank(participant1);
+        changePrank(participant);
         uint256 amount = ticketPrice * nbOfTicketsPurchase;
 
         vm.expectEmit(true, true, true, true);
-        emit ClooverRaffleEvents.TicketsPurchased(participant1, 0, nbOfTicketsPurchase);
+        emit ClooverRaffleEvents.TicketsPurchased(participant, 0, nbOfTicketsPurchase);
         raffle.purchaseTicketsInEth{value: amount}(nbOfTicketsPurchase);
 
         assertEq(raffle.currentSupply(), nbOfTicketsPurchase);
-        assertEq(raffle.balanceOf(participant1).length, nbOfTicketsPurchase);
+        assertEq(raffle.balanceOf(participant).length, nbOfTicketsPurchase);
     }
 
     function test_PurchaseTickets_TokenRaffle_RevertWhen_IsEthRaffle() external {
@@ -105,10 +106,10 @@ contract ClooverRafflePurchaseTicketsTest is RaffleTest {
             address(erc20Mock), address(erc721Mock), nftId, ticketPrice, 1 days, 100, maxTicketAllowedToPurchase, 0, 0
         );
 
-        changePrank(participant1);
+        changePrank(participant);
 
         uint256 amount = ticketPrice * nbOfTicketsPurchase;
-        erc20Mock.mint(participant1, amount);
+        erc20Mock.mint(participant, amount);
         erc20Mock.approve(address(raffle), amount);
 
         vm.expectRevert(Errors.EXCEED_MAX_TICKET_ALLOWED_TO_PURCHASE.selector);
@@ -125,10 +126,10 @@ contract ClooverRafflePurchaseTicketsTest is RaffleTest {
         ClooverRaffle raffle =
             _createRaffle(address(erc20Mock), address(erc721Mock), nftId, ticketPrice, 1 days, maxTicketSupply, 0, 0, 0);
 
-        changePrank(participant1);
+        changePrank(participant);
 
         uint256 amount = ticketPrice * nbOfTicketsPurchase;
-        erc20Mock.mint(participant1, amount);
+        erc20Mock.mint(participant, amount);
         erc20Mock.approve(address(raffle), amount);
 
         vm.expectRevert(Errors.TICKET_SUPPLY_OVERFLOW.selector);
@@ -143,7 +144,7 @@ contract ClooverRafflePurchaseTicketsTest is RaffleTest {
 
         ClooverRaffle raffle = _createRaffle(address(0), address(erc721Mock), nftId, 1e18, 1 days, 100, 0, 0, 0);
 
-        changePrank(participant1);
+        changePrank(participant);
         uint256 amount = ticketPrice * nbOfTicketsPurchase;
         amount = bound(amount, amount + 1, INITIAL_BALANCE);
 
@@ -163,7 +164,7 @@ contract ClooverRafflePurchaseTicketsTest is RaffleTest {
         ClooverRaffleTypes.PermitDataParams memory permitData =
             _convertToPermitDataParams(0, 0, 0, bytes32(0), bytes32(0));
 
-        changePrank(participant1);
+        changePrank(participant);
         _forwardByTimestamp(saleDuration + 1);
 
         vm.expectRevert(Errors.RAFFLE_CLOSE.selector);
@@ -178,7 +179,7 @@ contract ClooverRafflePurchaseTicketsTest is RaffleTest {
 
         ClooverRaffle ethRaffle =
             _createRaffle(address(0), address(erc721Mock), nftId, 1e18, saleDuration, 100, 0, 0, 0);
-        changePrank(participant1);
+        changePrank(participant);
         _forwardByTimestamp(saleDuration + 1);
 
         vm.expectRevert(Errors.RAFFLE_CLOSE.selector);

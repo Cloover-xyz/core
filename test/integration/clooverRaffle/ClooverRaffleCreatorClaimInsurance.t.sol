@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity 0.8.19;
 
-import "test/helpers/RaffleTest.sol";
+import "test/helpers/IntegrationTest.sol";
 
-contract ClooverRaffleCreatorClaimInsuranceTest is RaffleTest {
+contract ClooverRaffleCreatorClaimInsuranceTest is IntegrationTest {
     using PercentageMath for uint256;
 
     function setUp() public virtual override {
@@ -15,9 +15,9 @@ contract ClooverRaffleCreatorClaimInsuranceTest is RaffleTest {
         uint64 ticketSalesDuration;
         (raffle, ticketSalesDuration) = _createRandomRaffle(isEthRaffle, true, false);
 
-        changePrank(participant1);
+        changePrank(participant);
         uint16 max = raffle.ticketSalesInsurance();
-        (uint256 ticketPurchased) = _purchaseRandomAmountOfTickets(raffle, participant1, max - 1);
+        (uint256 ticketPurchased) = _purchaseRandomAmountOfTickets(raffle, participant, max - 1);
 
         changePrank(creator);
         _forwardByTimestamp(ticketSalesDuration + 1);
@@ -55,9 +55,9 @@ contract ClooverRaffleCreatorClaimInsuranceTest is RaffleTest {
         uint64 ticketSalesDuration;
         (raffle, ticketSalesDuration) = _createRandomRaffle(isEthRaffle, true, false);
 
-        changePrank(participant1);
+        changePrank(participant);
         uint16 max = raffle.ticketSalesInsurance();
-        _purchaseRandomAmountOfTickets(raffle, participant1, max - 1);
+        _purchaseRandomAmountOfTickets(raffle, participant, max - 1);
 
         changePrank(creator);
         _forwardByTimestamp(ticketSalesDuration + 1);
@@ -77,9 +77,9 @@ contract ClooverRaffleCreatorClaimInsuranceTest is RaffleTest {
         uint64 ticketSalesDuration;
         (raffle, ticketSalesDuration) = _createRandomRaffle(isEthRaffle, true, false);
 
-        changePrank(participant1);
+        changePrank(participant);
         uint16 max = raffle.ticketSalesInsurance();
-        _purchaseRandomAmountOfTickets(raffle, participant1, max - 1);
+        _purchaseRandomAmountOfTickets(raffle, participant, max - 1);
 
         changePrank(creator);
         _forwardByTimestamp(ticketSalesDuration + 1);
@@ -96,9 +96,9 @@ contract ClooverRaffleCreatorClaimInsuranceTest is RaffleTest {
         uint64 ticketSalesDuration;
         (raffle, ticketSalesDuration) = _createRandomRaffle(isEthRaffle, false, false);
 
-        changePrank(participant1);
+        changePrank(participant);
         uint16 max = raffle.maxTotalSupply();
-        _purchaseRandomAmountOfTickets(raffle, participant1, max);
+        _purchaseRandomAmountOfTickets(raffle, participant, max);
 
         changePrank(creator);
         _forwardByTimestamp(ticketSalesDuration + 1);
@@ -114,9 +114,9 @@ contract ClooverRaffleCreatorClaimInsuranceTest is RaffleTest {
         uint64 ticketSalesDuration;
         (raffle, ticketSalesDuration) = _createRandomRaffle(isEthRaffle, true, false);
 
-        changePrank(participant1);
+        changePrank(participant);
         uint16 max = raffle.ticketSalesInsurance();
-        _purchaseRandomAmountOfTickets(raffle, participant1, max - 1);
+        _purchaseRandomAmountOfTickets(raffle, participant, max - 1);
 
         _forwardByTimestamp(ticketSalesDuration + 1);
 
@@ -148,9 +148,9 @@ contract ClooverRaffleCreatorClaimInsuranceTest is RaffleTest {
         uint64 ticketSalesDuration;
         (raffle, ticketSalesDuration) = _createRandomRaffle(isEthRaffle, true, false);
 
-        changePrank(participant1);
+        changePrank(participant);
 
-        _purchaseExactAmountOfTickets(raffle, participant1, raffle.ticketSalesInsurance());
+        _purchaseExactAmountOfTickets(raffle, participant, raffle.ticketSalesInsurance());
 
         changePrank(creator);
         _forwardByTimestamp(ticketSalesDuration + 1);

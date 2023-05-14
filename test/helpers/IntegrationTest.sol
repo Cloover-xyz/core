@@ -23,6 +23,8 @@ import "./BaseTest.sol";
 import "./SigUtils.sol";
 
 contract IntegrationTest is BaseTest {
+    using InsuranceLib for uint16;
+
     SigUtils internal sigUtils;
 
     AccessController internal accessController;
@@ -35,6 +37,7 @@ contract IntegrationTest is BaseTest {
     ERC20WithPermitMock erc20Mock;
 
     ClooverRaffleFactory factory;
+    ClooverRaffle raffle;
 
     uint64 constant MIN_SALE_DURATION = 1 days;
     uint64 constant MAX_SALE_DURATION = 2 weeks;
@@ -45,34 +48,39 @@ contract IntegrationTest is BaseTest {
     uint256 constant MIN_TICKET_PRICE = 10000;
     uint256 constant INITIAL_BALANCE = 10_000 ether;
 
-    uint256 internal constant deployer_privateKey = 1;
     address internal deployer;
-    uint256 internal constant treasury_privateKey = 2;
     address internal treasury;
-    uint256 internal constant maintainer_privateKey = 3;
     address internal maintainer;
-    uint256 internal constant collectionCreator_privateKey = 4;
     address internal collectionCreator;
-    uint256 internal constant creator_privateKey = 5;
     address internal creator;
-    uint256 internal constant participant1_privateKey = 6;
-    address internal participant1;
-    uint256 internal constant participant2_privateKey = 7;
-    address internal participant2;
+    address internal participant;
+
+    uint256 nftId = 1;
 
     function setUp() public virtual {
         _initWallets();
-        _deploy();
+
+        _deployBase();
+        _deployRandomProvider();
+        _deployNFTWhitelist();
+        _deployTokenWhitelist();
+        _deployClooverRaffleFactory();
+
+        erc721Mock = _mockERC721(collectionCreator);
+        erc20Mock = _mockERC20(18);
+
+        sigUtils = new SigUtils(erc20Mock.DOMAIN_SEPARATOR());
+
+        erc721Mock.mint(creator, nftId);
     }
 
     function _initWallets() internal {
-        deployer = _initUser(deployer_privateKey, 0);
-        treasury = _initUser(treasury_privateKey, 0);
-        maintainer = _initUser(maintainer_privateKey, 0);
-        collectionCreator = _initUser(collectionCreator_privateKey, 0);
-        creator = _initUser(creator_privateKey, INITIAL_BALANCE);
-        participant1 = _initUser(participant1_privateKey, INITIAL_BALANCE);
-        participant2 = _initUser(participant2_privateKey, INITIAL_BALANCE);
+        deployer = _initUser(1, 0);
+        treasury = _initUser(2, 0);
+        maintainer = _initUser(3, 0);
+        collectionCreator = _initUser(4, 0);
+        creator = _initUser(5, INITIAL_BALANCE);
+        participant = _initUser(6, INITIAL_BALANCE);
 
         _label();
     }
@@ -83,42 +91,54 @@ contract IntegrationTest is BaseTest {
         vm.label(maintainer, "Maintainer");
         vm.label(collectionCreator, "CollectionCreator");
         vm.label(creator, "Creator");
-        vm.label(participant1, "Participant1");
-        vm.label(participant2, "Participant2");
+        vm.label(participant, "Participant");
     }
 
-    function _setEthBalances(address user, uint256 balance) internal {
-        vm.deal(user, balance);
-    }
-
-    function _setERC20Balances(address token, address user, uint256 balance) internal {
-        deal(token, user, balance / (10 ** (18 - ERC20(token).decimals())));
-    }
-
-    function _deploy() internal {
+    function _deployBase() internal {
         vm.startPrank(deployer);
         accessController = new AccessController(maintainer);
         implementationManager = new ImplementationManager(address(accessController));
-        nftWhitelist = new NFTWhitelist(address(implementationManager));
-        tokenWhitelist = new TokenWhitelist(address(implementationManager));
-        randomProviderMock = new RandomProviderMock(address(implementationManager));
 
         changePrank(maintainer);
         implementationManager.changeImplementationAddress(ImplementationInterfaceNames.Treasury, treasury);
-        implementationManager.changeImplementationAddress(
-            ImplementationInterfaceNames.NFTWhitelist, address(nftWhitelist)
-        );
-        implementationManager.changeImplementationAddress(
-            ImplementationInterfaceNames.TokenWhitelist, address(tokenWhitelist)
-        );
+    }
+
+    function _deployRandomProvider() internal {
+        changePrank(deployer);
+        randomProviderMock = new RandomProviderMock(address(implementationManager));
+
+        changePrank(maintainer);
         implementationManager.changeImplementationAddress(
             ImplementationInterfaceNames.RandomProvider, address(randomProviderMock)
         );
+    }
 
+    function _deployNFTWhitelist() internal {
+        changePrank(deployer);
+        nftWhitelist = new NFTWhitelist(address(implementationManager));
+        changePrank(maintainer);
+        implementationManager.changeImplementationAddress(
+            ImplementationInterfaceNames.NFTWhitelist, address(nftWhitelist)
+        );
+    }
+
+    function _deployTokenWhitelist() internal {
+        changePrank(deployer);
+        tokenWhitelist = new TokenWhitelist(address(implementationManager));
+        changePrank(maintainer);
+        implementationManager.changeImplementationAddress(
+            ImplementationInterfaceNames.TokenWhitelist, address(tokenWhitelist)
+        );
+    }
+
+    function _deployClooverRaffleFactory() internal {
+        changePrank(deployer);
         ClooverRaffleTypes.FactoryConfigParams memory configData = ClooverRaffleTypes.FactoryConfigParams(
             MAX_TICKET_SUPPLY, PROTOCOL_FEE_RATE, INSURANCE_RATE, MIN_SALE_DURATION, MAX_SALE_DURATION
         );
         factory = new ClooverRaffleFactory(address(implementationManager),configData);
+
+        changePrank(maintainer);
         implementationManager.changeImplementationAddress(
             ImplementationInterfaceNames.ClooverRaffleFactory, address(factory)
         );
@@ -127,6 +147,14 @@ contract IntegrationTest is BaseTest {
     function _initUser(uint256 privateKey, uint256 initialBalance) internal returns (address newUser) {
         newUser = vm.addr(privateKey);
         _setEthBalances(newUser, initialBalance);
+    }
+
+    function _setEthBalances(address user, uint256 balance) internal {
+        vm.deal(user, balance);
+    }
+
+    function _setERC20Balances(address token, address user, uint256 balance) internal {
+        deal(token, user, balance / (10 ** (18 - ERC20(token).decimals())));
     }
 
     function _mockERC20(uint8 decimals) internal returns (ERC20WithPermitMock erc20WithPermitMock) {
@@ -145,8 +173,8 @@ contract IntegrationTest is BaseTest {
         nftWhitelist.addToWhitelist(address(erc721), user);
     }
 
-    function _mintERC721(ERC721Mock erc721, address to, uint256 nftId) internal {
-        erc721.mint(to, nftId);
+    function _mintERC721(ERC721Mock erc721, address to, uint256 nftId_) internal {
+        erc721.mint(to, nftId_);
     }
 
     function _boundEthAmount(uint256 amount) internal view virtual returns (uint256) {
@@ -187,7 +215,7 @@ contract IntegrationTest is BaseTest {
     function _convertToClooverRaffleParams(
         address purchaseCurrency,
         address nftContract,
-        uint256 nftId,
+        uint256 nftId_,
         uint256 ticketPrice,
         uint64 ticketSalesDuration,
         uint16 maxTotalSupply,
@@ -198,7 +226,7 @@ contract IntegrationTest is BaseTest {
         return ClooverRaffleTypes.CreateRaffleParams({
             purchaseCurrency: purchaseCurrency,
             nftContract: nftContract,
-            nftId: nftId,
+            nftId: nftId_,
             ticketPrice: ticketPrice,
             ticketSalesDuration: ticketSalesDuration,
             maxTotalSupply: maxTotalSupply,
@@ -216,7 +244,7 @@ contract IntegrationTest is BaseTest {
         return ClooverRaffleTypes.PermitDataParams({amount: amount, deadline: deadline, v: v, r: r, s: s});
     }
 
-    function _permitData(uint256 privateKey, address spender, uint256 amount)
+    function _signPermitData(uint256 privateKey, address spender, uint256 amount)
         internal
         view
         returns (ClooverRaffleTypes.PermitDataParams memory permitData)
@@ -238,24 +266,152 @@ contract IntegrationTest is BaseTest {
             ClooverRaffleTypes.PermitDataParams({amount: permit.value, deadline: permit.deadline, v: v, r: r, s: s});
     }
 
-    function _createDummyRaffle() internal returns (address) {
-        changePrank(creator);
-        uint256 nftId = 11;
-        _mintERC721(erc721Mock, creator, nftId);
-        erc721Mock.approve(address(factory), nftId);
-        ClooverRaffleTypes.CreateRaffleParams memory params =
-            _convertToClooverRaffleParams(address(erc20Mock), address(erc721Mock), nftId, 1e18, 1 days, 10_000, 0, 0, 0);
-        ClooverRaffleTypes.PermitDataParams memory permitData =
-            _convertToPermitDataParams(0, 0, 0, bytes32(0), bytes32(0));
-        return factory.createNewRaffle(params, permitData);
-    }
-
-    function _generateRandomNumbersFromRandomProvider(address raffle, bool returnZero) internal {
-        uint256 requestId = randomProviderMock.callerToRequestId(raffle);
+    function _generateRandomNumbersFromRandomProvider(address raffle_, bool returnZero) internal {
+        uint256 requestId = randomProviderMock.callerToRequestId(raffle_);
         if (returnZero) {
             randomProviderMock.requestRandomNumberReturnZero(requestId);
         } else {
             randomProviderMock.generateRandomNumbers(requestId);
+        }
+    }
+
+    function _createRaffle(
+        address purchaseCurrency,
+        address nftContract,
+        uint256 nftId_,
+        uint256 ticketPrice,
+        uint64 ticketSalesDuration,
+        uint16 maxTotalSupply,
+        uint16 maxTicketAllowedToPurchase,
+        uint16 ticketSalesInsurance,
+        uint16 royaltiesRate
+    ) internal returns (ClooverRaffle) {
+        erc721Mock.approve(address(factory), nftId_);
+        ClooverRaffleTypes.CreateRaffleParams memory params = _convertToClooverRaffleParams(
+            purchaseCurrency,
+            nftContract,
+            nftId_,
+            ticketPrice,
+            ticketSalesDuration,
+            maxTotalSupply,
+            maxTicketAllowedToPurchase,
+            ticketSalesInsurance,
+            royaltiesRate
+        );
+        ClooverRaffleTypes.PermitDataParams memory permitData =
+            _convertToPermitDataParams(0, 0, 0, bytes32(0), bytes32(0));
+
+        if (ticketSalesInsurance > 0) {
+            uint256 insuranceCost = ticketSalesInsurance.calculateInsuranceCost(INSURANCE_RATE, ticketPrice);
+            if (purchaseCurrency == address(0)) {
+                return ClooverRaffle(factory.createNewRaffle{value: insuranceCost}(params, permitData));
+            }
+            _setERC20Balances(purchaseCurrency, creator, insuranceCost);
+            erc20Mock.approve(address(factory), insuranceCost);
+        }
+
+        return ClooverRaffle(factory.createNewRaffle(params, permitData));
+    }
+
+    function _createRandomRaffle(bool isEthRaffle, bool hasInsurance, bool hasRoyalties)
+        internal
+        returns (ClooverRaffle, uint64)
+    {
+        uint256 ticketPrice = _boundTicketPrice(1e18);
+        uint64 ticketSalesDuration = _boundDuration(1 days);
+        uint16 maxTotalSupply = uint16(bound(100, 100, MAX_TICKET_SUPPLY));
+        uint16 maxTicketAllowedToPurchase = uint16(_boundAmountUnderOf(0, maxTotalSupply));
+
+        uint16 ticketSalesInsurance = 0;
+        uint16 royaltiesRate = 0;
+        if (hasInsurance) {
+            if (maxTicketAllowedToPurchase > 10) {
+                ticketSalesInsurance = uint16(_boundAmountNotZeroUnderOf(2, maxTicketAllowedToPurchase));
+            } else {
+                maxTicketAllowedToPurchase = 0;
+                ticketSalesInsurance = uint16(_boundAmountNotZeroUnderOf(2, maxTotalSupply));
+            }
+        }
+        if (hasRoyalties) {
+            royaltiesRate =
+                uint16(_boundPercentageUnderOf(1, uint16(PercentageMath.PERCENTAGE_FACTOR - PROTOCOL_FEE_RATE)));
+        }
+
+        ClooverRaffle _raffle = _createRaffle(
+            isEthRaffle ? address(0) : address(erc20Mock),
+            address(erc721Mock),
+            nftId,
+            ticketPrice,
+            ticketSalesDuration,
+            maxTotalSupply,
+            maxTicketAllowedToPurchase,
+            ticketSalesInsurance,
+            royaltiesRate
+        );
+
+        return (_raffle, ticketSalesDuration);
+    }
+
+    function _purchaseRandomAmountOfTickets(ClooverRaffle _raffle, address buyer, uint16 maxTicketToPurchase)
+        internal
+        returns (uint16 ticketToPurchase)
+    {
+        changePrank(buyer);
+        bool isEthRaffle = _raffle.isEthRaffle();
+        uint256 ticketPrice = _raffle.ticketPrice();
+        ticketToPurchase = uint16(_boundAmountNotZeroUnderOf(1, maxTicketToPurchase));
+        uint256 amount = ticketPrice * ticketToPurchase;
+        if (isEthRaffle) {
+            _raffle.purchaseTicketsInEth{value: amount}(ticketToPurchase);
+        } else {
+            _setERC20Balances(address(erc20Mock), buyer, amount);
+            erc20Mock.approve(address(_raffle), amount);
+
+            _raffle.purchaseTickets(ticketToPurchase);
+        }
+        return ticketToPurchase;
+    }
+
+    function _purchaseRandomAmountOfTicketsBetween(
+        ClooverRaffle _raffle,
+        address buyer,
+        uint16 minTicketToPurchase,
+        uint16 maxTicketToPurchase
+    ) internal returns (uint16 ticketToPurchase) {
+        changePrank(buyer);
+        bool isEthRaffle = _raffle.isEthRaffle();
+        uint256 ticketPrice = _raffle.ticketPrice();
+        uint16 maxTicketAllowedToPurchase = _raffle.maxTicketAllowedToPurchase();
+        if (maxTicketAllowedToPurchase > 0) {
+            ticketToPurchase = uint16(bound(1, minTicketToPurchase, maxTicketAllowedToPurchase));
+        } else {
+            ticketToPurchase = uint16(bound(1, minTicketToPurchase, maxTicketToPurchase));
+        }
+
+        uint256 amount = ticketPrice * ticketToPurchase;
+        if (isEthRaffle) {
+            _raffle.purchaseTicketsInEth{value: amount}(ticketToPurchase);
+        } else {
+            _setERC20Balances(address(erc20Mock), buyer, amount);
+            erc20Mock.approve(address(_raffle), amount);
+
+            _raffle.purchaseTickets(ticketToPurchase);
+        }
+        return ticketToPurchase;
+    }
+
+    function _purchaseExactAmountOfTickets(ClooverRaffle _raffle, address buyer, uint16 ticketToPurchase) internal {
+        changePrank(buyer);
+        bool isEthRaffle = _raffle.isEthRaffle();
+        uint256 ticketPrice = _raffle.ticketPrice();
+        uint256 amount = ticketPrice * ticketToPurchase;
+        if (isEthRaffle) {
+            _raffle.purchaseTicketsInEth{value: amount}(ticketToPurchase);
+        } else {
+            _setERC20Balances(address(erc20Mock), buyer, amount);
+            erc20Mock.approve(address(_raffle), amount);
+
+            _raffle.purchaseTickets(ticketToPurchase);
         }
     }
 }

@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity 0.8.19;
 
+import {Pausable} from "@openzeppelin/contracts/security/Pausable.sol";
+
 import {IAccessController} from "../interfaces/IAccessController.sol";
 import {IImplementationManager} from "../interfaces/IImplementationManager.sol";
 import {IClooverRaffleFactorySetters} from "../interfaces/IClooverRaffleFactory.sol";
@@ -12,7 +14,10 @@ import {PercentageMath} from "../libraries/PercentageMath.sol";
 
 import {ClooverRaffleFactoryStorage} from "./ClooverRaffleFactoryStorage.sol";
 
-abstract contract ClooverRaffleFactorySetters is IClooverRaffleFactorySetters, ClooverRaffleFactoryStorage {
+/// @title ClooverRaffleFactorySetters
+/// @author Cloover
+/// @notice Abstract contract exposing all setters and maintainer-related functions.
+abstract contract ClooverRaffleFactorySetters is IClooverRaffleFactorySetters, ClooverRaffleFactoryStorage, Pausable {
     using PercentageMath for uint16;
 
     //----------------------------------------
@@ -65,5 +70,15 @@ abstract contract ClooverRaffleFactorySetters is IClooverRaffleFactorySetters, C
     function setMaxTotalSupplyAllowed(uint16 newMaxTotalSupplyAllowed) external onlyMaintainer {
         _config.maxTotalSupplyAllowed = newMaxTotalSupplyAllowed;
         emit ClooverRaffleFactoryEvents.MaxTotalSupplyAllowedUpdated(newMaxTotalSupplyAllowed);
+    }
+
+    /// @inheritdoc IClooverRaffleFactorySetters
+    function pause() external onlyMaintainer {
+        _pause();
+    }
+
+    /// @inheritdoc IClooverRaffleFactorySetters
+    function unpause() external onlyMaintainer {
+        _unpause();
     }
 }

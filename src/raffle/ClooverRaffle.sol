@@ -26,6 +26,9 @@ import {ClooverRaffleStorage} from "./ClooverRaffleStorage.sol";
 import {ClooverRaffleGetters} from "./ClooverRaffleGetters.sol";
 import {ClooverRaffleInternal} from "./ClooverRaffleInternal.sol";
 
+/// @title ClooverRaffle
+/// @author Cloover
+/// @notice The main Raffle contract exposing all user entry points.
 contract ClooverRaffle is IClooverRaffle, Initializable, ClooverRaffleGetters {
     using PercentageMath for uint256;
     using SafeTransferLib for ERC20;

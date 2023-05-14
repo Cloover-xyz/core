@@ -186,4 +186,36 @@ contract ClooverRaffleFactorySettersTest is IntegrationTest {
         vm.expectRevert(Errors.NOT_MAINTAINER.selector);
         factory.setMaxTotalSupplyAllowed(maxTotalSupplyAllowed);
     }
+
+    function test_Pause() external {
+        factory.pause();
+
+        assertTrue(factory.paused());
+    }
+
+    function test_Pause_RevertIf_NotMaintainer(address caller) external {
+        _assumeNotMaintainer(caller);
+        changePrank(caller);
+
+        vm.expectRevert(Errors.NOT_MAINTAINER.selector);
+        factory.pause();
+    }
+
+    function test_Unpause() external {
+        factory.pause();
+        factory.unpause();
+
+        assertFalse(factory.paused());
+    }
+
+    function test_Unpause_RevertIf_NotMaintainer(address caller) external {
+        _assumeNotMaintainer(caller);
+
+        factory.pause();
+
+        changePrank(caller);
+
+        vm.expectRevert(Errors.NOT_MAINTAINER.selector);
+        factory.pause();
+    }
 }

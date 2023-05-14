@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity 0.8.19;
 
-import {console2} from "@forge-std/console2.sol";
-
 import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
 
@@ -27,6 +25,9 @@ import {ClooverRaffle} from "../raffle/ClooverRaffle.sol";
 import {ClooverRaffleFactoryGetters} from "./ClooverRaffleFactoryGetters.sol";
 import {ClooverRaffleFactorySetters} from "./ClooverRaffleFactorySetters.sol";
 
+/// @title ClooverRaffleFactory
+/// @author Cloover
+/// @notice The main RaffleFactory contract exposing user entry points.
 contract ClooverRaffleFactory is IClooverRaffleFactory, ClooverRaffleFactoryGetters, ClooverRaffleFactorySetters {
     using EnumerableSet for EnumerableSet.AddressSet;
     using Clones for address;
@@ -61,7 +62,7 @@ contract ClooverRaffleFactory is IClooverRaffleFactory, ClooverRaffleFactoryGett
     function createNewRaffle(
         ClooverRaffleTypes.CreateRaffleParams memory params,
         ClooverRaffleTypes.PermitDataParams calldata permitData
-    ) external payable override returns (address newRaffle) {
+    ) external payable override whenNotPaused returns (address newRaffle) {
         bool isEthRaffle = _checkData(params);
         newRaffle = address(_raffleImplementation.clone());
         _registeredRaffles.add(newRaffle);

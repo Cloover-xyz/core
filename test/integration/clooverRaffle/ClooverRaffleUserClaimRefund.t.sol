@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity 0.8.19;
 
-import "test/helpers/RaffleTest.sol";
+import "test/helpers/IntegrationTest.sol";
 
-contract ClooverRaffleUserClaimRefundTest is RaffleTest {
+contract ClooverRaffleUserClaimRefundTest is IntegrationTest {
     using PercentageMath for uint256;
     using InsuranceLib for uint16;
 
@@ -16,9 +16,9 @@ contract ClooverRaffleUserClaimRefundTest is RaffleTest {
         uint64 ticketSalesDuration;
         (raffle, ticketSalesDuration) = _createRandomRaffle(isEthRaffle, true, false);
 
-        changePrank(participant1);
+        changePrank(participant);
         uint16 max = raffle.ticketSalesInsurance();
-        (uint256 ticketPurchased) = _purchaseRandomAmountOfTickets(raffle, participant1, max - 1);
+        (uint256 ticketPurchased) = _purchaseRandomAmountOfTickets(raffle, participant, max - 1);
 
         _forwardByTimestamp(ticketSalesDuration + 1);
 
@@ -28,21 +28,21 @@ contract ClooverRaffleUserClaimRefundTest is RaffleTest {
             max.splitInsuranceAmount(INSURANCE_RATE, PROTOCOL_FEE_RATE, raffle.currentSupply(), raffle.ticketPrice());
         uint256 expectParticipant1Refund = amountPerTicket * ticketPurchased + totalSalesAmount;
         uint256 expectedBalanceLeftOnContract = treasuryAmount;
-        uint256 parcipant1BalanceBefore = address(participant1).balance;
+        uint256 parcipant1BalanceBefore = address(participant).balance;
 
         if (isEthRaffle) {
             vm.expectEmit(true, true, true, true);
-            emit ClooverRaffleEvents.UserClaimedRefund(participant1, expectParticipant1Refund);
+            emit ClooverRaffleEvents.UserClaimedRefund(participant, expectParticipant1Refund);
             raffle.userClaimRefundInEth();
             assertEq(address(raffle).balance, expectedBalanceLeftOnContract);
-            assertEq(address(participant1).balance, parcipant1BalanceBefore + expectParticipant1Refund);
+            assertEq(address(participant).balance, parcipant1BalanceBefore + expectParticipant1Refund);
         } else {
-            parcipant1BalanceBefore = erc20Mock.balanceOf(participant1);
+            parcipant1BalanceBefore = erc20Mock.balanceOf(participant);
             vm.expectEmit(true, true, true, true);
-            emit ClooverRaffleEvents.UserClaimedRefund(participant1, expectParticipant1Refund);
+            emit ClooverRaffleEvents.UserClaimedRefund(participant, expectParticipant1Refund);
             raffle.userClaimRefund();
             assertEq(erc20Mock.balanceOf(address(raffle)), expectedBalanceLeftOnContract);
-            assertEq(erc20Mock.balanceOf(address(participant1)), parcipant1BalanceBefore + expectParticipant1Refund);
+            assertEq(erc20Mock.balanceOf(address(participant)), parcipant1BalanceBefore + expectParticipant1Refund);
         }
     }
 
@@ -50,9 +50,9 @@ contract ClooverRaffleUserClaimRefundTest is RaffleTest {
         uint64 ticketSalesDuration;
         (raffle, ticketSalesDuration) = _createRandomRaffle(isEthRaffle, true, false);
 
-        changePrank(participant1);
+        changePrank(participant);
         uint16 max = raffle.ticketSalesInsurance();
-        _purchaseRandomAmountOfTickets(raffle, participant1, max - 1);
+        _purchaseRandomAmountOfTickets(raffle, participant, max - 1);
 
         _forwardByTimestamp(ticketSalesDuration + 1);
 
@@ -69,9 +69,9 @@ contract ClooverRaffleUserClaimRefundTest is RaffleTest {
         uint64 ticketSalesDuration;
         (raffle, ticketSalesDuration) = _createRandomRaffle(isEthRaffle, true, false);
 
-        changePrank(participant1);
+        changePrank(participant);
 
-        _purchaseExactAmountOfTickets(raffle, participant1, raffle.ticketSalesInsurance());
+        _purchaseExactAmountOfTickets(raffle, participant, raffle.ticketSalesInsurance());
 
         _forwardByTimestamp(ticketSalesDuration + 1);
 
@@ -87,9 +87,9 @@ contract ClooverRaffleUserClaimRefundTest is RaffleTest {
         uint64 ticketSalesDuration;
         (raffle, ticketSalesDuration) = _createRandomRaffle(isEthRaffle, true, false);
 
-        changePrank(participant1);
+        changePrank(participant);
         uint16 max = raffle.ticketSalesInsurance();
-        _purchaseRandomAmountOfTickets(raffle, participant1, max - 1);
+        _purchaseRandomAmountOfTickets(raffle, participant, max - 1);
 
         _forwardByTimestamp(ticketSalesDuration + 1);
 
@@ -108,9 +108,9 @@ contract ClooverRaffleUserClaimRefundTest is RaffleTest {
         uint64 ticketSalesDuration;
         (raffle, ticketSalesDuration) = _createRandomRaffle(isEthRaffle, true, false);
 
-        changePrank(participant1);
+        changePrank(participant);
         uint16 max = raffle.ticketSalesInsurance();
-        _purchaseRandomAmountOfTickets(raffle, participant1, max - 1);
+        _purchaseRandomAmountOfTickets(raffle, participant, max - 1);
 
         _forwardByTimestamp(ticketSalesDuration + 1);
 

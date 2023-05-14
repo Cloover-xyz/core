@@ -8,6 +8,9 @@ import {IClooverRaffleFactoryGetters} from "../interfaces/IClooverRaffleFactory.
 
 import {ClooverRaffleFactoryStorage} from "./ClooverRaffleFactoryStorage.sol";
 
+/// @title ClooverRaffleFactoryGetters
+/// @author Cloover
+/// @notice Abstract contract exposing all accessible getters.
 abstract contract ClooverRaffleFactoryGetters is IClooverRaffleFactoryGetters, ClooverRaffleFactoryStorage {
     using EnumerableSet for EnumerableSet.AddressSet;
     /// @inheritdoc IClooverRaffleFactoryGetters

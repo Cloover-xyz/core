@@ -4,24 +4,21 @@ pragma solidity 0.8.19;
 import "test/helpers/IntegrationTest.sol";
 
 contract ClooverRaffleFactoryCreateRaffleTest is IntegrationTest {
-    uint256 nftId = 1;
-
     function setUp() public virtual override {
         super.setUp();
 
-        erc721Mock = _mockERC721(collectionCreator);
         changePrank(creator);
     }
 
-    function test_RemoveClooverRaffleFromRegister() external {
-        address raffle = _createDummyRaffle();
+    function test_RemoveClooverRaffleFromRegister(bool isEthRaffle) external {
+        (ClooverRaffle raffle,) = _createRandomRaffle(isEthRaffle, false, false);
 
-        assertEq(factory.getRegisteredRaffle()[0], raffle);
+        assertEq(factory.getRegisteredRaffle()[0], address(raffle));
 
-        changePrank(raffle);
+        changePrank(address(raffle));
 
         vm.expectEmit(true, true, true, true);
-        emit ClooverRaffleFactoryEvents.RemovedFromRegister(raffle);
+        emit ClooverRaffleFactoryEvents.RemovedFromRegister(address(raffle));
 
         factory.removeClooverRaffleFromRegister();
 

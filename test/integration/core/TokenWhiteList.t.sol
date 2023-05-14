@@ -16,6 +16,8 @@ contract TokenWhitelistTest is IntegrationTest {
     function setUp() public virtual override {
         super.setUp();
 
+        _deployTokenWhitelist();
+
         changePrank(maintainer);
     }
 

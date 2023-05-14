@@ -5,6 +5,9 @@ import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet
 
 import {ClooverRaffleTypes} from "../libraries/ClooverRaffleTypes.sol";
 
+/// @title ClooverRaffleFactoryStorage
+/// @author Cloover
+/// @notice The storage shared by ClooverRaffleFactory's contracts.
 abstract contract ClooverRaffleFactoryStorage {
     uint256 internal constant MIN_TICKET_PRICE = 10000;
 

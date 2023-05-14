@@ -6,8 +6,6 @@ import "test/helpers/IntegrationTest.sol";
 contract ClooverRaffleFactoryCreateRaffleTest is IntegrationTest {
     using InsuranceLib for uint16;
 
-    uint256 nftId = 1;
-
     function setUp() public virtual override {
         super.setUp();
 
@@ -117,7 +115,7 @@ contract ClooverRaffleFactoryCreateRaffleTest is IntegrationTest {
         _mintERC20(erc20Mock, creatorPublicKey, insuranceCost);
 
         ClooverRaffleTypes.PermitDataParams memory permitData =
-            _permitData(creatorPrivateKey, address(factory), insuranceCost);
+            _signPermitData(creatorPrivateKey, address(factory), insuranceCost);
 
         ClooverRaffleTypes.CreateRaffleParams memory params = _convertToClooverRaffleParams(
             address(erc20Mock),
@@ -304,7 +302,6 @@ contract ClooverRaffleFactoryCreateRaffleTest is IntegrationTest {
 
     function test_CreateRaffle_RevertWhen_TicketPriceIsZero(uint256 ticketPrice) external {
         ticketPrice = _boundAmountUnderOf(ticketPrice, MIN_TICKET_PRICE - 1);
-        console2.log(ticketPrice, MIN_TICKET_PRICE);
         ClooverRaffleTypes.CreateRaffleParams memory params = _convertToClooverRaffleParams(
             address(erc20Mock), address(erc721Mock), nftId, ticketPrice, 1 days, 100, 1, 0, 0
         );
@@ -378,8 +375,12 @@ contract ClooverRaffleFactoryCreateRaffleTest is IntegrationTest {
         uint16 maxTotalSupply,
         uint16 maxTicketAllowedToPurchase,
         uint16 ticketSalesInsurance,
-        uint16 royaltiesRate
+        uint16 royaltiesRate,
+        uint256 privateKey
     ) external {
+        privateKey = bound(privateKey, 1, type(uint160).max);
+        address creator = vm.addr(privateKey);
+
         (ticketPrice, ticketSalesDuration, maxTotalSupply) =
             _boundCommonCreateRaffleParams(ticketPrice, ticketSalesDuration, maxTotalSupply);
         ticketSalesInsurance = uint16(bound(ticketSalesInsurance, 1, maxTotalSupply));
@@ -394,7 +395,7 @@ contract ClooverRaffleFactoryCreateRaffleTest is IntegrationTest {
         _mintERC20(erc20Mock, creator, insuranceCost);
 
         ClooverRaffleTypes.PermitDataParams memory permitData =
-            _permitData(creator_privateKey, address(factory), insuranceCost);
+            _signPermitData(privateKey, address(factory), insuranceCost);
 
         ClooverRaffleTypes.CreateRaffleParams memory params = _convertToClooverRaffleParams(
             address(erc20Mock),
@@ -411,6 +412,39 @@ contract ClooverRaffleFactoryCreateRaffleTest is IntegrationTest {
         changePrank(creator);
         erc721Mock.approve(address(factory), _nftId);
         vm.expectRevert(Errors.INSURANCE_AMOUNT.selector);
+        ClooverRaffle(factory.createNewRaffle(params, permitData));
+    }
+
+    function test_CreateNewRaffle_RevertWhen_ContractIsPause(
+        uint256 ticketPrice,
+        uint64 ticketSalesDuration,
+        uint16 maxTotalSupply,
+        uint16 maxTicketAllowedToPurchase,
+        uint16 royaltiesRate
+    ) external {
+        changePrank(maintainer);
+        factory.pause();
+
+        changePrank(creator);
+
+        (ticketPrice, ticketSalesDuration, maxTotalSupply) =
+            _boundCommonCreateRaffleParams(ticketPrice, ticketSalesDuration, maxTotalSupply);
+        royaltiesRate = uint16(_boundAmountUnderOf(royaltiesRate, PercentageMath.PERCENTAGE_FACTOR - PROTOCOL_FEE_RATE));
+
+        ClooverRaffleTypes.CreateRaffleParams memory params = _convertToClooverRaffleParams(
+            address(erc20Mock),
+            address(erc721Mock),
+            nftId,
+            ticketPrice,
+            ticketSalesDuration,
+            maxTotalSupply,
+            maxTicketAllowedToPurchase,
+            0,
+            royaltiesRate
+        );
+        ClooverRaffleTypes.PermitDataParams memory permitData =
+            _convertToPermitDataParams(0, 0, 0, bytes32(0), bytes32(0));
+        vm.expectRevert();
         ClooverRaffle(factory.createNewRaffle(params, permitData));
     }
 }

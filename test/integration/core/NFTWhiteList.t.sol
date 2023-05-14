@@ -17,6 +17,9 @@ contract NFTWhitelistTest is IntegrationTest {
 
     function setUp() public virtual override {
         super.setUp();
+
+        _deployNFTWhitelist();
+
         changePrank(maintainer);
     }
 

@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity 0.8.19;
 
-import "test/helpers/RaffleTest.sol";
+import "test/helpers/IntegrationTest.sol";
 
-contract ClooverRaffleDrawTest is RaffleTest {
+contract ClooverRaffleDrawTest is IntegrationTest {
     function setUp() public virtual override {
         super.setUp();
         changePrank(creator);
@@ -13,9 +13,9 @@ contract ClooverRaffleDrawTest is RaffleTest {
         uint64 ticketSalesDuration;
         (raffle, ticketSalesDuration) = _createRandomRaffle(isEthRaffle, false, false);
 
-        changePrank(participant1);
+        changePrank(participant);
         uint16 maxTotalSupply = raffle.maxTotalSupply();
-        _purchaseRandomAmountOfTickets(raffle, participant1, maxTotalSupply);
+        _purchaseRandomAmountOfTickets(raffle, participant, maxTotalSupply);
 
         _forwardByTimestamp(ticketSalesDuration + 1);
 
@@ -30,16 +30,16 @@ contract ClooverRaffleDrawTest is RaffleTest {
         _generateRandomNumbersFromRandomProvider(address(raffle), false);
 
         assertFalse(raffle.winnerAddress() == address(0));
-        assertTrue(raffle.winnerAddress() == participant1);
+        assertTrue(raffle.winnerAddress() == participant);
         assertTrue(raffle.raffleStatus() == ClooverRaffleTypes.Status.DRAWN);
     }
 
     function test_Draw_RevertWhen_TicketSalesStillOpen(bool isEthRaffle, bool hasInsurance) external {
         (raffle,) = _createRandomRaffle(isEthRaffle, hasInsurance, false);
 
-        changePrank(participant1);
+        changePrank(participant);
         uint16 maxTotalSupply = raffle.maxTotalSupply();
-        _purchaseRandomAmountOfTickets(raffle, participant1, maxTotalSupply);
+        _purchaseRandomAmountOfTickets(raffle, participant, maxTotalSupply);
         vm.expectRevert(Errors.RAFFLE_STILL_OPEN.selector);
         raffle.draw();
     }
@@ -48,9 +48,9 @@ contract ClooverRaffleDrawTest is RaffleTest {
         uint64 ticketSalesDuration;
         (raffle, ticketSalesDuration) = _createRandomRaffle(isEthRaffle, false, false);
 
-        changePrank(participant1);
+        changePrank(participant);
         uint16 maxTotalSupply = raffle.maxTotalSupply();
-        _purchaseRandomAmountOfTickets(raffle, participant1, maxTotalSupply);
+        _purchaseRandomAmountOfTickets(raffle, participant, maxTotalSupply);
 
         _forwardByTimestamp(ticketSalesDuration + 1);
         raffle.draw();
@@ -65,8 +65,8 @@ contract ClooverRaffleDrawTest is RaffleTest {
         uint64 ticketSalesDuration;
         (raffle, ticketSalesDuration) = _createRandomRaffle(isEthRaffle, true, false);
         uint16 insuranceAmount = raffle.ticketSalesInsurance();
-        changePrank(participant1);
-        _purchaseRandomAmountOfTickets(raffle, participant1, insuranceAmount - 1);
+        changePrank(participant);
+        _purchaseRandomAmountOfTickets(raffle, participant, insuranceAmount - 1);
 
         _forwardByTimestamp(ticketSalesDuration + 1);
         vm.expectEmit(true, true, true, true);
@@ -79,9 +79,9 @@ contract ClooverRaffleDrawTest is RaffleTest {
         uint64 ticketSalesDuration;
         (raffle, ticketSalesDuration) = _createRandomRaffle(isEthRaffle, false, false);
 
-        changePrank(participant1);
+        changePrank(participant);
         uint16 maxTotalSupply = raffle.maxTotalSupply();
-        _purchaseRandomAmountOfTickets(raffle, participant1, maxTotalSupply);
+        _purchaseRandomAmountOfTickets(raffle, participant, maxTotalSupply);
 
         _forwardByTimestamp(ticketSalesDuration + 1);
         raffle.draw();
@@ -116,9 +116,9 @@ contract ClooverRaffleDrawTest is RaffleTest {
         uint64 ticketSalesDuration;
         (raffle, ticketSalesDuration) = _createRandomRaffle(isEthRaffle, false, false);
 
-        changePrank(participant1);
+        changePrank(participant);
         uint16 maxTotalSupply = raffle.maxTotalSupply();
-        _purchaseRandomAmountOfTickets(raffle, participant1, maxTotalSupply);
+        _purchaseRandomAmountOfTickets(raffle, participant, maxTotalSupply);
 
         _forwardByTimestamp(ticketSalesDuration + 1);
         uint256[] memory randomNumbers = new uint256[](1);

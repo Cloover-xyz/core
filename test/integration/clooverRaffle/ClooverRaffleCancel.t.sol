@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity 0.8.19;
 
-import "test/helpers/RaffleTest.sol";
+import "test/helpers/IntegrationTest.sol";
 
-contract ClooverRaffleCancelTest is RaffleTest {
+contract ClooverRaffleCancelTest is IntegrationTest {
     function setUp() public virtual override {
         super.setUp();
 
@@ -43,6 +43,8 @@ contract ClooverRaffleCancelTest is RaffleTest {
     function test_CancelRaffle_RevertWhen_NotCreatorCalling(bool isEthRaffle, bool hasInsurance, address caller)
         external
     {
+        caller = _boundAddressNotZero(caller);
+        vm.assume(caller != creator);
         (raffle,) = _createRandomRaffle(isEthRaffle, hasInsurance, false);
 
         changePrank(caller);
@@ -53,9 +55,9 @@ contract ClooverRaffleCancelTest is RaffleTest {
     function test_CancelRaffle_RevertWhen_AtLeastOneTicketHasBeenSold(bool isEthRaffle, bool hasInsurance) external {
         (raffle,) = _createRandomRaffle(isEthRaffle, hasInsurance, false);
 
-        changePrank(participant1);
+        changePrank(participant);
         uint16 maxTotalSupply = raffle.maxTotalSupply();
-        _purchaseRandomAmountOfTickets(raffle, participant1, maxTotalSupply);
+        _purchaseRandomAmountOfTickets(raffle, participant, maxTotalSupply);
 
         changePrank(creator);
         vm.expectRevert(Errors.SALES_ALREADY_STARTED.selector);

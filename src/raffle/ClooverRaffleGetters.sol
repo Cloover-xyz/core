@@ -9,6 +9,9 @@ import {ImplementationInterfaceNames} from "../libraries/ImplementationInterface
 
 import {ClooverRaffleInternal} from "./ClooverRaffleInternal.sol";
 
+/// @title ClooverRaffleGetters
+/// @author Cloover
+/// @notice Abstract contract exposing all accessible getters.
 abstract contract ClooverRaffleGetters is IClooverRaffleGetters, ClooverRaffleInternal {
     //----------------------------------------
     // Getter functions

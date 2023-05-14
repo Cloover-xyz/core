@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity 0.8.19;
 
-import "test/helpers/RaffleTest.sol";
+import "test/helpers/IntegrationTest.sol";
 
-contract ClooverRaffleGettersTest is RaffleTest {
+contract ClooverRaffleGettersTest is IntegrationTest {
     function setUp() public virtual override {
         super.setUp();
         changePrank(creator);
@@ -56,10 +56,10 @@ contract ClooverRaffleGettersTest is RaffleTest {
 
         assertEq(raffle.currentSupply(), 0);
 
-        changePrank(participant1);
+        changePrank(participant);
 
         uint16 ticketToPurchase = uint16(bound(0, 1, maxTotalSupply));
-        erc20Mock.mint(participant1, ticketPrice * ticketToPurchase);
+        erc20Mock.mint(participant, ticketPrice * ticketToPurchase);
         erc20Mock.approve(address(raffle), ticketPrice * ticketToPurchase);
 
         raffle.purchaseTickets(ticketToPurchase);
@@ -68,6 +68,7 @@ contract ClooverRaffleGettersTest is RaffleTest {
     }
 
     function test_Creator(address caller) external {
+        caller = _boundAddressNotZero(caller);
         changePrank(caller);
         uint256 nft = 100;
         erc721Mock.mint(caller, nft);
@@ -210,11 +211,11 @@ contract ClooverRaffleGettersTest is RaffleTest {
             0
         );
 
-        changePrank(participant1);
-        uint16 ticketToPurchase = _purchaseRandomAmountOfTickets(raffle, participant1, maxTotalSupply);
+        changePrank(participant);
+        uint16 ticketToPurchase = _purchaseRandomAmountOfTickets(raffle, participant, maxTotalSupply);
         assertEq(raffle.ownerOf(0), address(0));
         for (uint16 i = 1; i <= ticketToPurchase; i++) {
-            assertEq(raffle.ownerOf(i), participant1);
+            assertEq(raffle.ownerOf(i), participant);
         }
         assertEq(raffle.ownerOf(ticketToPurchase + 1), address(0));
     }

@@ -6,6 +6,7 @@ import "test/helpers/IntegrationTest.sol";
 contract ClooverRaffleFactoryGettersTest is IntegrationTest {
     function setUp() public virtual override {
         super.setUp();
+        changePrank(creator);
     }
 
     function test_ProtocolFeeRate() external {
@@ -42,14 +43,13 @@ contract ClooverRaffleFactoryGettersTest is IntegrationTest {
         assertEq(factory.isRegistered(address(0)), false);
     }
 
-    function test_GetRegisteredRaffle() external {
+    function test_GetRegisteredRaffle(bool isEthRaffle) external {
         assertEq(factory.getRegisteredRaffle().length, 0);
 
-        erc721Mock = _mockERC721(collectionCreator);
-        address raffle = _createDummyRaffle();
+        (ClooverRaffle raffle,) = _createRandomRaffle(isEthRaffle, false, false);
 
         assertEq(factory.getRegisteredRaffle().length, 1);
-        assertEq(factory.getRegisteredRaffle()[0], raffle);
+        assertEq(factory.getRegisteredRaffle()[0], address(raffle));
     }
 
     function test_Version() external {

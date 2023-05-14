@@ -5,6 +5,9 @@ import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.s
 
 import {ClooverRaffleTypes} from "../libraries/ClooverRaffleTypes.sol";
 
+/// @title ClooverRaffleStorage
+/// @author Cloover
+/// @notice The storage shared by ClooverRaffle's contracts.
 abstract contract ClooverRaffleStorage is Initializable {
     /// @dev the raffle config data
     ClooverRaffleTypes.ConfigData internal _config;

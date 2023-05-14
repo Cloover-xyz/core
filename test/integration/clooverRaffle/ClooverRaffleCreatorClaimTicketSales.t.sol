@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity 0.8.19;
 
-import "test/helpers/RaffleTest.sol";
+import "test/helpers/IntegrationTest.sol";
 
-contract ClooverRaffleCreatorClaimTicketSalesTest is RaffleTest {
+contract ClooverRaffleCreatorClaimTicketSalesTest is IntegrationTest {
     using PercentageMath for uint256;
 
     function setUp() public virtual override {
@@ -15,10 +15,10 @@ contract ClooverRaffleCreatorClaimTicketSalesTest is RaffleTest {
         uint64 ticketSalesDuration;
         (raffle, ticketSalesDuration) = _createRandomRaffle(isEthRaffle, hasInsurance, hasRoyalties);
 
-        changePrank(participant1);
+        changePrank(participant);
         uint16 min = raffle.ticketSalesInsurance();
         uint16 max = raffle.maxTotalSupply();
-        (uint256 ticketPurchased) = _purchaseRandomAmountOfTicketsBetween(raffle, participant1, min, max);
+        (uint256 ticketPurchased) = _purchaseRandomAmountOfTicketsBetween(raffle, participant, min, max);
 
         uint256 totalSalesAmount = raffle.ticketPrice() * ticketPurchased;
 
@@ -77,10 +77,10 @@ contract ClooverRaffleCreatorClaimTicketSalesTest is RaffleTest {
         uint64 ticketSalesDuration;
         (raffle, ticketSalesDuration) = _createRandomRaffle(isEthRaffle, hasInsurance, hasRoyalties);
 
-        changePrank(participant1);
+        changePrank(participant);
         uint16 min = raffle.ticketSalesInsurance();
         uint16 max = raffle.maxTotalSupply();
-        _purchaseRandomAmountOfTicketsBetween(raffle, participant1, min, max);
+        _purchaseRandomAmountOfTicketsBetween(raffle, participant, min, max);
 
         changePrank(caller);
         _forwardByTimestamp(ticketSalesDuration + 1);
@@ -103,10 +103,10 @@ contract ClooverRaffleCreatorClaimTicketSalesTest is RaffleTest {
         uint64 ticketSalesDuration;
         (raffle, ticketSalesDuration) = _createRandomRaffle(isEthRaffle, hasInsurance, hasRoyalties);
 
-        changePrank(participant1);
+        changePrank(participant);
         uint16 min = raffle.ticketSalesInsurance();
         uint16 max = raffle.maxTotalSupply();
-        _purchaseRandomAmountOfTicketsBetween(raffle, participant1, min, max);
+        _purchaseRandomAmountOfTicketsBetween(raffle, participant, min, max);
 
         changePrank(creator);
         _forwardByTimestamp(ticketSalesDuration + 1);
@@ -131,10 +131,10 @@ contract ClooverRaffleCreatorClaimTicketSalesTest is RaffleTest {
         uint64 ticketSalesDuration;
         (raffle, ticketSalesDuration) = _createRandomRaffle(isEthRaffle, hasInsurance, hasRoyalties);
 
-        changePrank(participant1);
+        changePrank(participant);
         uint16 min = raffle.ticketSalesInsurance();
         uint16 max = raffle.maxTotalSupply();
-        _purchaseRandomAmountOfTicketsBetween(raffle, participant1, min, max);
+        _purchaseRandomAmountOfTicketsBetween(raffle, participant, min, max);
 
         changePrank(creator);
         _forwardByTimestamp(ticketSalesDuration + 1);

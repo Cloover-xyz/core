@@ -50,6 +50,14 @@ interface IClooverRaffleFactorySetters {
 
     /// @notice Set the max ticket supply allowed in a raffle
     function setMaxTotalSupplyAllowed(uint16 newMaxTotalSupplyAllowed) external;
+
+    /// @notice Pause the contract preventing new raffle to be deployed
+    /// @dev can only be called by the maintainer
+    function pause() external;
+
+    /// @notice Unpause the contract allowing new raffle to be deployed
+    /// @dev can only be called by the maintainer
+    function unpause() external;
 }
 
 interface IClooverRaffleFactory is IClooverRaffleFactoryGetters, IClooverRaffleFactorySetters {
