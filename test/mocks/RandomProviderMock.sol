@@ -6,6 +6,8 @@ import {IClooverRaffleFactory} from "src/interfaces/IClooverRaffleFactory.sol";
 import {IClooverRaffle} from "src/interfaces/IClooverRaffle.sol";
 import {IRandomProvider} from "src/interfaces/IRandomProvider.sol";
 
+import {RandomProviderTypes} from "src/libraries/Types.sol";
+
 import {ImplementationInterfaceNames} from "src/libraries/ImplementationInterfaceNames.sol";
 
 contract RandomProviderMock is IRandomProvider {
@@ -14,7 +16,7 @@ contract RandomProviderMock is IRandomProvider {
     mapping(address => uint256) public callerToRequestId;
     mapping(uint256 => address) private _requestIdToCaller;
     mapping(uint256 => uint256) public requestIdToNumWords;
-    ChainlinkVRFData private _chainlinkVRFData;
+    RandomProviderTypes.ChainlinkVRFData private _chainlinkVRFData;
     uint256 nonce;
 
     constructor(address implementationManager_) {
@@ -71,7 +73,7 @@ contract RandomProviderMock is IRandomProvider {
     }
 
     /// @inheritdoc IRandomProvider
-    function chainlinkVRFData() external view override returns (ChainlinkVRFData memory) {
+    function chainlinkVRFData() external view override returns (RandomProviderTypes.ChainlinkVRFData memory) {
         return _chainlinkVRFData;
     }
 }

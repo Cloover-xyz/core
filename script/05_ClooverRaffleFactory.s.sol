@@ -1,13 +1,15 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity 0.8.19;
 
-import {AccessController} from "src/core/AccessController.sol";
+import "@forge-std/Script.sol";
 
 import {Configured, ConfigLib, Config} from "config/Configured.sol";
 
-import "@forge-std/Script.sol";
+import {ClooverRaffleTypes} from "src/libraries/Types.sol";
 
-contract DeployAccessController is Script, Configured {
+import {ClooverRaffleFactory} from "src/raffleFactory/ClooverRaffleFactory.sol";
+
+contract DeployRandomProvider is Script, Configured {
     using ConfigLib for Config;
 
     function run() external {
@@ -22,6 +24,6 @@ contract DeployAccessController is Script, Configured {
     }
 
     function _deploy() internal {
-        new AccessController(maintainer);
+        new ClooverRaffleFactory(implementationManager, factoryConfig);
     }
 }

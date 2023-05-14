@@ -16,7 +16,7 @@ import {ITokenWhitelist} from "../interfaces/ITokenWhitelist.sol";
 import {Errors} from "../libraries/Errors.sol";
 import {ClooverRaffleFactoryEvents} from "../libraries/Events.sol";
 import {ImplementationInterfaceNames} from "../libraries/ImplementationInterfaceNames.sol";
-import {ClooverRaffleTypes} from "../libraries/ClooverRaffleTypes.sol";
+import {ClooverRaffleTypes} from "../libraries/Types.sol";
 import {InsuranceLib} from "../libraries/InsuranceLib.sol";
 import {PercentageMath} from "../libraries/PercentageMath.sol";
 

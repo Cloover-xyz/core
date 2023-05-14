@@ -3,7 +3,7 @@ pragma solidity 0.8.19;
 
 /// @title ClooverRaffleTypes
 /// @author Cloover
-/// @notice Library exposing all Types used in ClooverRaffle.
+/// @notice Library exposing all Types used in ClooverRaffle & ClooverRaffleFactory.
 library ClooverRaffleTypes {
     /* ENUMS */
     /// @notice Enumeration of the different status of the raffle
@@ -114,5 +114,25 @@ library ClooverRaffleTypes {
         uint16 insuranceRate;
         uint64 minTicketSalesDuration;
         uint64 maxTicketSalesDuration;
+    }
+}
+
+/// @title RandomProviderTypes
+/// @author Cloover
+/// @notice Library exposing all Types used in RandomProvider.
+library RandomProviderTypes {
+    struct ChainlinkVRFData {
+        // see https://docs.chain.link/docs/vrf-contracts/#configurations
+        address vrfCoordinator;
+        // The gas lane to use, which specifies the maximum gas price to bump to.
+        // For a list of available gas lanes on each network,
+        // see https://docs.chain.link/docs/vrf-contracts/#configurations
+        bytes32 keyHash;
+        // A reasonable default is 100000, but this value could be different
+        // on other networks.
+        uint32 callbackGasLimit;
+        // The default is 3, but you can set this higher.
+        uint16 requestConfirmations;
+        uint64 subscriptionId;
     }
 }

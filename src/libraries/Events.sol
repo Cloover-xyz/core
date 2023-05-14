@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity 0.8.19;
 
-import {ClooverRaffleTypes} from "./ClooverRaffleTypes.sol";
+import {ClooverRaffleTypes} from "./Types.sol";
 
 /// @title ClooverRaffleEvents
 /// @author Cloover

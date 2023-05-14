@@ -10,6 +10,7 @@ import {IRandomProvider} from "../interfaces/IRandomProvider.sol";
 import {IClooverRaffle} from "../interfaces/IClooverRaffle.sol";
 import {IClooverRaffleFactory} from "../interfaces/IClooverRaffleFactory.sol";
 
+import {RandomProviderTypes} from "../libraries/Types.sol";
 import {ImplementationInterfaceNames} from "../libraries/ImplementationInterfaceNames.sol";
 import {Errors} from "../libraries/Errors.sol";
 
@@ -25,7 +26,7 @@ contract RandomProvider is VRFConsumerBaseV2, IRandomProvider {
 
     address private _implementationManager;
 
-    ChainlinkVRFData private _chainlinkVRFData;
+    RandomProviderTypes.ChainlinkVRFData private _chainlinkVRFData;
 
     mapping(uint256 => address) private _requestIdToCaller;
 
@@ -33,7 +34,9 @@ contract RandomProvider is VRFConsumerBaseV2, IRandomProvider {
     // Initialization
     //----------------------------------------
 
-    constructor(address implementationManager_, ChainlinkVRFData memory data) VRFConsumerBaseV2(data.vrfCoordinator) {
+    constructor(address implementationManager_, RandomProviderTypes.ChainlinkVRFData memory data)
+        VRFConsumerBaseV2(data.vrfCoordinator)
+    {
         _implementationManager = implementationManager_;
         COORDINATOR = VRFCoordinatorV2Interface(data.vrfCoordinator);
         _chainlinkVRFData = data;
@@ -79,7 +82,7 @@ contract RandomProvider is VRFConsumerBaseV2, IRandomProvider {
     }
 
     /// @inheritdoc IRandomProvider
-    function chainlinkVRFData() external view override returns (ChainlinkVRFData memory) {
+    function chainlinkVRFData() external view override returns (RandomProviderTypes.ChainlinkVRFData memory) {
         return _chainlinkVRFData;
     }
 

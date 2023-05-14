@@ -3,7 +3,7 @@ pragma solidity 0.8.19;
 
 import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 
-import {ClooverRaffleTypes} from "../libraries/ClooverRaffleTypes.sol";
+import {ClooverRaffleTypes} from "../libraries/Types.sol";
 
 /// @title ClooverRaffleStorage
 /// @author Cloover

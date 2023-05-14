@@ -3,7 +3,7 @@ pragma solidity 0.8.19;
 
 import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
-import {ClooverRaffleTypes} from "../libraries/ClooverRaffleTypes.sol";
+import {ClooverRaffleTypes} from "../libraries/Types.sol";
 
 /// @title ClooverRaffleFactoryStorage
 /// @author Cloover

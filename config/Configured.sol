@@ -5,6 +5,8 @@ import {Config, ConfigLib} from "config/ConfigLib.sol";
 
 import {StdChains, VmSafe} from "@forge-std/StdChains.sol";
 
+import {RandomProviderTypes, ClooverRaffleTypes} from "src/libraries/Types.sol";
+
 contract Configured is StdChains {
     using ConfigLib for Config;
 
@@ -18,6 +20,9 @@ contract Configured is StdChains {
     address internal maintainer;
     address internal implementationManager;
     address internal accessController;
+
+    ClooverRaffleTypes.FactoryConfigParams internal factoryConfig;
+    RandomProviderTypes.ChainlinkVRFData internal chainlinkVRFData;
 
     function _network() internal virtual returns (string memory) {
         Chain memory currentChain = getChain(block.chainid);
@@ -43,5 +48,8 @@ contract Configured is StdChains {
         implementationManager = config.getImplementationManagerAddresses();
         accessController = config.getAccessControllerAddresses();
         maintainer = config.getMaintainerAddress();
+
+        chainlinkVRFData = config.getChainlinkVRFData();
+        factoryConfig = config.getRaffleFactoryConfig();
     }
 }

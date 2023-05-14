@@ -10,7 +10,7 @@ import {IImplementationManager} from "../interfaces/IImplementationManager.sol";
 import {ImplementationInterfaceNames} from "../libraries/ImplementationInterfaceNames.sol";
 import {Errors} from "../libraries/Errors.sol";
 import {ClooverRaffleEvents} from "../libraries/Events.sol";
-import {ClooverRaffleTypes} from "../libraries/ClooverRaffleTypes.sol";
+import {ClooverRaffleTypes} from "../libraries/Types.sol";
 import {PercentageMath} from "../libraries/PercentageMath.sol";
 import {InsuranceLib} from "../libraries/InsuranceLib.sol";
 

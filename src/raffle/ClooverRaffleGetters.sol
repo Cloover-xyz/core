@@ -4,7 +4,7 @@ pragma solidity 0.8.19;
 import {IClooverRaffleGetters} from "../interfaces/IClooverRaffle.sol";
 import {IImplementationManager} from "../interfaces/IImplementationManager.sol";
 
-import {ClooverRaffleTypes} from "../libraries/ClooverRaffleTypes.sol";
+import {ClooverRaffleTypes} from "../libraries/Types.sol";
 import {ImplementationInterfaceNames} from "../libraries/ImplementationInterfaceNames.sol";
 
 import {ClooverRaffleInternal} from "./ClooverRaffleInternal.sol";

@@ -12,7 +12,7 @@ import {Permit2Lib} from "@permit2/libraries/Permit2Lib.sol";
 import {ImplementationInterfaceNames} from "../libraries/ImplementationInterfaceNames.sol";
 import {Errors} from "../libraries/Errors.sol";
 import {PercentageMath} from "../libraries/PercentageMath.sol";
-import {ClooverRaffleTypes} from "../libraries/ClooverRaffleTypes.sol";
+import {ClooverRaffleTypes} from "../libraries/Types.sol";
 import {ClooverRaffleEvents} from "../libraries/Events.sol";
 
 import {IClooverRaffle} from "../interfaces/IClooverRaffle.sol";

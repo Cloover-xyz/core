@@ -15,7 +15,7 @@ import {ClooverRaffleFactory} from "src/raffleFactory/ClooverRaffleFactory.sol";
 import {ClooverRaffle} from "src/raffle/ClooverRaffle.sol";
 
 import {InsuranceLib} from "src/libraries/InsuranceLib.sol";
-import {ClooverRaffleTypes} from "src/libraries/ClooverRaffleTypes.sol";
+import {ClooverRaffleTypes} from "src/libraries/Types.sol";
 import {Errors} from "src/libraries/Errors.sol";
 import {ClooverRaffleEvents, ClooverRaffleFactoryEvents} from "src/libraries/Events.sol";
 
