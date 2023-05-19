@@ -60,7 +60,7 @@ contract ClooverRaffleFactory is IClooverRaffleFactory, ClooverRaffleFactoryGett
 
     /// @inheritdoc IClooverRaffleFactory
     function createNewRaffle(
-        ClooverRaffleTypes.CreateRaffleParams memory params,
+        ClooverRaffleTypes.CreateRaffleParams calldata params,
         ClooverRaffleTypes.PermitDataParams calldata permitData
     ) external payable override whenNotPaused returns (address newRaffle) {
         bool isEthRaffle = _checkData(params);
@@ -91,7 +91,7 @@ contract ClooverRaffleFactory is IClooverRaffleFactory, ClooverRaffleFactoryGett
             }
         }
 
-        ERC721(params.nftContract).transferFrom(msg.sender, newRaffle, params.nftId);
+        ERC721(params.nftContract).safeTransferFrom(msg.sender, newRaffle, params.nftId);
         ClooverRaffleTypes.InitializeRaffleParams memory raffleParams = _convertParams(params, isEthRaffle);
         ClooverRaffle(newRaffle).initialize{value: msg.value}(raffleParams);
 
@@ -108,7 +108,7 @@ contract ClooverRaffleFactory is IClooverRaffleFactory, ClooverRaffleFactoryGett
     // Internal functions
     //----------------------------------------
 
-    function _convertParams(ClooverRaffleTypes.CreateRaffleParams memory params, bool isEthRaffle)
+    function _convertParams(ClooverRaffleTypes.CreateRaffleParams calldata params, bool isEthRaffle)
         internal
         view
         returns (ClooverRaffleTypes.InitializeRaffleParams memory raffleParams)
@@ -132,7 +132,7 @@ contract ClooverRaffleFactory is IClooverRaffleFactory, ClooverRaffleFactoryGett
     }
 
     /// @notice check that the raffle can be created
-    function _checkData(ClooverRaffleTypes.CreateRaffleParams memory params) internal returns (bool isEthRaffle) {
+    function _checkData(ClooverRaffleTypes.CreateRaffleParams calldata params) internal returns (bool isEthRaffle) {
         IImplementationManager implementationManager = IImplementationManager(_implementationManager);
         INFTWhitelist nftWhitelist =
             INFTWhitelist(implementationManager.getImplementationAddress(ImplementationInterfaceNames.NFTWhitelist));

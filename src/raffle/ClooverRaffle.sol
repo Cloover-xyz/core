@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity 0.8.19;
 
-import {console2} from "forge-std/console2.sol";
-
 import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
 import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import {ERC20, SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
@@ -71,7 +69,7 @@ contract ClooverRaffle is IClooverRaffle, Initializable, ClooverRaffleGetters {
     // Initializer
     //----------------------------------------
 
-    function initialize(ClooverRaffleTypes.InitializeRaffleParams memory params)
+    function initialize(ClooverRaffleTypes.InitializeRaffleParams calldata params)
         external
         payable
         override
