@@ -34,9 +34,9 @@ abstract contract ClooverRaffleInternal is ClooverRaffleStorage {
 
         uint256 ticketCost = _calculateTicketsCost(nbOfTickets);
 
-        ERC20(_config.purchaseCurrency).transferFrom(msg.sender, address(this), ticketCost);
-
         _purchaseTickets(nbOfTickets);
+
+        ERC20(_config.purchaseCurrency).safeTransferFrom(msg.sender, address(this), ticketCost);
     }
 
     /// @notice attribute ticket to msg.sender
