@@ -3,8 +3,11 @@ name: Install repository
 runs:
   using: composite
 
-  steps:
-      
+  steps:    
+    - uses: pnpm/action-setup@v2
+      with:
+        version: latest
+
     - name: Set up Node.js 
       uses: actions/setup-node@v3
     
