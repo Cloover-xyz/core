@@ -53,7 +53,7 @@ jobs:
       - uses: ./.github/actions/install
 
       - name: Run tests
-        run: forge test --gas-report | tee gasreport.ansi
+        run: forge test --gas-report > gasreport.ansi
         env:
           FOUNDRY_FUZZ_RUNS: ${{ inputs.fuzz-runs }}
           FOUNDRY_FUZZ_SEED: 0x${{ github.event.pull_request.base.sha || github.sha }}
