@@ -24,3 +24,9 @@ jobs:
 
     uses: ./.github/workflows/forge-test.yml
     secrets: inherit
+
+  forge-gas:
+    name: Forge gas
+
+    uses: ./.github/workflows/forge-gas-diff.yml
+    secrets: inherit

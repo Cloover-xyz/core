@@ -1,4 +1,4 @@
-name: Forge tests
+name: Report gas diff
 
 on:
   workflow_call:
@@ -41,7 +41,6 @@ jobs:
             cache
             out
           key: forge-${{ github.ref_name }}
-
   test:
     needs: build
     name: tests
@@ -54,34 +53,19 @@ jobs:
       - uses: ./.github/actions/install
 
       - name: Run tests
-        run: forge test -vvv
+        run: forge test --gas-report | tee gasreport.ansi
         env:
           FOUNDRY_FUZZ_RUNS: ${{ inputs.fuzz-runs }}
           FOUNDRY_FUZZ_SEED: 0x${{ github.event.pull_request.base.sha || github.sha }}
 
-  coverage:
-    needs:
-      - test
+      - name: Compare gas reports
+        uses: Rubilmax/foundry-gas-diff@v3.14
+        id: gas_diff
 
-    name: Coverage
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v3
+      - name: Add gas diff to sticky comment
+        if: github.event_name == 'pull_request' || github.event_name == 'pull_request_target'
+        uses: marocchino/sticky-pull-request-comment@v2
         with:
-          submodules: recursive
-
-      - uses: ./.github/actions/install
-
-      - name: Install lcov
-        run: sudo apt-get install -y lcov
-
-      - name: Generate lcov coverage report
-        run: make coverage
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          name: cloover-v1
-          files: lcov.info
+          # delete the comment in case changes no longer impact gas costs
+          delete: ${{ !steps.gas_diff.outputs.markdown }}
+          message: ${{ steps.gas_diff.outputs.markdown }}
