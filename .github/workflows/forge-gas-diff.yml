@@ -41,9 +41,9 @@ jobs:
             cache
             out
           key: forge-${{ github.ref_name }}
-  test:
+  gas-diff:
     needs: build
-    name: tests
+    name: gas-diff
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -52,7 +52,7 @@ jobs:
 
       - uses: ./.github/actions/install
 
-      - name: Run tests
+      - name: Run gas report
         run: forge test --gas-report > gasreport.ansi
         env:
           FOUNDRY_FUZZ_RUNS: ${{ inputs.fuzz-runs }}
