@@ -59,12 +59,13 @@ abstract contract ClooverRaffleInternal is ClooverRaffleStorage {
         uint16 purchasedEntriesIndex = uint16(_purchasedEntries.length);
         uint16 currentTicketsSold = _lifeCycleData.currentSupply + nbOfTickets;
 
-        ClooverRaffleTypes.PurchasedEntries memory entryPurchase = ClooverRaffleTypes.PurchasedEntries({
-            owner: msg.sender,
-            currentTicketsSold: currentTicketsSold,
-            nbOfTickets: nbOfTickets
-        });
-        _purchasedEntries.push(entryPurchase);
+        _purchasedEntries.push(
+            ClooverRaffleTypes.PurchasedEntries({
+                owner: msg.sender,
+                currentTicketsSold: currentTicketsSold,
+                nbOfTickets: nbOfTickets
+            })
+        );
 
         _participantInfoMap[msg.sender].nbOfTicketsPurchased += nbOfTickets;
         _participantInfoMap[msg.sender].purchasedEntriesIndexes.push(purchasedEntriesIndex);
@@ -136,7 +137,7 @@ abstract contract ClooverRaffleInternal is ClooverRaffleStorage {
 
     /// @notice calculate the amount of insurance paid by the creator
     function _calculateInsuranceCost() internal view returns (uint256 insuranceCost) {
-        if (_config.ticketSalesInsurance == 0) return 0;
+        if (_config.ticketSalesInsurance == 0) return insuranceCost;
         insuranceCost = _config.ticketSalesInsurance.calculateInsuranceCost(_config.insuranceRate, _config.ticketPrice);
     }
 

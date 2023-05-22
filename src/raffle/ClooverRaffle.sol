@@ -145,7 +145,7 @@ contract ClooverRaffle is IClooverRaffle, Initializable, ClooverRaffleGetters {
     }
 
     /// @inheritdoc IClooverRaffle
-    function draw(uint256[] memory randomNumbers) external override {
+    function draw(uint256[] calldata randomNumbers) external override {
         if (
             IImplementationManager(_config.implementationManager).getImplementationAddress(
                 ImplementationInterfaceNames.RandomProvider

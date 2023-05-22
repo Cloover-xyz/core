@@ -63,17 +63,15 @@ contract ClooverRaffleFactory is IClooverRaffleFactory, ClooverRaffleFactoryGett
         ClooverRaffleTypes.CreateRaffleParams calldata params,
         ClooverRaffleTypes.PermitDataParams calldata permitData
     ) external payable override whenNotPaused returns (address newRaffle) {
-        bool isEthRaffle = _checkData(params);
+        _validateParams(params);
         newRaffle = address(_raffleImplementation.clone());
         _registeredRaffles.add(newRaffle);
 
         if (params.ticketSalesInsurance > 0) {
             uint256 insuranceCost =
                 params.ticketSalesInsurance.calculateInsuranceCost(_config.insuranceRate, params.ticketPrice);
-            if (isEthRaffle) {
-                if (msg.value != insuranceCost) {
-                    revert Errors.INSURANCE_AMOUNT();
-                }
+            if (params.purchaseCurrency == address(0)) {
+                if (msg.value != insuranceCost) revert Errors.INSURANCE_AMOUNT();
             } else {
                 if (permitData.deadline > 0) {
                     if (permitData.amount < insuranceCost) revert Errors.INSURANCE_AMOUNT();
@@ -92,7 +90,8 @@ contract ClooverRaffleFactory is IClooverRaffleFactory, ClooverRaffleFactoryGett
         }
 
         ERC721(params.nftContract).safeTransferFrom(msg.sender, newRaffle, params.nftId);
-        ClooverRaffleTypes.InitializeRaffleParams memory raffleParams = _convertParams(params, isEthRaffle);
+        ClooverRaffleTypes.InitializeRaffleParams memory raffleParams =
+            _convertParams(params, params.purchaseCurrency == address(0));
         ClooverRaffle(newRaffle).initialize{value: msg.value}(raffleParams);
 
         emit ClooverRaffleFactoryEvents.NewRaffle(newRaffle, raffleParams);
@@ -132,41 +131,35 @@ contract ClooverRaffleFactory is IClooverRaffleFactory, ClooverRaffleFactoryGett
     }
 
     /// @notice check that the raffle can be created
-    function _checkData(ClooverRaffleTypes.CreateRaffleParams calldata params) internal returns (bool isEthRaffle) {
+    function _validateParams(ClooverRaffleTypes.CreateRaffleParams calldata params) internal {
         IImplementationManager implementationManager = IImplementationManager(_implementationManager);
         INFTWhitelist nftWhitelist =
             INFTWhitelist(implementationManager.getImplementationAddress(ImplementationInterfaceNames.NFTWhitelist));
-        if (!nftWhitelist.isWhitelisted(address(params.nftContract))) {
-            revert Errors.COLLECTION_NOT_WHITELISTED();
-        }
+        if (!nftWhitelist.isWhitelisted(address(params.nftContract))) revert Errors.COLLECTION_NOT_WHITELISTED();
 
-        address purchaseCurrencyAddress = params.purchaseCurrency;
-        isEthRaffle = purchaseCurrencyAddress == address(0);
-        if (!isEthRaffle) {
+        if (params.purchaseCurrency != address(0)) {
             if (msg.value > 0) revert Errors.NOT_ETH_RAFFLE();
 
             ITokenWhitelist tokenWhitelist = ITokenWhitelist(
                 implementationManager.getImplementationAddress(ImplementationInterfaceNames.TokenWhitelist)
             );
-            if (!tokenWhitelist.isWhitelisted(purchaseCurrencyAddress)) {
-                revert Errors.TOKEN_NOT_WHITELISTED();
-            }
+            if (!tokenWhitelist.isWhitelisted(params.purchaseCurrency)) revert Errors.TOKEN_NOT_WHITELISTED();
         }
+
         if (params.ticketPrice < MIN_TICKET_PRICE) revert Errors.WRONG_AMOUNT();
 
-        uint256 maxTotalSupply = params.maxTotalSupply;
-        if (maxTotalSupply == 0) revert Errors.CANT_BE_ZERO();
-        if (maxTotalSupply > _config.maxTotalSupplyAllowed) {
-            revert Errors.EXCEED_MAX_VALUE_ALLOWED();
-        }
+        if (params.maxTotalSupply == 0) revert Errors.CANT_BE_ZERO();
+        if (params.maxTotalSupply > _config.maxTotalSupplyAllowed) revert Errors.EXCEED_MAX_VALUE_ALLOWED();
 
-        uint64 ticketSaleDuration = params.ticketSalesDuration;
-        if (ticketSaleDuration < _config.minTicketSalesDuration || ticketSaleDuration > _config.maxTicketSalesDuration)
-        {
+        if (
+            params.ticketSalesDuration < _config.minTicketSalesDuration
+                || params.ticketSalesDuration > _config.maxTicketSalesDuration
+        ) {
             revert Errors.OUT_OF_RANGE();
         }
 
-        uint16 totalFeesRate = _config.protocolFeeRate + params.royaltiesRate;
-        if (totalFeesRate > PercentageMath.PERCENTAGE_FACTOR) revert Errors.EXCEED_MAX_PERCENTAGE();
+        if (_config.protocolFeeRate + params.royaltiesRate > PercentageMath.PERCENTAGE_FACTOR) {
+            revert Errors.EXCEED_MAX_PERCENTAGE();
+        }
     }
 }
