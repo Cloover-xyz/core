@@ -13,9 +13,6 @@ gas_reports = [
     "ClooverRaffle"
 ]
 
-[fuzz]
-runs = 32
-
 [invariant]
 runs = 4
 depth = 64

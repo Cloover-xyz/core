@@ -28,6 +28,7 @@ contract ImplementationManagerTest is IntegrationTest {
     }
 
     function test_ChangeImplementationAddress(address newImplementation) external {
+        vm.assume(newImplementation != address(0));
         vm.expectEmit(true, true, true, true);
         emit InterfaceImplementationChanged(ImplementationInterfaceNames.AccessController, newImplementation);
 

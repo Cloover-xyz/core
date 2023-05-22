@@ -69,11 +69,16 @@ contract TokenWhitelistTest is IntegrationTest {
     }
 
     function test_GetWhitelist(address erc20, address erc20_2) external {
+        vm.assume(erc20 != erc20_2);
         tokenWhitelist.addToWhitelist(erc20);
         tokenWhitelist.addToWhitelist(erc20_2);
         address[] memory whitelist = tokenWhitelist.getWhitelist();
         assertEq(whitelist.length, 2);
         assertEq(whitelist[0], erc20);
         assertEq(whitelist[1], erc20_2);
+    }
+
+    function test_AddressZeroIsNotWhitelisted() external {
+        assertFalse(tokenWhitelist.isWhitelisted(address(0)));
     }
 }

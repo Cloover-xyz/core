@@ -9,13 +9,7 @@ contract ClooverRaffleFactoryCreateRaffleTest is IntegrationTest {
     function setUp() public virtual override {
         super.setUp();
 
-        erc721Mock = _mockERC721(collectionCreator);
-        erc20Mock = _mockERC20(18);
-
-        sigUtils = new SigUtils(erc20Mock.DOMAIN_SEPARATOR());
-
         changePrank(creator);
-        _mintERC721(erc721Mock, creator, nftId);
         erc721Mock.approve(address(factory), nftId);
     }
 
@@ -290,8 +284,11 @@ contract ClooverRaffleFactoryCreateRaffleTest is IntegrationTest {
         factory.createNewRaffle{value: value}(params, permitData);
     }
 
-    function test_CreateRaffle_RevertWhen_TokenNotWhitelisted(address token) external {
+    function test_CreateRaffle_TokenRaffle_RevertWhen_TokenNotWhitelisted(address token) external {
+        token = _boundAddressNotZero(token);
         vm.assume(token != address(erc20Mock));
+        console2.log(token);
+        console2.log(address(erc20Mock));
         ClooverRaffleTypes.CreateRaffleParams memory params =
             _convertToClooverRaffleParams(token, address(erc721Mock), nftId, 1e18, 1 days, 100, 1, 0, 0);
         ClooverRaffleTypes.PermitDataParams memory permitData =
@@ -320,10 +317,10 @@ contract ClooverRaffleFactoryCreateRaffleTest is IntegrationTest {
         factory.createNewRaffle(params, permitData);
     }
 
-    function test_CreateRaffle_RevertWhen_MaxTicketSupplyHigherThenMaxTotalSupplyAllowed(uint256 ticketSupply)
+    function test_CreateRaffle_RevertWhen_MaxTicketSupplyHigherThenMaxTotalSupplyAllowed(uint16 ticketSupply)
         external
     {
-        ticketSupply = _boundAmountAboveOf(ticketSupply, factory.maxTotalSupplyAllowed() + 1);
+        ticketSupply = _boundUint16AmountAboveOf(ticketSupply, uint16(factory.maxTotalSupplyAllowed()) + 1);
         ClooverRaffleTypes.CreateRaffleParams memory params = _convertToClooverRaffleParams(
             address(erc20Mock), address(erc721Mock), nftId, 1e18, 1 days, MAX_TICKET_SUPPLY + 1, 1, 0, 0
         );

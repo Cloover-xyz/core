@@ -68,6 +68,7 @@ contract ClooverRaffleGettersTest is IntegrationTest {
     }
 
     function test_Creator(address caller) external {
+        vm.assume(caller != address(factory));
         caller = _boundAddressNotZero(caller);
         changePrank(caller);
         uint256 nft = 100;
@@ -81,6 +82,7 @@ contract ClooverRaffleGettersTest is IntegrationTest {
 
     function test_PurchaseCurrency(address purchaseCurrency) external {
         changePrank(maintainer);
+        vm.assume(purchaseCurrency != address(erc20Mock));
         tokenWhitelist.addToWhitelist(purchaseCurrency);
         changePrank(creator);
         ClooverRaffle raffle =
@@ -121,8 +123,8 @@ contract ClooverRaffleGettersTest is IntegrationTest {
         assertEq(raffle.winnerAddress(), address(0));
     }
 
-    function test_NftInfo(uint256 nftId) external {
-        nftId = _boundAmountAboveOf(nftId, 1000);
+    function test_NftInfo(uint16 nftId) external {
+        nftId = _boundUint16AmountAboveOf(nftId, 1000);
         erc721Mock.mint(creator, nftId);
         erc721Mock.approve(address(factory), nftId);
         ClooverRaffle raffle =

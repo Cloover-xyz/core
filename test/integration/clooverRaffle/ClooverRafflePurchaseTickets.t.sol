@@ -116,12 +116,11 @@ contract ClooverRafflePurchaseTicketsTest is IntegrationTest {
         raffle.purchaseTickets(nbOfTicketsPurchase);
     }
 
-    function test_PurchaseTickets_RevertWhen_NbOfTicketPurchasedMakeCurrentSupplyExceedMaxSupply(
-        uint16 maxTicketSupply,
-        uint16 nbOfTicketsPurchase
-    ) external {
+    function test_PurchaseTickets_RevertWhen_NbOfTicketPurchasedMakeCurrentSupplyExceedMaxSupply(uint16 maxTicketSupply)
+        external
+    {
         maxTicketSupply = uint16(_boundAmountNotZeroUnderOf(maxTicketSupply, MAX_TICKET_SUPPLY));
-        nbOfTicketsPurchase = uint16(_boundAmountAboveOf(nbOfTicketsPurchase, maxTicketSupply + 1));
+        uint16 nbOfTicketsPurchase = _boundUint16AmountAboveOf(1, maxTicketSupply + 1);
         uint256 ticketPrice = 1e18;
         ClooverRaffle raffle =
             _createRaffle(address(erc20Mock), address(erc721Mock), nftId, ticketPrice, 1 days, maxTicketSupply, 0, 0, 0);

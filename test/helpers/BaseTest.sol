@@ -48,9 +48,9 @@ contract BaseTest is Test {
         return bound(input, 1, max);
     }
 
-    /// @dev Bounds the fuzzing input to a number between min defined to max uint256.
-    function _boundAmountAboveOf(uint256 input, uint256 min) internal view virtual returns (uint256) {
-        return bound(input, min, MAX_AMOUNT);
+    /// @dev Bounds the fuzzing input to a number between min defined to max uint16.
+    function _boundUint16AmountAboveOf(uint16 input, uint16 min) internal view virtual returns (uint16) {
+        return uint16(bound(input, min, type(uint16).max));
     }
 
     /// @dev Bounds the fuzzing input to a number between 0 to max defined.

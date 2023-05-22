@@ -85,4 +85,8 @@ contract NFTWhitelistTest is IntegrationTest {
         assertEq(whitelist[0], erc721);
         assertEq(whitelist[1], erc721_2);
     }
+
+    function test_AddressZeroIsNotWhitelisted() external {
+        assertFalse(nftWhitelist.isWhitelisted(address(0)));
+    }
 }

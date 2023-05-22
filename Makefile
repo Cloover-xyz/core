@@ -37,5 +37,3 @@ lcov-html:
 
 gas-report:
 	forge test --gas-report
-
-.PHONY: contracts test coverage
