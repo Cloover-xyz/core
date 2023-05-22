@@ -1,0 +1,103 @@
+name: Forge tests
+
+on:
+  workflow_call:
+    inputs:
+      fuzz-runs:
+        description: The number of fuzz rounds to perform for each fuzzing test.
+        required: false
+        default: 256
+        type: number
+    secrets:
+      CODECOV_TOKEN:
+        required: false
+
+env:
+  FOUNDRY_PROFILE: ci
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Compilation
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - uses: ./.github/actions/install
+
+      - name: Build contracts
+        run: forge build
+
+      - name: Save forge compilation cache
+        uses: actions/cache/save@v3
+        with:
+          path: |
+            cache
+            out
+          key: forge-${{ github.ref_name }}
+
+  test:
+    needs: build
+    name: tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - uses: ./.github/actions/install
+
+      - name: Run tests
+        run: forge test -vvv --gas-report | tee gasreport.ansi
+        env:
+          FOUNDRY_FUZZ_RUNS: ${{ inputs.fuzz-runs }}
+          FOUNDRY_FUZZ_SEED: 0x${{ github.event.pull_request.base.sha || github.sha }}
+
+      - name: Compare gas reports
+        uses: Rubilmax/foundry-gas-diff@v3.14
+        with:
+          sortCriteria: avg # sort diff rows by criteria
+          sortOrders: desc # and directions
+          ignore: test/**/* # optionally filter out gas reports from specific paths
+        id: gas_diff
+
+      - name: Add gas diff to sticky comment
+        if: github.event_name == 'pull_request' || github.event_name == 'pull_request_target'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          # delete the comment in case changes no longer impact gas costs
+          delete: ${{ !steps.gas_diff.outputs.markdown }}
+          message: ${{ steps.gas_diff.outputs.markdown }}
+
+  coverage:
+    needs:
+      - test
+
+    name: Coverage
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - uses: ./.github/actions/install
+
+      - name: Install lcov
+        run: sudo apt-get install -y lcov
+
+      - name: Generate lcov coverage report
+        run: make coverage
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          name: cloover-v1
+          files: lcov.info
