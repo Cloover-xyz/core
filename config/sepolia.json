@@ -12,8 +12,8 @@
   },
   "raffleFactoryConfig": {
     "maxTotalSupplyAllowed": 10000,
-    "protocolFeeRate": 2500,
-    "insuranceRate": 5000,
+    "protocolFeeRate": 250,
+    "insuranceRate": 500,
     "minTicketSalesDuration": 120,
     "maxTicketSalesDuration": 2419200
   }
