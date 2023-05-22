@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity 0.8.19;
 
+import {IERC721Receiver} from "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
+
 import {IClooverRaffleGetters} from "../interfaces/IClooverRaffle.sol";
 import {IImplementationManager} from "../interfaces/IImplementationManager.sol";
 
@@ -12,7 +14,7 @@ import {ClooverRaffleInternal} from "./ClooverRaffleInternal.sol";
 /// @title ClooverRaffleGetters
 /// @author Cloover
 /// @notice Abstract contract exposing all accessible getters.
-abstract contract ClooverRaffleGetters is IClooverRaffleGetters, ClooverRaffleInternal {
+abstract contract ClooverRaffleGetters is IClooverRaffleGetters, IERC721Receiver, ClooverRaffleInternal {
     //----------------------------------------
     // Getter functions
     //----------------------------------------
@@ -136,5 +138,10 @@ abstract contract ClooverRaffleGetters is IClooverRaffleGetters, ClooverRaffleIn
     /// @inheritdoc IClooverRaffleGetters
     function version() external pure override returns (string memory) {
         return "1";
+    }
+
+    /// @notice required by ERC721Receiver interface for ERC721 safeTransferFrom
+    function onERC721Received(address, address, uint256, bytes calldata) external pure override returns (bytes4) {
+        return IERC721Receiver.onERC721Received.selector;
     }
 }

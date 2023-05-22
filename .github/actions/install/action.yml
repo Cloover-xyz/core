@@ -1,0 +1,25 @@
+name: Install repository
+
+runs:
+  using: composite
+
+  steps:
+      
+    - name: Set up Node.js 
+      uses: actions/setup-node@v3
+    
+    - name: Install Foundry
+      uses: onbjerg/foundry-toolchain@v1
+      with:
+        version: nightly
+
+    - name: Restore forge compilation cache
+      uses: actions/cache/restore@v3
+      with:
+        path: |
+          cache
+          out
+        key: forge-${{ github.ref_name }}
+        restore-keys: |
+          forge-${{ github.base_ref }}
+          forge-
