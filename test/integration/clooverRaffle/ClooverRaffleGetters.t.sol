@@ -9,227 +9,190 @@ contract ClooverRaffleGettersTest is IntegrationTest {
         changePrank(creator);
     }
 
-    function test_MaxTotalSupply(
-        uint256 ticketPrice,
-        uint64 ticketSalesDuration,
-        uint16 maxTotalSupply,
-        uint16 maxTicketAllowedToPurchase
-    ) external {
-        ticketPrice = _boundTicketPrice(ticketPrice);
-        ticketSalesDuration = _boundDuration(ticketSalesDuration);
-        maxTotalSupply = uint16(_boundAmountNotZeroUnderOf(maxTotalSupply, MAX_TICKET_SUPPLY));
-        ClooverRaffle raffle = _createRaffle(
-            address(erc20Mock),
-            address(erc721Mock),
-            nftId,
-            ticketPrice,
-            ticketSalesDuration,
-            maxTotalSupply,
-            maxTicketAllowedToPurchase,
-            0,
-            0
-        );
-        assertEq(raffle.maxTotalSupply(), maxTotalSupply);
+    function test_MaxTotalSupply() external {
+        for (uint16 i; i < rafflesArray.length; i++) {
+            RaffleArrayInfo memory raffleInfo = rafflesArray[i];
+            (isEthRaffle, nftId, raffle) = (raffleInfo.isEthRaffle, raffleInfo.nftId, raffleInfo.raffle);
+            assertEq(raffle.maxTotalSupply(), initialMaxTotalSupply);
+        }
     }
 
-    function test_CurrentSupply(
-        uint256 ticketPrice,
-        uint64 ticketSalesDuration,
-        uint16 maxTotalSupply,
-        uint16 maxTicketAllowedToPurchase
-    ) external {
-        nftId = _boundAmountNotZero(nftId);
-        ticketPrice = _boundTicketPrice(ticketPrice);
-        ticketSalesDuration = _boundDuration(ticketSalesDuration);
-        maxTotalSupply = uint16(_boundAmountNotZeroUnderOf(maxTotalSupply, MAX_TICKET_SUPPLY));
-        ClooverRaffle raffle = _createRaffle(
-            address(erc20Mock),
-            address(erc721Mock),
-            nftId,
-            ticketPrice,
-            ticketSalesDuration,
-            maxTotalSupply,
-            maxTicketAllowedToPurchase,
-            0,
-            0
-        );
-
-        assertEq(raffle.currentSupply(), 0);
-
-        changePrank(participant);
-
-        uint16 ticketToPurchase = uint16(bound(0, 1, maxTotalSupply));
-        erc20Mock.mint(participant, ticketPrice * ticketToPurchase);
-        erc20Mock.approve(address(raffle), ticketPrice * ticketToPurchase);
-
-        raffle.purchaseTickets(ticketToPurchase);
-
-        assertEq(raffle.currentSupply(), 1);
+    function test_CurrentSupply() external {
+        for (uint16 i; i < rafflesArray.length; i++) {
+            _setBlockTimestamp(blockTimestamp);
+            RaffleArrayInfo memory raffleInfo = rafflesArray[i];
+            (isEthRaffle, nftId, raffle) = (raffleInfo.isEthRaffle, raffleInfo.nftId, raffleInfo.raffle);
+            assertEq(raffle.currentSupply(), 0);
+            _purchaseExactAmountOfTickets(raffle, participant, 1);
+            assertEq(raffle.currentSupply(), 1);
+        }
     }
 
-    function test_Creator(address caller) external {
-        caller = _boundAddressNotZero(caller);
-        changePrank(caller);
-        uint256 nft = 100;
-        erc721Mock.mint(caller, nft);
-        erc721Mock.approve(address(factory), nft);
-        ClooverRaffle raffle =
-            _createRaffle(address(erc20Mock), address(erc721Mock), nft, 1e18, 1 days, 10_000, 0, 0, 0);
-
-        assertEq(raffle.creator(), caller);
+    function test_Creator() external {
+        for (uint16 i; i < rafflesArray.length; i++) {
+            _setBlockTimestamp(blockTimestamp);
+            RaffleArrayInfo memory raffleInfo = rafflesArray[i];
+            (isEthRaffle, nftId, raffle) = (raffleInfo.isEthRaffle, raffleInfo.nftId, raffleInfo.raffle);
+            assertEq(raffle.creator(), creator);
+        }
     }
 
-    function test_PurchaseCurrency(address purchaseCurrency) external {
-        changePrank(maintainer);
-        tokenWhitelist.addToWhitelist(purchaseCurrency);
-        changePrank(creator);
-        ClooverRaffle raffle =
-            _createRaffle(purchaseCurrency, address(erc721Mock), nftId, 1e18, 1 days, 10_000, 0, 0, 0);
-
-        assertEq(raffle.purchaseCurrency(), purchaseCurrency);
+    function test_PurchaseCurrency() external {
+        for (uint16 i; i < rafflesArray.length; i++) {
+            _setBlockTimestamp(blockTimestamp);
+            RaffleArrayInfo memory raffleInfo = rafflesArray[i];
+            (isEthRaffle, nftId, raffle) = (raffleInfo.isEthRaffle, raffleInfo.nftId, raffleInfo.raffle);
+            if (isEthRaffle) {
+                assertEq(raffle.purchaseCurrency(), address(0));
+            } else {
+                assertEq(raffle.purchaseCurrency(), address(erc20Mock));
+            }
+        }
     }
 
-    function test_TicketPrice(uint256 ticketPrice) external {
-        ticketPrice = _boundTicketPrice(ticketPrice);
-        ClooverRaffle raffle =
-            _createRaffle(address(erc20Mock), address(erc721Mock), nftId, ticketPrice, 1 days, 10_000, 0, 0, 0);
-
-        assertEq(raffle.ticketPrice(), ticketPrice);
+    function test_TicketPrice() external {
+        for (uint16 i; i < rafflesArray.length; i++) {
+            _setBlockTimestamp(blockTimestamp);
+            RaffleArrayInfo memory raffleInfo = rafflesArray[i];
+            (isEthRaffle, nftId, raffle) = (raffleInfo.isEthRaffle, raffleInfo.nftId, raffleInfo.raffle);
+            assertEq(raffle.ticketPrice(), initialTicketPrice);
+        }
     }
 
-    function test_EndTicketSales(bool isEthRaffle, bool hasInsurance, bool hasRoyaties) external {
-        (ClooverRaffle raffle, uint64 ticketSalesDuration) = _createRandomRaffle(isEthRaffle, hasInsurance, hasRoyaties);
-
-        assertEq(raffle.endTicketSales(), block.timestamp + ticketSalesDuration);
+    function test_EndTicketSales() external {
+        for (uint16 i; i < rafflesArray.length; i++) {
+            _setBlockTimestamp(blockTimestamp);
+            RaffleArrayInfo memory raffleInfo = rafflesArray[i];
+            (isEthRaffle, nftId, raffle) = (raffleInfo.isEthRaffle, raffleInfo.nftId, raffleInfo.raffle);
+            assertEq(raffle.endTicketSales(), block.timestamp + initialTicketSalesDuration);
+        }
     }
 
-    function test_WinningTicketNumber_ReturnZeroWhen_NotTicketDrawn(
-        bool isEthRaffle,
-        bool hasInsurance,
-        bool hasRoyaties
-    ) external {
-        (ClooverRaffle raffle,) = _createRandomRaffle(isEthRaffle, hasInsurance, hasRoyaties);
-        assertEq(raffle.winningTicketNumber(), 0);
+    function test_WinningTicketNumber_ReturnZeroWhen_NotTicketDrawn() external {
+        for (uint16 i; i < rafflesArray.length; i++) {
+            _setBlockTimestamp(blockTimestamp);
+            RaffleArrayInfo memory raffleInfo = rafflesArray[i];
+            (isEthRaffle, nftId, raffle) = (raffleInfo.isEthRaffle, raffleInfo.nftId, raffleInfo.raffle);
+            assertEq(raffle.winningTicketNumber(), 0);
+        }
     }
 
-    function test_WinnerAddress_ReturnAddressZeroWhen_NotTicketDrawn(
-        bool isEthRaffle,
-        bool hasInsurance,
-        bool hasRoyaties
-    ) external {
-        (ClooverRaffle raffle,) = _createRandomRaffle(isEthRaffle, hasInsurance, hasRoyaties);
-        assertEq(raffle.winnerAddress(), address(0));
+    function test_WinnerAddress_ReturnAddressZeroWhen_NotTicketDrawn() external {
+        for (uint16 i; i < rafflesArray.length; i++) {
+            _setBlockTimestamp(blockTimestamp);
+            RaffleArrayInfo memory raffleInfo = rafflesArray[i];
+            (isEthRaffle, nftId, raffle) = (raffleInfo.isEthRaffle, raffleInfo.nftId, raffleInfo.raffle);
+
+            assertEq(raffle.winnerAddress(), address(0));
+        }
     }
 
-    function test_NftInfo(uint256 nftId) external {
-        nftId = _boundAmountAboveOf(nftId, 1000);
-        erc721Mock.mint(creator, nftId);
-        erc721Mock.approve(address(factory), nftId);
-        ClooverRaffle raffle =
-            _createRaffle(address(erc20Mock), address(erc721Mock), nftId, 1e18, 1 days, 10_000, 0, 0, 0);
-        (address nftContractAddress, uint256 nftId_) = raffle.nftInfo();
-        assertEq(nftContractAddress, address(erc721Mock));
-        assertEq(nftId_, nftId);
+    function test_NftInfo() external {
+        for (uint16 i; i < rafflesArray.length; i++) {
+            _setBlockTimestamp(blockTimestamp);
+            RaffleArrayInfo memory raffleInfo = rafflesArray[i];
+            (isEthRaffle, nftId, raffle) = (raffleInfo.isEthRaffle, raffleInfo.nftId, raffleInfo.raffle);
+
+            (address nftContractAddress, uint256 nftId_) = raffle.nftInfo();
+            assertEq(nftContractAddress, address(erc721Mock));
+            assertEq(nftId_, nftId);
+        }
     }
 
     function test_RaffleStatus() external {
-        ClooverRaffle raffle =
-            _createRaffle(address(erc20Mock), address(erc721Mock), nftId, 1e18, 1 days, 10_000, 0, 0, 0);
+        for (uint16 i; i < rafflesArray.length; i++) {
+            _setBlockTimestamp(blockTimestamp);
+            RaffleArrayInfo memory raffleInfo = rafflesArray[i];
+            (isEthRaffle, nftId, raffle) = (raffleInfo.isEthRaffle, raffleInfo.nftId, raffleInfo.raffle);
 
-        assertEq(uint256(raffle.raffleStatus()), 0);
+            assertEq(uint256(raffle.raffleStatus()), 0);
+        }
     }
 
     function test_IsEthRaffle_OnTokenRaffle() external {
-        ClooverRaffle raffle =
-            _createRaffle(address(erc20Mock), address(erc721Mock), nftId, 1e18, 1 days, 10_000, 0, 0, 0);
-        assertFalse(raffle.isEthRaffle());
+        for (uint16 i; i < rafflesArray.length; i++) {
+            _setBlockTimestamp(blockTimestamp);
+            RaffleArrayInfo memory raffleInfo = rafflesArray[i];
+            (isEthRaffle, nftId, raffle) = (raffleInfo.isEthRaffle, raffleInfo.nftId, raffleInfo.raffle);
+            if (isEthRaffle) continue;
+
+            assertFalse(raffle.isEthRaffle());
+        }
     }
 
     function test_IsEthRaffle_OnEthRaffle() external {
-        ClooverRaffle raffle = _createRaffle(address(0), address(erc721Mock), nftId, 1e18, 1 days, 10_000, 0, 0, 0);
-        assertTrue(raffle.isEthRaffle());
-    }
+        for (uint16 i; i < rafflesArray.length; i++) {
+            _setBlockTimestamp(blockTimestamp);
+            RaffleArrayInfo memory raffleInfo = rafflesArray[i];
+            (isEthRaffle, nftId, raffle) = (raffleInfo.isEthRaffle, raffleInfo.nftId, raffleInfo.raffle);
+            if (!isEthRaffle) continue;
 
-    function test_BalanceOf(
-        address buyer,
-        uint256 ticketPrice,
-        uint64 ticketSalesDuration,
-        uint16 maxTotalSupply,
-        uint16 maxTicketAllowedToPurchase
-    ) external {
-        buyer = _boundAddressNotZero(buyer);
-        ticketPrice = _boundTicketPrice(ticketPrice);
-        ticketSalesDuration = _boundDuration(ticketSalesDuration);
-        maxTotalSupply = uint16(_boundAmountNotZeroUnderOf(maxTotalSupply, MAX_TICKET_SUPPLY));
-        ClooverRaffle raffle = _createRaffle(
-            address(erc20Mock),
-            address(erc721Mock),
-            nftId,
-            ticketPrice,
-            ticketSalesDuration,
-            maxTotalSupply,
-            maxTicketAllowedToPurchase,
-            0,
-            0
-        );
-
-        changePrank(buyer);
-        uint16 ticketToPurchase = _purchaseRandomAmountOfTickets(raffle, buyer, maxTotalSupply);
-        uint16[] memory tickets = raffle.balanceOf(buyer);
-        assertEq(tickets.length, ticketToPurchase);
-        for (uint16 i = 0; i < ticketToPurchase; i++) {
-            assertEq(tickets[i], i + 1);
+            assertTrue(raffle.isEthRaffle());
         }
     }
 
-    function test_BalanceOf_ReturnEmptyArrayWhen_NoTicketPurchased(address buyer) external {
-        ClooverRaffle raffle =
-            _createRaffle(address(erc20Mock), address(erc721Mock), nftId, 1e18, 1 days, 10_000, 0, 0, 0);
-
-        uint16[] memory tickets = raffle.balanceOf(buyer);
-        assertEq(tickets.length, 0);
+    function test_BalanceOf_ReturnEmptyArrayWhen_NoTicketPurchased() external {
+        for (uint16 i; i < rafflesArray.length; i++) {
+            _setBlockTimestamp(blockTimestamp);
+            RaffleArrayInfo memory raffleInfo = rafflesArray[i];
+            (isEthRaffle, nftId, raffle) = (raffleInfo.isEthRaffle, raffleInfo.nftId, raffleInfo.raffle);
+            uint16[] memory tickets = raffle.balanceOf(participant);
+            assertEq(tickets.length, 0);
+        }
     }
 
-    function test_OwnerOf(
-        uint256 ticketPrice,
-        uint64 ticketSalesDuration,
-        uint16 maxTotalSupply,
-        uint16 maxTicketAllowedToPurchase
-    ) external {
-        ticketPrice = _boundTicketPrice(ticketPrice);
-        ticketSalesDuration = _boundDuration(ticketSalesDuration);
-        maxTotalSupply = uint16(_boundAmountNotZeroUnderOf(maxTotalSupply, MAX_TICKET_SUPPLY));
-        ClooverRaffle raffle = _createRaffle(
-            address(erc20Mock),
-            address(erc721Mock),
-            nftId,
-            ticketPrice,
-            ticketSalesDuration,
-            maxTotalSupply,
-            maxTicketAllowedToPurchase,
-            0,
-            0
-        );
+    function test_BalanceOf() external {
+        for (uint16 i; i < rafflesArray.length; i++) {
+            _setBlockTimestamp(blockTimestamp);
+            RaffleArrayInfo memory raffleInfo = rafflesArray[i];
+            (isEthRaffle, nftId, raffle) = (raffleInfo.isEthRaffle, raffleInfo.nftId, raffleInfo.raffle);
 
-        changePrank(participant);
-        uint16 ticketToPurchase = _purchaseRandomAmountOfTickets(raffle, participant, maxTotalSupply);
-        assertEq(raffle.ownerOf(0), address(0));
-        for (uint16 i = 1; i <= ticketToPurchase; i++) {
-            assertEq(raffle.ownerOf(i), participant);
+            changePrank(participant);
+            uint16 nbOfTicketsPurchased = 8;
+            _purchaseExactAmountOfTickets(raffle, participant, nbOfTicketsPurchased);
+
+            uint16[] memory tickets = raffle.balanceOf(participant);
+            assertEq(tickets.length, nbOfTicketsPurchased);
+            for (uint16 j = 0; j < nbOfTicketsPurchased; j++) {
+                assertEq(tickets[j], j + 1);
+            }
         }
-        assertEq(raffle.ownerOf(ticketToPurchase + 1), address(0));
+    }
+
+    function test_OwnerOf() external {
+        for (uint16 i; i < rafflesArray.length; i++) {
+            _setBlockTimestamp(blockTimestamp);
+            RaffleArrayInfo memory raffleInfo = rafflesArray[i];
+            (isEthRaffle, nftId, raffle) = (raffleInfo.isEthRaffle, raffleInfo.nftId, raffleInfo.raffle);
+
+            changePrank(participant);
+            uint16 nbOfTicketsPurchased = 8;
+            _purchaseExactAmountOfTickets(raffle, participant, nbOfTicketsPurchased);
+            assertEq(raffle.ownerOf(0), address(0));
+
+            for (uint16 j = 1; j < nbOfTicketsPurchased; j++) {
+                assertEq(raffle.ownerOf(j), participant);
+            }
+            assertEq(raffle.ownerOf(nbOfTicketsPurchased + 1), address(0));
+        }
     }
 
     function test_RandomProvider() external {
-        ClooverRaffle raffle =
-            _createRaffle(address(erc20Mock), address(erc721Mock), nftId, 1e18, 1 days, 10_000, 0, 0, 0);
-
-        assertEq(raffle.randomProvider(), address(randomProviderMock));
+        for (uint16 i; i < rafflesArray.length; i++) {
+            _setBlockTimestamp(blockTimestamp);
+            RaffleArrayInfo memory raffleInfo = rafflesArray[i];
+            (isEthRaffle, nftId, raffle) = (raffleInfo.isEthRaffle, raffleInfo.nftId, raffleInfo.raffle);
+            assertEq(raffle.randomProvider(), address(randomProviderMock));
+        }
     }
 
     function test_Version() external {
-        ClooverRaffle raffle =
-            _createRaffle(address(erc20Mock), address(erc721Mock), nftId, 1e18, 1 days, 10_000, 0, 0, 0);
-        assertEq(raffle.version(), "1");
+        for (uint16 i; i < rafflesArray.length; i++) {
+            _setBlockTimestamp(blockTimestamp);
+            RaffleArrayInfo memory raffleInfo = rafflesArray[i];
+            (isEthRaffle, nftId, raffle) = (raffleInfo.isEthRaffle, raffleInfo.nftId, raffleInfo.raffle);
+
+            assertEq(raffle.version(), "1");
+        }
     }
 }

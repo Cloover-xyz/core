@@ -4,22 +4,6 @@ sizes = true
 libs = ["node_modules", "lib"]
 fs_permissions = [{ access = "read", path = "./config/"}]
 
-gas_reports = [
-    "AccessController",
-    "ImplementationManager",
-    "TokenWhitelist",
-    "NFTCollectionWhitelist",
-    "ClooverRaffleFactory",
-    "ClooverRaffle"
-]
-
-[fuzz]
-runs = 32
-
-[invariant]
-runs = 4
-depth = 64
-
 [rpc_endpoints]
 sepolia = "https://sepolia.infura.io/v3/${INFURA_KEY}"
 

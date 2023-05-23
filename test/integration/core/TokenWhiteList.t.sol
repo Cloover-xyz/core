@@ -13,11 +13,13 @@ contract TokenWhitelistTest is IntegrationTest {
     event AddedToWhitelist(address indexed addedToken);
     event RemovedFromWhitelist(address indexed removedToken);
 
+    address erc20Contract;
+
     function setUp() public virtual override {
         super.setUp();
 
         _deployTokenWhitelist();
-
+        erc20Contract = address(new ERC20WithPermitMock("new ERC20", "NERC20", 8));
         changePrank(maintainer);
     }
 
@@ -25,55 +27,58 @@ contract TokenWhitelistTest is IntegrationTest {
         assertEq(address(tokenWhitelist.implementationManager()), address(implementationManager));
     }
 
-    function test_AddToWhitelist(address erc20) external {
+    function test_AddToWhitelist() external {
         vm.expectEmit(true, true, true, true);
-        emit AddedToWhitelist(erc20);
+        emit AddedToWhitelist(erc20Contract);
 
-        tokenWhitelist.addToWhitelist(erc20);
-        assertTrue(tokenWhitelist.isWhitelisted(erc20));
+        tokenWhitelist.addToWhitelist(erc20Contract);
+        assertTrue(tokenWhitelist.isWhitelisted(erc20Contract));
     }
 
-    function test_AddToWhitelist_RevertWhen_CollectionAlreadyWhitelisted(address erc20) external {
-        tokenWhitelist.addToWhitelist(erc20);
+    function test_AddToWhitelist_RevertWhen_CollectionAlreadyWhitelisted() external {
+        tokenWhitelist.addToWhitelist(erc20Contract);
         vm.expectRevert(Errors.ALREADY_WHITELISTED.selector);
-        tokenWhitelist.addToWhitelist(erc20);
+        tokenWhitelist.addToWhitelist(erc20Contract);
     }
 
-    function test_AddToWhitelist_RevertWhen_NotMaintainerCalling(address erc20, address caller) external {
-        _assumeNotMaintainer(caller);
-        changePrank(caller);
+    function test_AddToWhitelist_RevertWhen_NotMaintainerCalling() external {
+        changePrank(hacker);
         vm.expectRevert(Errors.NOT_MAINTAINER.selector);
-        tokenWhitelist.addToWhitelist(erc20);
+        tokenWhitelist.addToWhitelist(erc20Contract);
     }
 
-    function test_RemoveFromWhitelist(address erc20) external {
-        tokenWhitelist.addToWhitelist(erc20);
+    function test_RemoveFromWhitelist() external {
+        tokenWhitelist.addToWhitelist(erc20Contract);
 
         vm.expectEmit(true, true, true, true);
-        emit RemovedFromWhitelist(erc20);
-        tokenWhitelist.removeFromWhitelist(erc20);
-        assertFalse(tokenWhitelist.isWhitelisted(erc20));
+        emit RemovedFromWhitelist(erc20Contract);
+        tokenWhitelist.removeFromWhitelist(erc20Contract);
+        assertFalse(tokenWhitelist.isWhitelisted(erc20Contract));
     }
 
-    function test_RemoveFromWhitelist_RevertWhen_CollectionNotWhitelisted(address erc20) external {
+    function test_RemoveFromWhitelist_RevertWhen_CollectionNotWhitelisted() external {
         vm.expectRevert(Errors.NOT_WHITELISTED.selector);
-        tokenWhitelist.removeFromWhitelist(erc20);
+        tokenWhitelist.removeFromWhitelist(erc20Contract);
     }
 
-    function test_RemoveFromWhitelist_RevertWhen_NotMaintainerCalling(address erc20, address caller) external {
-        _assumeNotMaintainer(caller);
-        tokenWhitelist.addToWhitelist(erc20);
-        changePrank(caller);
+    function test_RemoveFromWhitelist_RevertWhen_NotMaintainerCalling() external {
+        tokenWhitelist.addToWhitelist(erc20Contract);
+        changePrank(hacker);
         vm.expectRevert(Errors.NOT_MAINTAINER.selector);
-        tokenWhitelist.removeFromWhitelist(erc20);
+        tokenWhitelist.removeFromWhitelist(erc20Contract);
     }
 
-    function test_GetWhitelist(address erc20, address erc20_2) external {
-        tokenWhitelist.addToWhitelist(erc20);
-        tokenWhitelist.addToWhitelist(erc20_2);
+    function test_GetWhitelist() external {
+        address erc20Contract_2 = address(new ERC20WithPermitMock("new ERC20", "NERC20", 8));
+        tokenWhitelist.addToWhitelist(erc20Contract);
+        tokenWhitelist.addToWhitelist(erc20Contract_2);
         address[] memory whitelist = tokenWhitelist.getWhitelist();
         assertEq(whitelist.length, 2);
-        assertEq(whitelist[0], erc20);
-        assertEq(whitelist[1], erc20_2);
+        assertEq(whitelist[0], erc20Contract);
+        assertEq(whitelist[1], erc20Contract_2);
+    }
+
+    function test_AddressZeroIsNotWhitelisted() external {
+        assertFalse(tokenWhitelist.isWhitelisted(address(0)));
     }
 }

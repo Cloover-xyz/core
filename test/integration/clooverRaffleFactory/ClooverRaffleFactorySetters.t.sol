@@ -6,6 +6,8 @@ import "test/helpers/IntegrationTest.sol";
 contract ClooverRaffleFactorySettersTest is IntegrationTest {
     function setUp() public virtual override {
         super.setUp();
+        _deployClooverRaffleFactory();
+
         changePrank(maintainer);
     }
 
@@ -24,53 +26,49 @@ contract ClooverRaffleFactorySettersTest is IntegrationTest {
             0, PROTOCOL_FEE_RATE, INSURANCE_RATE, MIN_SALE_DURATION, MAX_SALE_DURATION
         );
         factory = new ClooverRaffleFactory(
-         address(implementationManager),
-         configData
-      );
+            address(implementationManager),
+            configData
+        );
     }
 
-    function test_Initialized_RevertWhen_ProtocolFeeRate_ExceedMaxPercentage(uint16 protocolFeeRate) external {
-        protocolFeeRate = _boundPercentageExceed(protocolFeeRate);
+    function test_Initialized_RevertWhen_ProtocolFeeRate_ExceedMaxPercentage() external {
+        uint16 protocolFeeRate = uint16(PercentageMath.PERCENTAGE_FACTOR + 1);
         vm.expectRevert(Errors.EXCEED_MAX_PERCENTAGE.selector);
         ClooverRaffleTypes.FactoryConfigParams memory configData = ClooverRaffleTypes.FactoryConfigParams(
             MAX_TICKET_SUPPLY, protocolFeeRate, INSURANCE_RATE, MIN_SALE_DURATION, MAX_SALE_DURATION
         );
         factory = new ClooverRaffleFactory(
-         address(implementationManager),
-         configData
-      );
+            address(implementationManager),
+            configData
+        );
     }
 
-    function test_Initialized_RevertWhen_InsuranceRate_ExceedMaxPercentage(uint16 insuranceRate) external {
-        insuranceRate = _boundPercentageExceed(insuranceRate);
+    function test_Initialized_RevertWhen_InsuranceRate_ExceedMaxPercentage() external {
+        uint16 insuranceRate = uint16(PercentageMath.PERCENTAGE_FACTOR + 1);
         vm.expectRevert(Errors.EXCEED_MAX_PERCENTAGE.selector);
         ClooverRaffleTypes.FactoryConfigParams memory configData = ClooverRaffleTypes.FactoryConfigParams(
             MAX_TICKET_SUPPLY, PROTOCOL_FEE_RATE, insuranceRate, MIN_SALE_DURATION, MAX_SALE_DURATION
         );
         factory = new ClooverRaffleFactory(
-         address(implementationManager),
-         configData
-      );
+            address(implementationManager),
+            configData
+        );
     }
 
-    function test_Initialized_RevertWhen_MinTicketSalesDuration_GreaterThan_MaxTicketSalesDuration(
-        uint64 minTicketSalesDuration,
-        uint64 maxTicketSalesDuration
-    ) external {
-        minTicketSalesDuration = _boundDurationAboveOf(minTicketSalesDuration, maxTicketSalesDuration);
+    function test_Initialized_RevertWhen_MinTicketSalesDuration_GreaterThan_MaxTicketSalesDuration() external {
+        uint64 minTicketSalesDuration = MAX_SALE_DURATION + 1;
         vm.expectRevert(Errors.WRONG_DURATION_LIMITS.selector);
         ClooverRaffleTypes.FactoryConfigParams memory configData = ClooverRaffleTypes.FactoryConfigParams(
-            MAX_TICKET_SUPPLY, PROTOCOL_FEE_RATE, INSURANCE_RATE, minTicketSalesDuration, maxTicketSalesDuration
+            MAX_TICKET_SUPPLY, PROTOCOL_FEE_RATE, INSURANCE_RATE, minTicketSalesDuration, MAX_SALE_DURATION
         );
         factory = new ClooverRaffleFactory(
-         address(implementationManager),
-         configData
-      );
+            address(implementationManager),
+            configData
+        );
     }
 
-    function test_SetProtocolFeeRate(uint16 protocolFeeRate) external {
-        protocolFeeRate = _boundPercentage(protocolFeeRate);
-
+    function test_SetProtocolFeeRate() external {
+        uint16 protocolFeeRate = 1000; // 10%
         vm.expectEmit(true, true, true, true);
         emit ClooverRaffleFactoryEvents.ProtocolFeeRateUpdated(protocolFeeRate);
 
@@ -79,22 +77,23 @@ contract ClooverRaffleFactorySettersTest is IntegrationTest {
         assertEq(factory.protocolFeeRate(), protocolFeeRate);
     }
 
-    function test_SetProtocolFeeRate_RevertWhen_ExceedsMax(uint16 protocolFeeRate) external {
-        protocolFeeRate = _boundPercentageExceed(protocolFeeRate);
+    function test_SetProtocolFeeRate_RevertWhen_ExceedsMax() external {
+        uint16 protocolFeeRate = uint16(PercentageMath.PERCENTAGE_FACTOR + 1); // 100.01%
+
         vm.expectRevert(Errors.EXCEED_MAX_PERCENTAGE.selector);
         factory.setProtocolFeeRate(protocolFeeRate);
     }
 
-    function test_SetProtocolFeeRate_RevertIf_NotMaintainer(uint16 protocolFeeRate, address caller) external {
-        _assumeNotMaintainer(caller);
-        changePrank(caller);
-        protocolFeeRate = _boundPercentage(protocolFeeRate);
+    function test_SetProtocolFeeRate_RevertIf_NotMaintainer() external {
+        uint16 protocolFeeRate = 1000; // 10%
+
+        changePrank(hacker);
         vm.expectRevert(Errors.NOT_MAINTAINER.selector);
         factory.setProtocolFeeRate(protocolFeeRate);
     }
 
-    function test_SetInsuranceRate(uint16 insuranceRate) external {
-        insuranceRate = _boundPercentage(insuranceRate);
+    function test_SetInsuranceRate() external {
+        uint16 insuranceRate = 1000; // 10%
 
         vm.expectEmit(true, true, true, true);
         emit ClooverRaffleFactoryEvents.InsuranceRateUpdated(insuranceRate);
@@ -103,23 +102,22 @@ contract ClooverRaffleFactorySettersTest is IntegrationTest {
         assertEq(factory.insuranceRate(), insuranceRate);
     }
 
-    function test_SetInsuranceRate_RevertWhen_ExceedMax(uint16 insuranceRate) external {
-        insuranceRate = _boundPercentageExceed(insuranceRate);
+    function test_SetInsuranceRate_RevertWhen_NewRateExceedMaxPercentage() external {
+        uint16 insuranceRate = uint16(PercentageMath.PERCENTAGE_FACTOR + 1); // 100.01%
         vm.expectRevert(Errors.EXCEED_MAX_PERCENTAGE.selector);
         factory.setInsuranceRate(insuranceRate);
     }
 
-    function test_SetInsuranceRate_RevertIf_NotMaintainer(uint16 insuranceRate, address caller) external {
-        _assumeNotMaintainer(caller);
-        changePrank(caller);
-        insuranceRate = _boundPercentage(insuranceRate);
+    function test_SetInsuranceRate_RevertIf_NotMaintainer() external {
+        uint16 insuranceRate = 1000; // 10%
+        changePrank(hacker);
+
         vm.expectRevert(Errors.NOT_MAINTAINER.selector);
         factory.setInsuranceRate(insuranceRate);
     }
 
-    function test_SetMinTicketSalesDuration(uint64 minTicketSalesDuration) external {
-        minTicketSalesDuration = _boundDurationUnderOf(minTicketSalesDuration, uint64(factory.maxTicketSalesDuration()));
-
+    function test_SetMinTicketSalesDuration() external {
+        uint64 minTicketSalesDuration = 2 days;
         vm.expectEmit(true, true, true, true);
         emit ClooverRaffleFactoryEvents.MinTicketSalesDurationUpdated(minTicketSalesDuration);
 
@@ -127,24 +125,21 @@ contract ClooverRaffleFactorySettersTest is IntegrationTest {
         assertEq(factory.minTicketSalesDuration(), minTicketSalesDuration);
     }
 
-    function test_SetMinTicketSalesDuration_RevertWhen_ExceedsMax(uint64 minTicketSalesDuration) external {
-        minTicketSalesDuration = _boundDurationAboveOf(minTicketSalesDuration, uint64(factory.maxTicketSalesDuration()));
+    function test_SetMinTicketSalesDuration_RevertWhen_ExceedsMaxDuration() external {
+        uint64 minTicketSalesDuration = MAX_SALE_DURATION + 1;
         vm.expectRevert(Errors.WRONG_DURATION_LIMITS.selector);
         factory.setMinTicketSalesDuration(minTicketSalesDuration);
     }
 
-    function test_SetMinTicketSalesDuration_RevertIf_NotMaintainer(uint64 minTicketSalesDuration, address caller)
-        external
-    {
-        _assumeNotMaintainer(caller);
-        changePrank(caller);
+    function test_SetMinTicketSalesDuration_RevertIf_NotMaintainer() external {
+        uint64 minTicketSalesDuration = 2 days;
+        changePrank(hacker);
         vm.expectRevert(Errors.NOT_MAINTAINER.selector);
         factory.setMinTicketSalesDuration(minTicketSalesDuration);
     }
 
-    function test_SetMaxTicketSalesDuration(uint64 maxTicketSalesDuration) external {
-        maxTicketSalesDuration =
-            _boundDurationAboveOf(maxTicketSalesDuration, uint64(factory.minTicketSalesDuration()) + 1);
+    function test_SetMaxTicketSalesDuration() external {
+        uint64 maxTicketSalesDuration = 2 weeks;
 
         vm.expectEmit(true, true, true, true);
         emit ClooverRaffleFactoryEvents.MaxTicketSalesDurationUpdated(maxTicketSalesDuration);
@@ -153,23 +148,23 @@ contract ClooverRaffleFactorySettersTest is IntegrationTest {
         assertEq(factory.maxTicketSalesDuration(), maxTicketSalesDuration);
     }
 
-    function test_SetMaxTicketSalesDuration_RevertWhen_LowerThanMin(uint64 maxTicketSalesDuration) external {
-        maxTicketSalesDuration = _boundDurationUnderOf(maxTicketSalesDuration, uint64(factory.minTicketSalesDuration()));
+    function test_SetMaxTicketSalesDuration_RevertWhen_LowerThanMinDuration() external {
+        uint64 maxTicketSalesDuration = MIN_SALE_DURATION - 1;
         vm.expectRevert(Errors.WRONG_DURATION_LIMITS.selector);
         factory.setMaxTicketSalesDuration(maxTicketSalesDuration);
     }
 
-    function test_SetMaxTicketSalesDuration_RevertIf_NotMaintainer(uint64 maxTicketSalesDuration, address caller)
-        external
-    {
-        _assumeNotMaintainer(caller);
-        changePrank(caller);
+    function test_SetMaxTicketSalesDuration_RevertIf_NotMaintainer() external {
+        uint64 maxTicketSalesDuration = 2 weeks;
+
+        changePrank(hacker);
 
         vm.expectRevert(Errors.NOT_MAINTAINER.selector);
         factory.setMaxTicketSalesDuration(maxTicketSalesDuration);
     }
 
-    function test_SetMaxTotalSupplyAllowed(uint16 maxTotalSupplyAllowed) external {
+    function test_SetMaxTotalSupplyAllowed() external {
+        uint16 maxTotalSupplyAllowed = 1000;
         vm.expectEmit(true, true, true, true);
         emit ClooverRaffleFactoryEvents.MaxTotalSupplyAllowedUpdated(maxTotalSupplyAllowed);
 
@@ -178,11 +173,9 @@ contract ClooverRaffleFactorySettersTest is IntegrationTest {
         assertEq(factory.maxTotalSupplyAllowed(), maxTotalSupplyAllowed);
     }
 
-    function test_SetMaxTotalSupplyAllowed_RevertIf_NotMaintainer(uint16 maxTotalSupplyAllowed, address caller)
-        external
-    {
-        _assumeNotMaintainer(caller);
-        changePrank(caller);
+    function test_SetMaxTotalSupplyAllowed_RevertIf_NotMaintainer() external {
+        uint16 maxTotalSupplyAllowed = 1000;
+        changePrank(hacker);
         vm.expectRevert(Errors.NOT_MAINTAINER.selector);
         factory.setMaxTotalSupplyAllowed(maxTotalSupplyAllowed);
     }
@@ -193,9 +186,8 @@ contract ClooverRaffleFactorySettersTest is IntegrationTest {
         assertTrue(factory.paused());
     }
 
-    function test_Pause_RevertIf_NotMaintainer(address caller) external {
-        _assumeNotMaintainer(caller);
-        changePrank(caller);
+    function test_Pause_RevertIf_NotMaintainer() external {
+        changePrank(hacker);
 
         vm.expectRevert(Errors.NOT_MAINTAINER.selector);
         factory.pause();
@@ -208,12 +200,10 @@ contract ClooverRaffleFactorySettersTest is IntegrationTest {
         assertFalse(factory.paused());
     }
 
-    function test_Unpause_RevertIf_NotMaintainer(address caller) external {
-        _assumeNotMaintainer(caller);
-
+    function test_Unpause_RevertIf_NotMaintainer() external {
         factory.pause();
 
-        changePrank(caller);
+        changePrank(hacker);
 
         vm.expectRevert(Errors.NOT_MAINTAINER.selector);
         factory.pause();

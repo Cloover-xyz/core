@@ -3,15 +3,27 @@ pragma solidity 0.8.19;
 
 import "test/helpers/IntegrationTest.sol";
 
-contract ClooverRaffleFactoryCreateRaffleTest is IntegrationTest {
+contract ClooverRaffleFactoryRemoveClooverRaffleFromRegisterTest is IntegrationTest {
     function setUp() public virtual override {
         super.setUp();
+        _deployClooverRaffleFactory();
 
+        erc721Mock.mint(creator, nftId);
         changePrank(creator);
     }
 
-    function test_RemoveClooverRaffleFromRegister(bool isEthRaffle) external {
-        (ClooverRaffle raffle,) = _createRandomRaffle(isEthRaffle, false, false);
+    function test_RemoveClooverRaffleFromRegister() external {
+        raffle = _createRaffle(
+            address(erc20Mock),
+            address(erc721Mock),
+            nftId,
+            initialTicketPrice,
+            initialTicketSalesDuration,
+            initialMaxTotalSupply,
+            0,
+            0,
+            0
+        );
 
         assertEq(factory.getRegisteredRaffle()[0], address(raffle));
 
@@ -25,7 +37,7 @@ contract ClooverRaffleFactoryCreateRaffleTest is IntegrationTest {
         assertEq(factory.getRegisteredRaffle().length, 0);
     }
 
-    function test_RemoveClooverRaffleFromRegister_RevertWhen_CallerNotAREgisterRaffle(address caller) external {
+    function test_RemoveClooverRaffleFromRegister_RevertWhen_CallerNotARaffleRegistered(address caller) external {
         changePrank(caller);
         vm.expectRevert(Errors.NOT_WHITELISTED.selector);
         factory.removeClooverRaffleFromRegister();
