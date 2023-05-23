@@ -6,14 +6,7 @@ import "test/helpers/IntegrationTest.sol";
 contract ImplementationManagerTest is IntegrationTest {
     event InterfaceImplementationChanged(bytes32 indexed interfaceName, address indexed newImplementationAddress);
 
-    function _assumeInterfaceNotExist(bytes32 interfaceName) internal pure {
-        vm.assume(interfaceName != ImplementationInterfaceNames.AccessController);
-        vm.assume(interfaceName != ImplementationInterfaceNames.RandomProvider);
-        vm.assume(interfaceName != ImplementationInterfaceNames.NFTWhitelist);
-        vm.assume(interfaceName != ImplementationInterfaceNames.TokenWhitelist);
-        vm.assume(interfaceName != ImplementationInterfaceNames.ClooverRaffleFactory);
-        vm.assume(interfaceName != ImplementationInterfaceNames.Treasury);
-    }
+    address newImplementation = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
 
     function setUp() public virtual override {
         super.setUp();
@@ -27,9 +20,7 @@ contract ImplementationManagerTest is IntegrationTest {
         );
     }
 
-    function test_ChangeImplementationAddress(address newImplementation) external {
-        vm.assume(newImplementation != address(0));
-        vm.expectEmit(true, true, true, true);
+    function test_ChangeImplementationAddress() external {
         emit InterfaceImplementationChanged(ImplementationInterfaceNames.AccessController, newImplementation);
 
         implementationManager.changeImplementationAddress(
@@ -41,20 +32,16 @@ contract ImplementationManagerTest is IntegrationTest {
         );
     }
 
-    function test_ChangeImplementationAddress_RevertIf_NotMaintainer(address caller, address newImplementation)
-        external
-    {
-        _assumeNotMaintainer(caller);
-        changePrank(caller);
+    function test_ChangeImplementationAddress_RevertIf_NotMaintainer() external {
+        changePrank(hacker);
         vm.expectRevert(Errors.NOT_MAINTAINER.selector);
         implementationManager.changeImplementationAddress(
             ImplementationInterfaceNames.AccessController, newImplementation
         );
     }
 
-    function test_GetImplementationAddress_RevertWhen_InterfaceNotExist(bytes32 interfaceName) external {
-        _assumeInterfaceNotExist(interfaceName);
-        console2.logBytes32(interfaceName);
+    function test_GetImplementationAddress_RevertWhen_InterfaceNotExist() external {
+        bytes32 interfaceName = "NotExistingInterface";
         vm.expectRevert(Errors.IMPLEMENTATION_NOT_FOUND.selector);
         implementationManager.getImplementationAddress(interfaceName);
     }

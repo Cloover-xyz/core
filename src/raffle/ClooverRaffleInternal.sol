@@ -112,9 +112,9 @@ abstract contract ClooverRaffleInternal is ClooverRaffleStorage {
     function _calculateUserRefundAmount() internal returns (uint256 totalRefundAmount) {
         if (_lifeCycleData.currentSupply >= _config.ticketSalesInsurance) revert Errors.SALES_EXCEED_INSURANCE_LIMIT();
 
-        ClooverRaffleTypes.ParticipantInfo memory participantInfo = _participantInfoMap[msg.sender];
+        ClooverRaffleTypes.ParticipantInfo storage participantInfo = _participantInfoMap[msg.sender];
         if (participantInfo.hasClaimedRefund) revert Errors.ALREADY_CLAIMED();
-        _participantInfoMap[msg.sender].hasClaimedRefund = true;
+        participantInfo.hasClaimedRefund = true;
 
         uint256 nbOfTicketPurchased = participantInfo.nbOfTicketsPurchased;
         if (nbOfTicketPurchased == 0) revert Errors.NOTHING_TO_CLAIM();

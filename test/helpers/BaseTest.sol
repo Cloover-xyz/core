@@ -29,7 +29,13 @@ contract BaseTest is Test {
         vm.roll(block.number + timestamp / BLOCK_TIME);
     }
 
+    function _setBlockTimestamp(uint64 timestamp) internal {
+        vm.warp(timestamp);
+        vm.roll(block.number + timestamp / BLOCK_TIME);
+    }
+
     /// @dev Bounds the fuzzing input to a realistic number of blocks.
+
     function _boundBlocks(uint256 blocks) internal view returns (uint256) {
         return bound(blocks, 1, type(uint24).max);
     }
@@ -71,6 +77,11 @@ contract BaseTest is Test {
     /// @dev Bounds the fuzzing input to a realistic rate under max defined.
     function _boundPercentageUnderOf(uint16 rate, uint16 max) internal view returns (uint16) {
         return uint16(bound(rate, 0, max));
+    }
+
+    /// @dev Bounds the fuzzing input to a realistic rate under max defined.
+    function _boundPercentageNotZeroUnderOf(uint16 rate, uint16 max) internal view returns (uint16) {
+        return uint16(bound(rate, 1, max));
     }
 
     /// @dev Bounds the fuzzing input to a none realistic rate.
