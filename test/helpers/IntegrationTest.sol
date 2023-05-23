@@ -48,10 +48,10 @@ contract IntegrationTest is BaseTest {
     uint64 constant MIN_SALE_DURATION = 1 days;
     uint64 constant MAX_SALE_DURATION = 2 weeks;
     uint16 constant MAX_TICKET_SUPPLY = 10000;
-    uint16 constant PROTOCOL_FEE_RATE = 2.5e2; // 2.5%
-    uint16 constant INSURANCE_RATE = 5e2; //5%
+    uint16 constant PROTOCOL_FEE_RATE = 2_50; // 2.5%
+    uint16 constant INSURANCE_RATE = 5_00; //5%
 
-    uint256 constant MIN_TICKET_PRICE = 10000;
+    uint256 constant MIN_TICKET_PRICE = 10_000;
     uint256 constant INITIAL_BALANCE = 10_000 ether;
 
     address internal deployer;
@@ -608,52 +608,5 @@ contract IntegrationTest is BaseTest {
 
             _raffle.purchaseTickets(ticketToPurchase);
         }
-    }
-
-    function _boundCommonCreateRaffleParams(uint256 ticketPrice, uint64 ticketSalesDuration, uint16 maxTotalSupply)
-        internal
-        view
-        returns (uint256 _ticketPrice, uint64 _ticketSalesDuration, uint16 _maxTotalSupply)
-    {
-        _ticketPrice = _boundTicketPrice(ticketPrice);
-        _ticketSalesDuration = _boundDuration(ticketSalesDuration);
-        _maxTotalSupply = _boundMaxTotalSupply(maxTotalSupply);
-    }
-
-    function _boundEthAmount(uint256 amount) internal view virtual returns (uint256) {
-        return bound(amount, 1, INITIAL_BALANCE);
-    }
-
-    function _boundTicketPrice(uint256 ticketPrice) internal view returns (uint256) {
-        return bound(ticketPrice, MIN_TICKET_PRICE, MAX_AMOUNT);
-    }
-
-    function _boundDuration(uint64 duration) internal view returns (uint64) {
-        return uint64(bound(duration, MIN_SALE_DURATION, MAX_SALE_DURATION));
-    }
-
-    function _boundDurationUnderOf(uint64 duration, uint64 max) internal view returns (uint64) {
-        return uint64(bound(duration, 0, max - 1));
-    }
-
-    function _boundDurationAboveOf(uint64 duration, uint64 min) internal view returns (uint64) {
-        return uint64(bound(duration, min + 1, type(uint64).max));
-    }
-
-    function _assumeNotMaintainer(address caller) internal view {
-        caller = _boundAddressNotZero(caller);
-        vm.assume(caller != maintainer);
-    }
-
-    function _boundMaxTotalSupply(uint16 maxTotalSupply) internal view returns (uint16) {
-        return uint16(bound(maxTotalSupply, 100, MAX_TICKET_SUPPLY));
-    }
-
-    function _boundTicketSalesInsurance(uint16 amount, uint16 maxTicketAllowedToPurchase)
-        internal
-        view
-        returns (uint16)
-    {
-        return uint16(_boundAmountNotZeroUnderOf(amount, maxTicketAllowedToPurchase));
     }
 }

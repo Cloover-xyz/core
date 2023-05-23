@@ -15,7 +15,7 @@ import {Test} from "@forge-std/Test.sol";
 contract BaseTest is Test {
     uint256 internal constant BLOCK_TIME = 12;
 
-    uint256 internal constant MAX_AMOUNT = 10e18 ether;
+    uint256 internal constant MAX_AMOUNT = 10e18;
 
     /// @dev Rolls & warps the given number of blocks forward the blockchain.
     function _forward(uint256 blocks) internal {
