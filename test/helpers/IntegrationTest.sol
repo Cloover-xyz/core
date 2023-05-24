@@ -9,13 +9,14 @@ import {AccessController} from "src/core/AccessController.sol";
 import {ImplementationManager} from "src/core/ImplementationManager.sol";
 import {NFTWhitelist} from "src/core/NFTWhitelist.sol";
 import {TokenWhitelist} from "src/core/TokenWhitelist.sol";
+import {RandomProvider} from "src/core/RandomProvider.sol";
 
 import {IClooverRaffleFactory} from "src/interfaces/IClooverRaffleFactory.sol";
 import {ClooverRaffleFactory} from "src/raffleFactory/ClooverRaffleFactory.sol";
 import {ClooverRaffle} from "src/raffle/ClooverRaffle.sol";
 
 import {InsuranceLib} from "src/libraries/InsuranceLib.sol";
-import {ClooverRaffleTypes} from "src/libraries/Types.sol";
+import {ClooverRaffleTypes, RandomProviderTypes} from "src/libraries/Types.sol";
 import {Errors} from "src/libraries/Errors.sol";
 import {ClooverRaffleEvents, ClooverRaffleFactoryEvents} from "src/libraries/Events.sol";
 
@@ -80,7 +81,7 @@ contract IntegrationTest is BaseTest {
         _initWallets();
 
         _deployBase();
-        _deployRandomProvider();
+        _mockRandomProvider();
         _deployNFTWhitelist();
         _deployTokenWhitelist();
         _deployClooverRaffleFactory();
@@ -126,7 +127,7 @@ contract IntegrationTest is BaseTest {
         implementationManager.changeImplementationAddress(ImplementationInterfaceNames.Treasury, treasury);
     }
 
-    function _deployRandomProvider() internal {
+    function _mockRandomProvider() internal {
         changePrank(deployer);
         randomProviderMock = new RandomProviderMock(address(implementationManager));
 
