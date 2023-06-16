@@ -7,7 +7,7 @@
     "vrfCoordinator": "0x271682DEB8C4E0901D1a1550aD2e64D568E69909",
     "keyHash": "0xff8dedfbfa60af186cf3c830acbc32c05aae823045ae5ea7da1e45fbfaba4f92",
     "callbackGasLimit": 100000,
-    "requestConfirmations": 3,
+    "requestConfirmations": 5,
     "subscriptionId": 1954
   },
   "raffleFactoryConfig": {
