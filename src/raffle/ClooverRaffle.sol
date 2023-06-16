@@ -82,7 +82,7 @@ contract ClooverRaffle is IClooverRaffle, Initializable, ClooverRaffleGetters {
             nftContract: params.nftContract,
             nftId: params.nftId,
             ticketPrice: params.ticketPrice,
-            endTicketSales: uint64(block.timestamp) + params.ticketSalesDuration,
+            endTicketSales: params.endTicketSales,
             maxTotalSupply: params.maxTotalSupply,
             ticketSalesInsurance: params.ticketSalesInsurance,
             maxTicketAllowedToPurchase: params.maxTicketAllowedToPurchase,

@@ -119,7 +119,7 @@ contract ClooverRaffleFactory is IClooverRaffleFactory, ClooverRaffleFactoryGett
             nftContract: params.nftContract,
             nftId: params.nftId,
             ticketPrice: params.ticketPrice,
-            ticketSalesDuration: params.ticketSalesDuration,
+            endTicketSales: params.endTicketSales,
             maxTotalSupply: params.maxTotalSupply,
             maxTicketAllowedToPurchase: params.maxTicketAllowedToPurchase,
             ticketSalesInsurance: params.ticketSalesInsurance,
@@ -150,11 +150,8 @@ contract ClooverRaffleFactory is IClooverRaffleFactory, ClooverRaffleFactoryGett
 
         if (params.maxTotalSupply == 0) revert Errors.CANT_BE_ZERO();
         if (params.maxTotalSupply > _config.maxTotalSupplyAllowed) revert Errors.EXCEED_MAX_VALUE_ALLOWED();
-
-        if (
-            params.ticketSalesDuration < _config.minTicketSalesDuration
-                || params.ticketSalesDuration > _config.maxTicketSalesDuration
-        ) {
+        uint64 saleDuration = params.endTicketSales - uint64(block.timestamp);
+        if (saleDuration < _config.minTicketSalesDuration || saleDuration > _config.maxTicketSalesDuration) {
             revert Errors.OUT_OF_RANGE();
         }
 

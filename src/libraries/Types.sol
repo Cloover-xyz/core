@@ -79,7 +79,7 @@ library ClooverRaffleTypes {
         address nftContract;
         uint256 nftId;
         uint256 ticketPrice;
-        uint64 ticketSalesDuration;
+        uint64 endTicketSales;
         uint16 maxTotalSupply;
         uint16 maxTicketAllowedToPurchase;
         uint16 ticketSalesInsurance;
@@ -103,7 +103,7 @@ library ClooverRaffleTypes {
         address nftContract;
         uint256 nftId;
         uint256 ticketPrice;
-        uint64 ticketSalesDuration;
+        uint64 endTicketSales;
         uint16 maxTotalSupply;
         uint16 maxTicketAllowedToPurchase;
         uint16 ticketSalesInsurance;

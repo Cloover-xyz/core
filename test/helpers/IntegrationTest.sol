@@ -543,13 +543,13 @@ contract IntegrationTest is BaseTest {
         uint16 maxTicketAllowedToPurchase,
         uint16 ticketSalesInsurance,
         uint16 royaltiesRate
-    ) internal pure returns (ClooverRaffleTypes.CreateRaffleParams memory) {
+    ) internal view returns (ClooverRaffleTypes.CreateRaffleParams memory) {
         return ClooverRaffleTypes.CreateRaffleParams({
             purchaseCurrency: purchaseCurrency,
             nftContract: nftContract,
             nftId: nftId_,
             ticketPrice: ticketPrice,
-            ticketSalesDuration: ticketSalesDuration,
+            endTicketSales: uint64(block.timestamp) + ticketSalesDuration,
             maxTotalSupply: maxTotalSupply,
             maxTicketAllowedToPurchase: maxTicketAllowedToPurchase,
             ticketSalesInsurance: ticketSalesInsurance,
