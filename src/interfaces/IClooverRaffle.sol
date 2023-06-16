@@ -42,7 +42,9 @@ interface IClooverRaffleGetters {
     function raffleStatus() external view returns (ClooverRaffleTypes.Status);
 
     /// @notice Return all tickets number own by the address
-    function balanceOf(address user) external view returns (uint16[] memory);
+    /// @dev This function should not be call by any contract as it can be very expensive in term of gas usage due to the nested loop
+    /// should be use only by front end to display the tickets number own by an address
+    function getParticipantTicketsNumber(address user) external view returns (uint16[] memory);
 
     /// @notice Return the address that own a specific ticket number
     function ownerOf(uint16 id) external view returns (address);

@@ -75,7 +75,7 @@ abstract contract ClooverRaffleGetters is IClooverRaffleGetters, IERC721Receiver
     }
 
     /// @inheritdoc IClooverRaffleGetters
-    function balanceOf(address user) external view override returns (uint16[] memory) {
+    function getParticipantTicketsNumber(address user) external view override returns (uint16[] memory) {
         ClooverRaffleTypes.ParticipantInfo memory participantInfo = _participantInfoMap[user];
         if (participantInfo.nbOfTicketsPurchased == 0) return new uint16[](0);
 

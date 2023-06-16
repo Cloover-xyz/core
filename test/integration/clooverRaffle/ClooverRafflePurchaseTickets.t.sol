@@ -41,7 +41,7 @@ contract ClooverRafflePurchaseTicketsTest is IntegrationTest {
                 // setup for assertEq
                 nbOfTicketsPurchased = 10;
             }
-            assertEq(raffle.balanceOf(participant).length, nbOfTicketsPurchased);
+            assertEq(raffle.getParticipantTicketsNumber(participant).length, nbOfTicketsPurchased);
             assertEq(raffle.currentSupply(), nbOfTicketsPurchased);
         }
     }
