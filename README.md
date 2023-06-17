@@ -66,11 +66,11 @@ The main entry point for user to interact with the protocol. Each ClooverRaffle 
 ### Cloover Protocol (Sepolia)
 
 - AccessController: [0x889aFb8B59474E66DD4a4712b630578122bf3DA1](https://sepolia.etherscan.io/address/0x889aFb8B59474E66DD4a4712b630578122bf3DA1)
-- ImplementationManager: [0x8766390CeFb794461633a53c331Bf391A57Af29c](https://sepolia.etherscan.io/address/0x8766390CeFb794461633a53c331Bf391A57Af29c)
-- NFTWhitelist: [0xe39b3b0f542af3d2fae91ed8bf1890baf949dc9d](https://sepolia.etherscan.io/address/0xe39b3b0f542af3d2fae91ed8bf1890baf949dc9d)
-- TokenWhitelist: [0x79226743bb973ffe382999ef5637c543a283d61a](https://sepolia.etherscan.io/address/0x79226743bb973ffe382999ef5637c543a283d61a)
-- RandomProvider: [0x7b844ab9bb042628eba691075384a3d16deced75](https://sepolia.etherscan.io/address/0x7b844ab9bb042628eba691075384a3d16deced75)
-- ClooverRaffleFactory: [0xe13ff127eface8a3ff96ae03074e3468f42a5621](https://sepolia.etherscan.io/address/0xe13ff127eface8a3ff96ae03074e3468f42a5621)
+- ImplementationManager: [0x8cba63fd2fd3163385fdf1ae309ed4cf7b8d144d](https://sepolia.etherscan.io/address/0x8cba63fd2fd3163385fdf1ae309ed4cf7b8d144d)
+- NFTWhitelist: [0xcaccc829ff7415f5830b499ccf07e12a72024176](https://sepolia.etherscan.io/address/0xcaccc829ff7415f5830b499ccf07e12a72024176)
+- TokenWhitelist: [0xa44080a32b04755e71a8b5eca367c1430aa5530c](https://sepolia.etherscan.io/address/0xa44080a32b04755e71a8b5eca367c1430aa5530c)
+- RandomProvider: [0xff0313635aaa920928bf42e13d69805829b35142](https://sepolia.etherscan.io/address/0xff0313635aaa920928bf42e13d69805829b35142)
+- ClooverRaffleFactory: [0xd84fdae25eee34ddacd0f8229b02d9f332278f91](https://sepolia.etherscan.io/address/0xd84fdae25eee34ddacd0f8229b02d9f332278f91)
 
 ---
 

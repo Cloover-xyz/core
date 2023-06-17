@@ -2,7 +2,7 @@
   "rpcAlias": "sepolia",
   "addressMaintainer": "0xA74aAea4667B1eb37c1475217590424720CAEA47",
   "accessController": "0x889afb8b59474e66dd4a4712b630578122bf3da1",
-  "inplementationManager": "0x8766390CeFb794461633a53c331Bf391A57Af29c",
+  "inplementationManager": "0x8cba63fd2fd3163385fdf1ae309ed4cf7b8d144d",
   "chainLinkVRFData": {
     "vrfCoordinator": "0x8103B0A8A00be2DDC778e6e7eaa21791Cd364625",
     "keyHash": "0x474e34a077df58807dbe9c96d3c009b23b3c6d0cce433e59bbf5b34f823bc56c",
