@@ -46,7 +46,7 @@ contract ClooverRaffleCreatorClaimTicketSalesTest is IntegrationTest {
                     expectedTreasuryAmountReceived,
                     expectedRoyaltiesAmountReceived
                 );
-                raffle.creatorClaimTicketSalesInEth();
+                raffle.claimTicketSalesInEth();
                 assertEq(address(creator).balance, insurancePaid + creatorBalanceBefore + expectedCreatorAmountReceived);
                 assertEq(address(treasury).balance, expectedTreasuryAmountReceived + treasuryBalanceBefore);
                 assertEq(
@@ -63,7 +63,7 @@ contract ClooverRaffleCreatorClaimTicketSalesTest is IntegrationTest {
                     expectedTreasuryAmountReceived,
                     expectedRoyaltiesAmountReceived
                 );
-                raffle.creatorClaimTicketSales();
+                raffle.claimTicketSales();
                 assertEq(
                     erc20Mock.balanceOf(address(creator)),
                     insurancePaid + creatorBalanceBefore + expectedCreatorAmountReceived
@@ -96,9 +96,9 @@ contract ClooverRaffleCreatorClaimTicketSalesTest is IntegrationTest {
             changePrank(participant);
             vm.expectRevert(Errors.NOT_CREATOR.selector);
             if (isEthRaffle) {
-                raffle.creatorClaimTicketSalesInEth();
+                raffle.claimTicketSalesInEth();
             } else {
-                raffle.creatorClaimTicketSales();
+                raffle.claimTicketSales();
             }
         }
     }
@@ -121,10 +121,10 @@ contract ClooverRaffleCreatorClaimTicketSalesTest is IntegrationTest {
             changePrank(creator);
             if (isEthRaffle) {
                 vm.expectRevert(Errors.IS_ETH_RAFFLE.selector);
-                raffle.creatorClaimTicketSales();
+                raffle.claimTicketSales();
             } else {
                 vm.expectRevert(Errors.NOT_ETH_RAFFLE.selector);
-                raffle.creatorClaimTicketSalesInEth();
+                raffle.claimTicketSalesInEth();
             }
         }
     }
@@ -144,9 +144,9 @@ contract ClooverRaffleCreatorClaimTicketSalesTest is IntegrationTest {
             changePrank(creator);
             vm.expectRevert(Errors.TICKET_NOT_DRAWN.selector);
             if (isEthRaffle) {
-                raffle.creatorClaimTicketSalesInEth();
+                raffle.claimTicketSalesInEth();
             } else {
-                raffle.creatorClaimTicketSales();
+                raffle.claimTicketSales();
             }
         }
     }

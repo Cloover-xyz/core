@@ -16,7 +16,7 @@ contract ClooverRaffleFactorySettersTest is IntegrationTest {
         assertEq(factory.insuranceRate(), INSURANCE_RATE);
         assertEq(factory.minTicketSalesDuration(), MIN_SALE_DURATION);
         assertEq(factory.maxTicketSalesDuration(), MAX_SALE_DURATION);
-        assertEq(factory.maxTotalSupplyAllowed(), MAX_TICKET_SUPPLY);
+        assertEq(factory.maxTicketSupplyAllowed(), MAX_TICKET_SUPPLY);
         assertEq(address(factory.implementationManager()), address(implementationManager));
     }
 
@@ -164,20 +164,20 @@ contract ClooverRaffleFactorySettersTest is IntegrationTest {
     }
 
     function test_SetMaxTotalSupplyAllowed() external {
-        uint16 maxTotalSupplyAllowed = 1000;
+        uint16 maxTicketSupplyAllowed = 1000;
         vm.expectEmit(true, true, true, true);
-        emit ClooverRaffleFactoryEvents.MaxTotalSupplyAllowedUpdated(maxTotalSupplyAllowed);
+        emit ClooverRaffleFactoryEvents.MaxTotalSupplyAllowedUpdated(maxTicketSupplyAllowed);
 
-        factory.setMaxTotalSupplyAllowed(maxTotalSupplyAllowed);
+        factory.setMaxTicketSupplyAllowed(maxTicketSupplyAllowed);
 
-        assertEq(factory.maxTotalSupplyAllowed(), maxTotalSupplyAllowed);
+        assertEq(factory.maxTicketSupplyAllowed(), maxTicketSupplyAllowed);
     }
 
     function test_SetMaxTotalSupplyAllowed_RevertIf_NotMaintainer() external {
-        uint16 maxTotalSupplyAllowed = 1000;
+        uint16 maxTicketSupplyAllowed = 1000;
         changePrank(hacker);
         vm.expectRevert(Errors.NOT_MAINTAINER.selector);
-        factory.setMaxTotalSupplyAllowed(maxTotalSupplyAllowed);
+        factory.setMaxTicketSupplyAllowed(maxTicketSupplyAllowed);
     }
 
     function test_Pause() external {

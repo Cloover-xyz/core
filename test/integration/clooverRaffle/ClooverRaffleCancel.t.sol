@@ -21,7 +21,7 @@ contract ClooverRaffleCancelTest is IntegrationTest {
             emit ClooverRaffleEvents.RaffleStatus(ClooverRaffleTypes.Status.CANCELLED);
             vm.expectEmit(true, true, true, true);
             emit ClooverRaffleEvents.RaffleCancelled();
-            raffle.cancelRaffle();
+            raffle.cancel();
 
             assertEq(erc20Mock.balanceOf(address(raffle)), 0);
             assertEq(address(raffle).balance, 0);
@@ -40,7 +40,7 @@ contract ClooverRaffleCancelTest is IntegrationTest {
             emit ClooverRaffleEvents.RaffleStatus(ClooverRaffleTypes.Status.CANCELLED);
             raffle.draw();
 
-            raffle.cancelRaffle();
+            raffle.cancel();
             assertEq(erc20Mock.balanceOf(address(raffle)), 0);
             assertEq(address(raffle).balance, 0);
             assertEq(erc721Mock.ownerOf(nftId), creator);
@@ -55,7 +55,7 @@ contract ClooverRaffleCancelTest is IntegrationTest {
 
             changePrank(hacker);
             vm.expectRevert(Errors.NOT_CREATOR.selector);
-            raffle.cancelRaffle();
+            raffle.cancel();
         }
     }
 
@@ -70,7 +70,7 @@ contract ClooverRaffleCancelTest is IntegrationTest {
 
             changePrank(creator);
             vm.expectRevert(Errors.SALES_ALREADY_STARTED.selector);
-            raffle.cancelRaffle();
+            raffle.cancel();
         }
     }
 
@@ -85,11 +85,11 @@ contract ClooverRaffleCancelTest is IntegrationTest {
 
             uint256 balanceBefore = address(creator).balance;
             if (isEthRaffle) {
-                raffle.cancelRaffle();
+                raffle.cancel();
                 assertEq(address(creator).balance, balanceBefore + insurancePaid);
             } else {
                 balanceBefore = erc20Mock.balanceOf(address(creator));
-                raffle.cancelRaffle();
+                raffle.cancel();
                 assertEq(erc20Mock.balanceOf(address(creator)), balanceBefore + insurancePaid);
             }
         }

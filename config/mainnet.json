@@ -11,7 +11,7 @@
     "subscriptionId": 1954
   },
   "raffleFactoryConfig": {
-    "maxTotalSupplyAllowed": 10000,
+    "maxTicketSupplyAllowed": 10000,
     "protocolFeeRate": 250,
     "insuranceRate": 500,
     "minTicketSalesDuration": 86400,

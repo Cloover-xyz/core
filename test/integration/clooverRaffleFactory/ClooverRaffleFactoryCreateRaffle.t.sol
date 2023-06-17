@@ -34,7 +34,7 @@ contract ClooverRaffleFactoryCreateRaffleTest is IntegrationTest {
         assertEq(newRaffle.insurancePaid(), 0);
         assertEq(erc20Mock.balanceOf(address(newRaffle)), 0);
         assertEq(newRaffle.creator(), creator);
-        assertEq(newRaffle.maxTicketAllowedToPurchase(), 0);
+        assertEq(newRaffle.maxTicketPerWallet(), 0);
         assertEq(newRaffle.royaltiesRate(), 0);
     }
 
@@ -57,7 +57,7 @@ contract ClooverRaffleFactoryCreateRaffleTest is IntegrationTest {
         assertEq(newRaffle.insurancePaid(), 0);
         assertEq(erc20Mock.balanceOf(address(newRaffle)), 0);
         assertEq(newRaffle.creator(), creator);
-        assertEq(newRaffle.maxTicketAllowedToPurchase(), initialMaxTicketAllowedToPurchase);
+        assertEq(newRaffle.maxTicketPerWallet(), initialMaxTicketAllowedToPurchase);
         assertEq(newRaffle.royaltiesRate(), 0);
     }
 
@@ -87,7 +87,7 @@ contract ClooverRaffleFactoryCreateRaffleTest is IntegrationTest {
         assertEq(newRaffle.insurancePaid(), insuranceCost);
         assertEq(erc20Mock.balanceOf(address(newRaffle)), insuranceCost);
         assertEq(newRaffle.creator(), creator);
-        assertEq(newRaffle.maxTicketAllowedToPurchase(), 0);
+        assertEq(newRaffle.maxTicketPerWallet(), 0);
         assertEq(newRaffle.royaltiesRate(), 0);
     }
 
@@ -120,7 +120,7 @@ contract ClooverRaffleFactoryCreateRaffleTest is IntegrationTest {
         assertEq(newRaffle.insurancePaid(), insuranceCost);
         assertEq(erc20Mock.balanceOf(address(newRaffle)), insuranceCost);
         assertEq(newRaffle.creator(), creator);
-        assertEq(newRaffle.maxTicketAllowedToPurchase(), 0);
+        assertEq(newRaffle.maxTicketPerWallet(), 0);
         assertEq(newRaffle.royaltiesRate(), 0);
     }
 
@@ -143,7 +143,7 @@ contract ClooverRaffleFactoryCreateRaffleTest is IntegrationTest {
         assertEq(newRaffle.insurancePaid(), 0);
         assertEq(erc20Mock.balanceOf(address(newRaffle)), 0);
         assertEq(newRaffle.creator(), creator);
-        assertEq(newRaffle.maxTicketAllowedToPurchase(), 0);
+        assertEq(newRaffle.maxTicketPerWallet(), 0);
         assertEq(newRaffle.royaltiesRate(), initialRoyaltiesRate);
     }
 
@@ -171,7 +171,7 @@ contract ClooverRaffleFactoryCreateRaffleTest is IntegrationTest {
         assertEq(newRaffle.insurancePaid(), insuranceCost);
         assertEq(erc20Mock.balanceOf(address(newRaffle)), insuranceCost);
         assertEq(newRaffle.creator(), creator);
-        assertEq(newRaffle.maxTicketAllowedToPurchase(), initialMaxTicketAllowedToPurchase);
+        assertEq(newRaffle.maxTicketPerWallet(), initialMaxTicketAllowedToPurchase);
         assertEq(newRaffle.royaltiesRate(), 0);
     }
 
@@ -194,7 +194,7 @@ contract ClooverRaffleFactoryCreateRaffleTest is IntegrationTest {
         assertEq(newRaffle.insurancePaid(), 0);
         assertEq(erc20Mock.balanceOf(address(newRaffle)), 0);
         assertEq(newRaffle.creator(), creator);
-        assertEq(newRaffle.maxTicketAllowedToPurchase(), initialMaxTicketAllowedToPurchase);
+        assertEq(newRaffle.maxTicketPerWallet(), initialMaxTicketAllowedToPurchase);
         assertEq(newRaffle.royaltiesRate(), initialRoyaltiesRate);
     }
 
@@ -222,7 +222,7 @@ contract ClooverRaffleFactoryCreateRaffleTest is IntegrationTest {
         assertEq(newRaffle.insurancePaid(), insuranceCost);
         assertEq(erc20Mock.balanceOf(address(newRaffle)), insuranceCost);
         assertEq(newRaffle.creator(), creator);
-        assertEq(newRaffle.maxTicketAllowedToPurchase(), 0);
+        assertEq(newRaffle.maxTicketPerWallet(), 0);
         assertEq(newRaffle.royaltiesRate(), initialRoyaltiesRate);
     }
 
@@ -250,7 +250,7 @@ contract ClooverRaffleFactoryCreateRaffleTest is IntegrationTest {
         assertEq(newRaffle.insurancePaid(), insuranceCost);
         assertEq(erc20Mock.balanceOf(address(newRaffle)), insuranceCost);
         assertEq(newRaffle.creator(), creator);
-        assertEq(newRaffle.maxTicketAllowedToPurchase(), initialMaxTicketAllowedToPurchase);
+        assertEq(newRaffle.maxTicketPerWallet(), initialMaxTicketAllowedToPurchase);
         assertEq(newRaffle.royaltiesRate(), initialRoyaltiesRate);
     }
 
@@ -300,7 +300,7 @@ contract ClooverRaffleFactoryCreateRaffleTest is IntegrationTest {
         assertEq(newRaffle.insurancePaid(), 0);
         assertEq(address(newRaffle).balance, 0);
         assertEq(newRaffle.creator(), creator);
-        assertEq(newRaffle.maxTicketAllowedToPurchase(), 0);
+        assertEq(newRaffle.maxTicketPerWallet(), 0);
         assertEq(newRaffle.royaltiesRate(), 0);
     }
 
@@ -323,7 +323,7 @@ contract ClooverRaffleFactoryCreateRaffleTest is IntegrationTest {
         assertEq(newRaffle.insurancePaid(), 0);
         assertEq(address(newRaffle).balance, 0);
         assertEq(newRaffle.creator(), creator);
-        assertEq(newRaffle.maxTicketAllowedToPurchase(), initialMaxTicketAllowedToPurchase);
+        assertEq(newRaffle.maxTicketPerWallet(), initialMaxTicketAllowedToPurchase);
         assertEq(newRaffle.royaltiesRate(), 0);
     }
 
@@ -350,7 +350,7 @@ contract ClooverRaffleFactoryCreateRaffleTest is IntegrationTest {
         assertEq(newRaffle.insurancePaid(), insuranceCost);
         assertEq(address(newRaffle).balance, insuranceCost);
         assertEq(newRaffle.creator(), creator);
-        assertEq(newRaffle.maxTicketAllowedToPurchase(), 0);
+        assertEq(newRaffle.maxTicketPerWallet(), 0);
         assertEq(newRaffle.royaltiesRate(), 0);
     }
 
@@ -373,7 +373,7 @@ contract ClooverRaffleFactoryCreateRaffleTest is IntegrationTest {
         assertEq(newRaffle.insurancePaid(), 0);
         assertEq(address(newRaffle).balance, 0);
         assertEq(newRaffle.creator(), creator);
-        assertEq(newRaffle.maxTicketAllowedToPurchase(), 0);
+        assertEq(newRaffle.maxTicketPerWallet(), 0);
         assertEq(newRaffle.royaltiesRate(), initialRoyaltiesRate);
     }
 
@@ -399,7 +399,7 @@ contract ClooverRaffleFactoryCreateRaffleTest is IntegrationTest {
         assertEq(newRaffle.insurancePaid(), insuranceCost);
         assertEq(address(newRaffle).balance, insuranceCost);
         assertEq(newRaffle.creator(), creator);
-        assertEq(newRaffle.maxTicketAllowedToPurchase(), initialMaxTicketAllowedToPurchase);
+        assertEq(newRaffle.maxTicketPerWallet(), initialMaxTicketAllowedToPurchase);
         assertEq(newRaffle.royaltiesRate(), 0);
     }
 
@@ -422,7 +422,7 @@ contract ClooverRaffleFactoryCreateRaffleTest is IntegrationTest {
         assertEq(newRaffle.insurancePaid(), 0);
         assertEq(address(newRaffle).balance, 0);
         assertEq(newRaffle.creator(), creator);
-        assertEq(newRaffle.maxTicketAllowedToPurchase(), initialMaxTicketAllowedToPurchase);
+        assertEq(newRaffle.maxTicketPerWallet(), initialMaxTicketAllowedToPurchase);
         assertEq(newRaffle.royaltiesRate(), initialRoyaltiesRate);
     }
 
@@ -448,7 +448,7 @@ contract ClooverRaffleFactoryCreateRaffleTest is IntegrationTest {
         assertEq(newRaffle.insurancePaid(), insuranceCost);
         assertEq(address(newRaffle).balance, insuranceCost);
         assertEq(newRaffle.creator(), creator);
-        assertEq(newRaffle.maxTicketAllowedToPurchase(), 0);
+        assertEq(newRaffle.maxTicketPerWallet(), 0);
         assertEq(newRaffle.royaltiesRate(), initialRoyaltiesRate);
     }
 
@@ -474,7 +474,7 @@ contract ClooverRaffleFactoryCreateRaffleTest is IntegrationTest {
         assertEq(newRaffle.insurancePaid(), insuranceCost);
         assertEq(address(newRaffle).balance, insuranceCost);
         assertEq(newRaffle.creator(), creator);
-        assertEq(newRaffle.maxTicketAllowedToPurchase(), initialMaxTicketAllowedToPurchase);
+        assertEq(newRaffle.maxTicketPerWallet(), initialMaxTicketAllowedToPurchase);
         assertEq(newRaffle.royaltiesRate(), initialRoyaltiesRate);
     }
 
@@ -603,6 +603,16 @@ contract ClooverRaffleFactoryCreateRaffleTest is IntegrationTest {
         ClooverRaffleTypes.PermitDataParams memory permitData =
             _convertToPermitDataParams(0, 0, 0, bytes32(0), bytes32(0));
         vm.expectRevert(Errors.EXCEED_MAX_VALUE_ALLOWED.selector);
+        factory.createNewRaffle(params, permitData);
+    }
+
+    function test_CreateRaffle_RevertWhen_MaxTicketSupplyLowerThenTwo() external {
+        ClooverRaffleTypes.CreateRaffleParams memory params = _convertToClooverRaffleParams(
+            address(erc20Mock), address(erc721Mock), nftId, initialTicketPrice, initialTicketSalesDuration, 1, 0, 0, 0
+        );
+        ClooverRaffleTypes.PermitDataParams memory permitData =
+            _convertToPermitDataParams(0, 0, 0, bytes32(0), bytes32(0));
+        vm.expectRevert(Errors.BELOW_MIN_VALUE_ALLOWED.selector);
         factory.createNewRaffle(params, permitData);
     }
 

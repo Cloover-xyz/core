@@ -29,7 +29,7 @@ contract ClooverRaffleFactoryGettersTest is IntegrationTest {
     }
 
     function test_MaxTotalSupplyAllowed() external {
-        assertEq(factory.maxTotalSupplyAllowed(), MAX_TICKET_SUPPLY);
+        assertEq(factory.maxTicketSupplyAllowed(), MAX_TICKET_SUPPLY);
     }
 
     function test_ImplementationManager() external {

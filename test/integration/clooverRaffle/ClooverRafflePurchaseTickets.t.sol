@@ -42,7 +42,7 @@ contract ClooverRafflePurchaseTicketsTest is IntegrationTest {
                 nbOfTicketsPurchased = 10;
             }
             assertEq(raffle.getParticipantTicketsNumber(participant).length, nbOfTicketsPurchased);
-            assertEq(raffle.currentSupply(), nbOfTicketsPurchased);
+            assertEq(raffle.currentTicketSupply(), nbOfTicketsPurchased);
         }
     }
 
@@ -84,11 +84,11 @@ contract ClooverRafflePurchaseTicketsTest is IntegrationTest {
             _setBlockTimestamp(blockTimestamp);
             RaffleArrayInfo memory raffleInfo = rafflesArray[i];
             (isEthRaffle, nftId, raffle) = (raffleInfo.isEthRaffle, raffleInfo.nftId, raffleInfo.raffle);
-            if (raffle.maxTicketAllowedToPurchase() == 0) continue;
+            if (raffle.maxTicketPerWallet() == 0) continue;
 
             changePrank(participant);
 
-            uint16 nbOfTicketsPurchased = raffle.maxTicketAllowedToPurchase() + 1;
+            uint16 nbOfTicketsPurchased = raffle.maxTicketPerWallet() + 1;
             uint256 amount = initialTicketPrice * nbOfTicketsPurchased;
             if (isEthRaffle) {
                 vm.expectRevert(Errors.EXCEED_MAX_TICKET_ALLOWED_TO_PURCHASE.selector);
@@ -115,11 +115,11 @@ contract ClooverRafflePurchaseTicketsTest is IntegrationTest {
             _setBlockTimestamp(blockTimestamp);
             RaffleArrayInfo memory raffleInfo = rafflesArray[i];
             (isEthRaffle, nftId, raffle) = (raffleInfo.isEthRaffle, raffleInfo.nftId, raffleInfo.raffle);
-            if (raffle.maxTicketAllowedToPurchase() != 0) continue;
+            if (raffle.maxTicketPerWallet() != 0) continue;
 
             changePrank(participant);
 
-            uint16 nbOfTicketsPurchased = raffle.maxTotalSupply() + 1;
+            uint16 nbOfTicketsPurchased = raffle.maxTicketSupply() + 1;
             uint256 amount = initialTicketPrice * nbOfTicketsPurchased;
             if (isEthRaffle) {
                 vm.expectRevert(Errors.TICKET_SUPPLY_OVERFLOW.selector);
@@ -165,11 +165,11 @@ contract ClooverRafflePurchaseTicketsTest is IntegrationTest {
             _setBlockTimestamp(blockTimestamp);
             RaffleArrayInfo memory raffleInfo = rafflesArray[i];
             (isEthRaffle, nftId, raffle) = (raffleInfo.isEthRaffle, raffleInfo.nftId, raffleInfo.raffle);
-            if (raffle.maxTicketAllowedToPurchase() == 0) continue;
+            if (raffle.maxTicketPerWallet() == 0) continue;
 
             changePrank(participant);
 
-            uint16 nbOfTicketsPurchased = raffle.maxTicketAllowedToPurchase() + 1;
+            uint16 nbOfTicketsPurchased = raffle.maxTicketPerWallet() + 1;
             uint256 amount = initialTicketPrice * nbOfTicketsPurchased;
             _forwardByTimestamp(initialTicketSalesDuration + 1);
             if (isEthRaffle) {

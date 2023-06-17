@@ -13,7 +13,7 @@ contract ClooverRaffleGettersTest is IntegrationTest {
         for (uint16 i; i < rafflesArray.length; i++) {
             RaffleArrayInfo memory raffleInfo = rafflesArray[i];
             (isEthRaffle, nftId, raffle) = (raffleInfo.isEthRaffle, raffleInfo.nftId, raffleInfo.raffle);
-            assertEq(raffle.maxTotalSupply(), initialMaxTotalSupply);
+            assertEq(raffle.maxTicketSupply(), initialMaxTotalSupply);
         }
     }
 
@@ -22,9 +22,9 @@ contract ClooverRaffleGettersTest is IntegrationTest {
             _setBlockTimestamp(blockTimestamp);
             RaffleArrayInfo memory raffleInfo = rafflesArray[i];
             (isEthRaffle, nftId, raffle) = (raffleInfo.isEthRaffle, raffleInfo.nftId, raffleInfo.raffle);
-            assertEq(raffle.currentSupply(), 0);
+            assertEq(raffle.currentTicketSupply(), 0);
             _purchaseExactAmountOfTickets(raffle, participant, 1);
-            assertEq(raffle.currentSupply(), 1);
+            assertEq(raffle.currentTicketSupply(), 1);
         }
     }
 

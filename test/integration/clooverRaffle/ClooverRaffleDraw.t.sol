@@ -65,9 +65,9 @@ contract ClooverRaffleDrawTest is IntegrationTest {
             raffle.draw();
 
             vm.expectEmit(true, true, true, true);
-            emit ClooverRaffleEvents.RaffleStatus(ClooverRaffleTypes.Status.DEFAULT);
+            emit ClooverRaffleEvents.RaffleStatus(ClooverRaffleTypes.Status.OPEN);
             _generateRandomNumbersFromRandomProvider(address(raffle), true);
-            assertTrue(raffle.raffleStatus() == ClooverRaffleTypes.Status.DEFAULT);
+            assertTrue(raffle.raffleStatus() == ClooverRaffleTypes.Status.OPEN);
         }
     }
 
@@ -76,18 +76,18 @@ contract ClooverRaffleDrawTest is IntegrationTest {
             _setBlockTimestamp(blockTimestamp);
             RaffleArrayInfo memory raffleInfo = rafflesArray[i];
             (isEthRaffle, nftId, raffle) = (raffleInfo.isEthRaffle, raffleInfo.nftId, raffleInfo.raffle);
-            if (raffle.ticketSalesInsurance() == 0) continue;
+            if (raffle.minTicketThreshold() == 0) continue;
 
             changePrank(participant);
 
-            _purchaseExactAmountOfTickets(raffle, participant, raffle.ticketSalesInsurance() - 1);
+            _purchaseExactAmountOfTickets(raffle, participant, raffle.minTicketThreshold() - 1);
 
             _forwardByTimestamp(initialTicketSalesDuration + 1);
 
             vm.expectEmit(true, true, true, true);
-            emit ClooverRaffleEvents.RaffleStatus(ClooverRaffleTypes.Status.INSURANCE);
+            emit ClooverRaffleEvents.RaffleStatus(ClooverRaffleTypes.Status.REFUNDABLE);
             raffle.draw();
-            assertTrue(raffle.raffleStatus() == ClooverRaffleTypes.Status.INSURANCE);
+            assertTrue(raffle.raffleStatus() == ClooverRaffleTypes.Status.REFUNDABLE);
         }
     }
 
@@ -96,11 +96,11 @@ contract ClooverRaffleDrawTest is IntegrationTest {
             _setBlockTimestamp(blockTimestamp);
             RaffleArrayInfo memory raffleInfo = rafflesArray[i];
             (isEthRaffle, nftId, raffle) = (raffleInfo.isEthRaffle, raffleInfo.nftId, raffleInfo.raffle);
-            if (raffle.ticketSalesInsurance() == 0) continue;
+            if (raffle.minTicketThreshold() == 0) continue;
 
             changePrank(participant);
 
-            _purchaseExactAmountOfTickets(raffle, participant, raffle.ticketSalesInsurance());
+            _purchaseExactAmountOfTickets(raffle, participant, raffle.minTicketThreshold());
 
             _forwardByTimestamp(initialTicketSalesDuration + 1);
 
@@ -118,7 +118,7 @@ contract ClooverRaffleDrawTest is IntegrationTest {
             (isEthRaffle, nftId, raffle) = (raffleInfo.isEthRaffle, raffleInfo.nftId, raffleInfo.raffle);
 
             changePrank(participant);
-            _purchaseExactAmountOfTickets(raffle, participant, raffle.ticketSalesInsurance() + 1);
+            _purchaseExactAmountOfTickets(raffle, participant, raffle.minTicketThreshold() + 1);
 
             _forwardByTimestamp(initialTicketSalesDuration + 1);
             raffle.draw();
@@ -165,7 +165,7 @@ contract ClooverRaffleDrawTest is IntegrationTest {
             (isEthRaffle, nftId, raffle) = (raffleInfo.isEthRaffle, raffleInfo.nftId, raffleInfo.raffle);
 
             changePrank(participant);
-            _purchaseExactAmountOfTickets(raffle, participant, raffle.ticketSalesInsurance() + 1);
+            _purchaseExactAmountOfTickets(raffle, participant, raffle.minTicketThreshold() + 1);
 
             _forwardByTimestamp(initialTicketSalesDuration + 1);
 

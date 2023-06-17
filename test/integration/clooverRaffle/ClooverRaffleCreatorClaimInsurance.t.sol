@@ -17,7 +17,7 @@ contract ClooverRaffleCreatorClaimInsuranceTest is IntegrationTest {
 
             RaffleArrayInfo memory raffleInfo = rafflesArray[i];
             (isEthRaffle, nftId, raffle) = (raffleInfo.isEthRaffle, raffleInfo.nftId, raffleInfo.raffle);
-            if (raffle.ticketSalesInsurance() == 0) continue;
+            if (raffle.minTicketThreshold() == 0) continue;
 
             uint16 nbOfTicketsPurchased = initialTicketSalesInsurance - 1;
 
@@ -36,8 +36,8 @@ contract ClooverRaffleCreatorClaimInsuranceTest is IntegrationTest {
             changePrank(creator);
             if (isEthRaffle) {
                 vm.expectEmit(true, true, true, true);
-                emit ClooverRaffleEvents.CreatorClaimedInsurance();
-                raffle.creatorClaimInsuranceInEth();
+                emit ClooverRaffleEvents.CreatorClaimedRefund();
+                raffle.claimCreatorRefundInEth();
                 assertEq(address(raffle).balance, expectedBalanceLeftOnContract);
                 assertEq(address(treasury).balance, treasuryBalanceBefore + treasuryAmount);
                 assertEq(address(creator).balance, creatorBalanceBefore);
@@ -46,8 +46,8 @@ contract ClooverRaffleCreatorClaimInsuranceTest is IntegrationTest {
                 treasuryBalanceBefore = erc20Mock.balanceOf(treasury);
 
                 vm.expectEmit(true, true, true, true);
-                emit ClooverRaffleEvents.CreatorClaimedInsurance();
-                raffle.creatorClaimInsurance();
+                emit ClooverRaffleEvents.CreatorClaimedRefund();
+                raffle.claimCreatorRefund();
                 assertEq(erc20Mock.balanceOf(address(raffle)), expectedBalanceLeftOnContract);
                 assertEq(erc20Mock.balanceOf(treasury), treasuryBalanceBefore + treasuryAmount);
                 assertEq(erc20Mock.balanceOf(address(creator)), creatorBalanceBefore);
@@ -62,7 +62,7 @@ contract ClooverRaffleCreatorClaimInsuranceTest is IntegrationTest {
 
             RaffleArrayInfo memory raffleInfo = rafflesArray[i];
             (isEthRaffle, nftId, raffle) = (raffleInfo.isEthRaffle, raffleInfo.nftId, raffleInfo.raffle);
-            if (raffle.ticketSalesInsurance() == 0) continue;
+            if (raffle.minTicketThreshold() == 0) continue;
 
             _purchaseExactAmountOfTickets(raffle, participant, initialTicketSalesInsurance - 1);
 
@@ -70,13 +70,13 @@ contract ClooverRaffleCreatorClaimInsuranceTest is IntegrationTest {
 
             changePrank(creator);
             if (isEthRaffle) {
-                raffle.creatorClaimInsuranceInEth();
+                raffle.claimCreatorRefundInEth();
                 vm.expectRevert();
-                raffle.creatorClaimInsuranceInEth();
+                raffle.claimCreatorRefundInEth();
             } else {
-                raffle.creatorClaimInsurance();
+                raffle.claimCreatorRefund();
                 vm.expectRevert();
-                raffle.creatorClaimInsurance();
+                raffle.claimCreatorRefund();
             }
         }
     }
@@ -87,7 +87,7 @@ contract ClooverRaffleCreatorClaimInsuranceTest is IntegrationTest {
 
             RaffleArrayInfo memory raffleInfo = rafflesArray[i];
             (isEthRaffle, nftId, raffle) = (raffleInfo.isEthRaffle, raffleInfo.nftId, raffleInfo.raffle);
-            if (raffle.ticketSalesInsurance() == 0) continue;
+            if (raffle.minTicketThreshold() == 0) continue;
 
             _purchaseExactAmountOfTickets(raffle, participant, initialTicketSalesInsurance - 1);
 
@@ -97,10 +97,10 @@ contract ClooverRaffleCreatorClaimInsuranceTest is IntegrationTest {
 
             if (isEthRaffle) {
                 vm.expectRevert(Errors.IS_ETH_RAFFLE.selector);
-                raffle.creatorClaimInsurance();
+                raffle.claimCreatorRefund();
             } else {
                 vm.expectRevert(Errors.NOT_ETH_RAFFLE.selector);
-                raffle.creatorClaimInsuranceInEth();
+                raffle.claimCreatorRefundInEth();
             }
         }
     }
@@ -111,7 +111,7 @@ contract ClooverRaffleCreatorClaimInsuranceTest is IntegrationTest {
 
             RaffleArrayInfo memory raffleInfo = rafflesArray[i];
             (isEthRaffle, nftId, raffle) = (raffleInfo.isEthRaffle, raffleInfo.nftId, raffleInfo.raffle);
-            if (raffle.ticketSalesInsurance() != 0) continue;
+            if (raffle.minTicketThreshold() != 0) continue;
 
             _purchaseExactAmountOfTickets(raffle, participant, initialTicketSalesInsurance - 1);
 
@@ -120,9 +120,9 @@ contract ClooverRaffleCreatorClaimInsuranceTest is IntegrationTest {
             changePrank(creator);
             vm.expectRevert(Errors.NO_INSURANCE_TAKEN.selector);
             if (isEthRaffle) {
-                raffle.creatorClaimInsuranceInEth();
+                raffle.claimCreatorRefundInEth();
             } else {
-                raffle.creatorClaimInsurance();
+                raffle.claimCreatorRefund();
             }
         }
     }
@@ -133,7 +133,7 @@ contract ClooverRaffleCreatorClaimInsuranceTest is IntegrationTest {
 
             RaffleArrayInfo memory raffleInfo = rafflesArray[i];
             (isEthRaffle, nftId, raffle) = (raffleInfo.isEthRaffle, raffleInfo.nftId, raffleInfo.raffle);
-            if (raffle.ticketSalesInsurance() == 0) continue;
+            if (raffle.minTicketThreshold() == 0) continue;
 
             _purchaseExactAmountOfTickets(raffle, participant, initialTicketSalesInsurance - 1);
 
@@ -141,9 +141,9 @@ contract ClooverRaffleCreatorClaimInsuranceTest is IntegrationTest {
             changePrank(hacker);
             vm.expectRevert(Errors.NOT_CREATOR.selector);
             if (isEthRaffle) {
-                raffle.creatorClaimInsuranceInEth();
+                raffle.claimCreatorRefundInEth();
             } else {
-                raffle.creatorClaimInsurance();
+                raffle.claimCreatorRefund();
             }
         }
     }
@@ -154,16 +154,16 @@ contract ClooverRaffleCreatorClaimInsuranceTest is IntegrationTest {
 
             RaffleArrayInfo memory raffleInfo = rafflesArray[i];
             (isEthRaffle, nftId, raffle) = (raffleInfo.isEthRaffle, raffleInfo.nftId, raffleInfo.raffle);
-            if (raffle.ticketSalesInsurance() == 0) continue;
+            if (raffle.minTicketThreshold() == 0) continue;
 
             _forwardByTimestamp(initialTicketSalesDuration + 1);
 
             changePrank(creator);
             vm.expectRevert(Errors.NOTHING_TO_CLAIM.selector);
             if (isEthRaffle) {
-                raffle.creatorClaimInsuranceInEth();
+                raffle.claimCreatorRefundInEth();
             } else {
-                raffle.creatorClaimInsurance();
+                raffle.claimCreatorRefund();
             }
         }
     }
@@ -173,19 +173,19 @@ contract ClooverRaffleCreatorClaimInsuranceTest is IntegrationTest {
             _setBlockTimestamp(blockTimestamp);
             RaffleArrayInfo memory raffleInfo = rafflesArray[i];
             (isEthRaffle, nftId, raffle) = (raffleInfo.isEthRaffle, raffleInfo.nftId, raffleInfo.raffle);
-            if (raffle.ticketSalesInsurance() == 0) continue;
+            if (raffle.minTicketThreshold() == 0) continue;
 
             changePrank(participant);
-            _purchaseExactAmountOfTickets(raffle, participant, raffle.ticketSalesInsurance());
+            _purchaseExactAmountOfTickets(raffle, participant, raffle.minTicketThreshold());
 
             _forwardByTimestamp(initialTicketSalesDuration + 1);
 
             changePrank(creator);
             vm.expectRevert(Errors.SALES_EXCEED_INSURANCE_LIMIT.selector);
             if (isEthRaffle) {
-                raffle.creatorClaimInsuranceInEth();
+                raffle.claimCreatorRefundInEth();
             } else {
-                raffle.creatorClaimInsurance();
+                raffle.claimCreatorRefund();
             }
         }
     }

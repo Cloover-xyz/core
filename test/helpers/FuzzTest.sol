@@ -17,27 +17,27 @@ contract FuzzTest is IntegrationTest {
         bool hasRoyalties,
         uint256 ticketPrice,
         uint64 ticketSalesDuration,
-        uint16 maxTotalSupply,
-        uint16 maxTicketAllowedToPurchase,
-        uint16 ticketSalesInsurance,
+        uint16 maxTicketSupply,
+        uint16 maxTicketPerWallet,
+        uint16 minTicketThreshold,
         uint16 royaltiesRate
     ) internal returns (ClooverRaffle) {
         ticketPrice = _boundTicketPrice(ticketPrice);
         ticketSalesDuration = _boundDuration(ticketSalesDuration);
-        maxTotalSupply = _boundMaxTotalSupply(maxTotalSupply);
+        maxTicketSupply = _boundMaxTotalSupply(maxTicketSupply);
 
-        maxTicketAllowedToPurchase = uint16(_boundAmountUnderOf(0, maxTotalSupply));
+        maxTicketPerWallet = uint16(_boundAmountUnderOf(0, maxTicketSupply));
         royaltiesRate = uint16(_boundAmountUnderOf(royaltiesRate, PercentageMath.PERCENTAGE_FACTOR - PROTOCOL_FEE_RATE));
 
         if (hasInsurance) {
-            if (maxTicketAllowedToPurchase > 10) {
-                ticketSalesInsurance = uint16(_boundAmountNotZeroUnderOf(2, maxTicketAllowedToPurchase));
+            if (maxTicketPerWallet > 10) {
+                minTicketThreshold = uint16(_boundAmountNotZeroUnderOf(2, maxTicketPerWallet));
             } else {
-                maxTicketAllowedToPurchase = 0;
-                ticketSalesInsurance = uint16(_boundAmountNotZeroUnderOf(2, maxTotalSupply));
+                maxTicketPerWallet = 0;
+                minTicketThreshold = uint16(_boundAmountNotZeroUnderOf(2, maxTicketSupply));
             }
         } else {
-            ticketSalesInsurance = 0;
+            minTicketThreshold = 0;
         }
         if (hasRoyalties) {
             royaltiesRate =
@@ -52,21 +52,21 @@ contract FuzzTest is IntegrationTest {
             nftId,
             ticketPrice,
             ticketSalesDuration,
-            maxTotalSupply,
-            maxTicketAllowedToPurchase,
-            ticketSalesInsurance,
+            maxTicketSupply,
+            maxTicketPerWallet,
+            minTicketThreshold,
             royaltiesRate
         );
     }
 
-    function _boundCommonCreateRaffleParams(uint256 ticketPrice, uint64 ticketSalesDuration, uint16 maxTotalSupply)
+    function _boundCommonCreateRaffleParams(uint256 ticketPrice, uint64 ticketSalesDuration, uint16 maxTicketSupply)
         internal
         view
         returns (uint256 _ticketPrice, uint64 _ticketSalesDuration, uint16 _maxTotalSupply)
     {
         _ticketPrice = _boundTicketPrice(ticketPrice);
         _ticketSalesDuration = _boundDuration(ticketSalesDuration);
-        _maxTotalSupply = _boundMaxTotalSupply(maxTotalSupply);
+        _maxTotalSupply = _boundMaxTotalSupply(maxTicketSupply);
     }
 
     function _boundTicketPrice(uint256 ticketPrice) internal view returns (uint256) {
@@ -90,16 +90,12 @@ contract FuzzTest is IntegrationTest {
         vm.assume(caller != maintainer);
     }
 
-    function _boundMaxTotalSupply(uint16 maxTotalSupply) internal view returns (uint16) {
-        return uint16(bound(maxTotalSupply, 100, MAX_TICKET_SUPPLY));
+    function _boundMaxTotalSupply(uint16 maxTicketSupply) internal view returns (uint16) {
+        return uint16(bound(maxTicketSupply, 100, MAX_TICKET_SUPPLY));
     }
 
-    function _boundTicketSalesInsurance(uint16 amount, uint16 maxTicketAllowedToPurchase)
-        internal
-        view
-        returns (uint16)
-    {
-        return uint16(_boundAmountNotZeroUnderOf(amount, maxTicketAllowedToPurchase));
+    function _boundTicketSalesInsurance(uint16 amount, uint16 maxTicketPerWallet) internal view returns (uint16) {
+        return uint16(_boundAmountNotZeroUnderOf(amount, maxTicketPerWallet));
     }
 
     function _boundEthAmount(uint256 amount) internal view virtual returns (uint256) {

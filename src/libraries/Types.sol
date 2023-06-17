@@ -8,10 +8,10 @@ library ClooverRaffleTypes {
     /* ENUMS */
     /// @notice Enumeration of the different status of the raffle
     enum Status {
-        DEFAULT,
+        OPEN,
         DRAWNING,
         DRAWN,
-        INSURANCE,
+        REFUNDABLE,
         CANCELLED
     }
 
@@ -24,13 +24,13 @@ library ClooverRaffleTypes {
         uint64 endTicketSales; // 64 bits
         // SLOT 1
         address implementationManager; // 160 bits
-        uint16 maxTotalSupply; // 16 bits
+        uint16 maxTicketSupply; // 16 bits
         // SLOT 2
         address purchaseCurrency; // 160 bits
-        uint16 maxTicketAllowedToPurchase; // 16 bits
+        uint16 maxTicketPerWallet; // 16 bits
         // SLOT 3
         address nftContract; // 160 bits
-        uint16 ticketSalesInsurance; // 24 bits
+        uint16 minTicketThreshold; // 24 bits
         uint16 protocolFeeRate; // 16 bits
         uint16 insuranceRate; // 16 bits
         uint16 royaltiesRate; // 16 bits
@@ -44,7 +44,7 @@ library ClooverRaffleTypes {
     /// @notice Contains the current state of the raffle
     struct LifeCycleData {
         Status status; // 8 bits
-        uint16 currentSupply; // 16 bits
+        uint16 currentTicketSupply; // 16 bits
         uint16 winningTicketNumber; // 16 bits
     }
 
@@ -64,7 +64,7 @@ library ClooverRaffleTypes {
 
     /// @notice Contains the base info and limit for raffles
     struct FactoryConfig {
-        uint16 maxTotalSupplyAllowed; // 16 bits
+        uint16 maxTicketSupplyAllowed; // 16 bits
         uint16 protocolFeeRate; // 16 bits
         uint16 insuranceRate; // 16 bits
         uint64 minTicketSalesDuration; // 64 bits
@@ -80,9 +80,9 @@ library ClooverRaffleTypes {
         uint256 nftId;
         uint256 ticketPrice;
         uint64 endTicketSales;
-        uint16 maxTotalSupply;
-        uint16 maxTicketAllowedToPurchase;
-        uint16 ticketSalesInsurance;
+        uint16 maxTicketSupply;
+        uint16 maxTicketPerWallet;
+        uint16 minTicketThreshold;
         uint16 royaltiesRate;
     }
 
@@ -104,9 +104,9 @@ library ClooverRaffleTypes {
         uint256 nftId;
         uint256 ticketPrice;
         uint64 endTicketSales;
-        uint16 maxTotalSupply;
-        uint16 maxTicketAllowedToPurchase;
-        uint16 ticketSalesInsurance;
+        uint16 maxTicketSupply;
+        uint16 maxTicketPerWallet;
+        uint16 minTicketThreshold;
         uint16 protocolFeeRate;
         uint16 insuranceRate;
         uint16 royaltiesRate;
@@ -115,7 +115,7 @@ library ClooverRaffleTypes {
 
     /// @notice The parameters used to initialize the raffle factory
     struct FactoryConfigParams {
-        uint16 maxTotalSupplyAllowed;
+        uint16 maxTicketSupplyAllowed;
         uint16 protocolFeeRate;
         uint16 insuranceRate;
         uint64 minTicketSalesDuration;

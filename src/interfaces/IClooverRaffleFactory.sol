@@ -10,11 +10,11 @@ interface IClooverRaffleFactoryGetters {
     /// @notice Return the fees rate to apply on ticket sales amount
     function protocolFeeRate() external view returns (uint256);
 
-    /// @notice Return the rate that creator will have to pay as insurance on the min sales defined
+    /// @notice Return the rate that creator will have to pay on the min sales defined
     function insuranceRate() external view returns (uint256);
 
     /// @notice Return the max ticket supply allowed in a raffle
-    function maxTotalSupplyAllowed() external view returns (uint256);
+    function maxTicketSupplyAllowed() external view returns (uint256);
 
     /// @notice Return the min duration for the ticket sales
     function minTicketSalesDuration() external view returns (uint256);
@@ -49,7 +49,7 @@ interface IClooverRaffleFactorySetters {
     function setMaxTicketSalesDuration(uint64 newMaxTicketSalesDuration) external;
 
     /// @notice Set the max ticket supply allowed in a raffle
-    function setMaxTotalSupplyAllowed(uint16 newMaxTotalSupplyAllowed) external;
+    function setMaxTicketSupplyAllowed(uint16 newMaxTotalSupplyAllowed) external;
 
     /// @notice Pause the contract preventing new raffle to be deployed
     /// @dev can only be called by the maintainer
@@ -69,5 +69,6 @@ interface IClooverRaffleFactory is IClooverRaffleFactoryGetters, IClooverRaffleF
     ) external payable returns (address newClooverRaffle);
 
     /// @notice remove msg.sender from the list of registered raffles
-    function removeClooverRaffleFromRegister() external;
+    /// @dev can only be called by the raffle contract itself
+    function removeRaffleFromRegister() external;
 }

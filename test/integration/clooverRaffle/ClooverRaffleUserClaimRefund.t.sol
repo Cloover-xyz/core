@@ -18,7 +18,7 @@ contract ClooverRaffleUserClaimRefundTest is IntegrationTest {
 
             RaffleArrayInfo memory raffleInfo = rafflesArray[i];
             (isEthRaffle, nftId, raffle) = (raffleInfo.isEthRaffle, raffleInfo.nftId, raffleInfo.raffle);
-            if (raffle.ticketSalesInsurance() == 0) continue;
+            if (raffle.minTicketThreshold() == 0) continue;
 
             uint16 nbOfTicketsPurchased = initialTicketSalesInsurance - 1;
 
@@ -28,7 +28,7 @@ contract ClooverRaffleUserClaimRefundTest is IntegrationTest {
 
             uint256 totalSalesAmount = raffle.ticketPrice() * nbOfTicketsPurchased;
             (uint256 treasuryAmount, uint256 amountPerTicket) = initialTicketSalesInsurance.splitInsuranceAmount(
-                INSURANCE_RATE, PROTOCOL_FEE_RATE, raffle.currentSupply(), raffle.ticketPrice()
+                INSURANCE_RATE, PROTOCOL_FEE_RATE, raffle.currentTicketSupply(), raffle.ticketPrice()
             );
             uint256 expectParticipantRefund = amountPerTicket * nbOfTicketsPurchased + totalSalesAmount;
             uint256 expectedRaffleBalanceLeft = treasuryAmount;
@@ -37,14 +37,14 @@ contract ClooverRaffleUserClaimRefundTest is IntegrationTest {
             if (isEthRaffle) {
                 vm.expectEmit(true, true, true, true);
                 emit ClooverRaffleEvents.UserClaimedRefund(participant, expectParticipantRefund);
-                raffle.userClaimRefundInEth();
+                raffle.claimParticipantRefundInEth();
                 assertEq(address(raffle).balance, expectedRaffleBalanceLeft);
                 assertEq(address(participant).balance, parcipantBalanceBefore + expectParticipantRefund);
             } else {
                 parcipantBalanceBefore = erc20Mock.balanceOf(participant);
                 vm.expectEmit(true, true, true, true);
                 emit ClooverRaffleEvents.UserClaimedRefund(participant, expectParticipantRefund);
-                raffle.userClaimRefund();
+                raffle.claimParticipantRefund();
                 assertEq(erc20Mock.balanceOf(address(raffle)), expectedRaffleBalanceLeft);
                 assertEq(erc20Mock.balanceOf(address(participant)), parcipantBalanceBefore + expectParticipantRefund);
             }
@@ -57,7 +57,7 @@ contract ClooverRaffleUserClaimRefundTest is IntegrationTest {
 
             RaffleArrayInfo memory raffleInfo = rafflesArray[i];
             (isEthRaffle, nftId, raffle) = (raffleInfo.isEthRaffle, raffleInfo.nftId, raffleInfo.raffle);
-            if (raffle.ticketSalesInsurance() == 0) continue;
+            if (raffle.minTicketThreshold() == 0) continue;
 
             uint16 nbOfTicketsPurchased = initialTicketSalesInsurance - 1;
 
@@ -67,10 +67,10 @@ contract ClooverRaffleUserClaimRefundTest is IntegrationTest {
 
             if (isEthRaffle) {
                 vm.expectRevert(Errors.IS_ETH_RAFFLE.selector);
-                raffle.userClaimRefund();
+                raffle.claimParticipantRefund();
             } else {
                 vm.expectRevert(Errors.NOT_ETH_RAFFLE.selector);
-                raffle.userClaimRefundInEth();
+                raffle.claimParticipantRefundInEth();
             }
         }
     }
@@ -81,7 +81,7 @@ contract ClooverRaffleUserClaimRefundTest is IntegrationTest {
 
             RaffleArrayInfo memory raffleInfo = rafflesArray[i];
             (isEthRaffle, nftId, raffle) = (raffleInfo.isEthRaffle, raffleInfo.nftId, raffleInfo.raffle);
-            if (raffle.ticketSalesInsurance() == 0) continue;
+            if (raffle.minTicketThreshold() == 0) continue;
 
             uint16 nbOfTicketsPurchased = initialTicketSalesInsurance;
 
@@ -91,9 +91,9 @@ contract ClooverRaffleUserClaimRefundTest is IntegrationTest {
 
             vm.expectRevert(Errors.SALES_EXCEED_INSURANCE_LIMIT.selector);
             if (isEthRaffle) {
-                raffle.userClaimRefundInEth();
+                raffle.claimParticipantRefundInEth();
             } else {
-                raffle.userClaimRefund();
+                raffle.claimParticipantRefund();
             }
         }
     }
@@ -104,7 +104,7 @@ contract ClooverRaffleUserClaimRefundTest is IntegrationTest {
 
             RaffleArrayInfo memory raffleInfo = rafflesArray[i];
             (isEthRaffle, nftId, raffle) = (raffleInfo.isEthRaffle, raffleInfo.nftId, raffleInfo.raffle);
-            if (raffle.ticketSalesInsurance() == 0) continue;
+            if (raffle.minTicketThreshold() == 0) continue;
 
             uint16 nbOfTicketsPurchased = initialTicketSalesInsurance - 1;
 
@@ -113,14 +113,14 @@ contract ClooverRaffleUserClaimRefundTest is IntegrationTest {
             _forwardByTimestamp(initialTicketSalesDuration + 1);
 
             if (isEthRaffle) {
-                raffle.userClaimRefundInEth();
+                raffle.claimParticipantRefundInEth();
                 vm.expectRevert(Errors.ALREADY_CLAIMED.selector);
 
-                raffle.userClaimRefundInEth();
+                raffle.claimParticipantRefundInEth();
             } else {
-                raffle.userClaimRefund();
+                raffle.claimParticipantRefund();
                 vm.expectRevert(Errors.ALREADY_CLAIMED.selector);
-                raffle.userClaimRefund();
+                raffle.claimParticipantRefund();
             }
         }
     }
@@ -131,7 +131,7 @@ contract ClooverRaffleUserClaimRefundTest is IntegrationTest {
 
             RaffleArrayInfo memory raffleInfo = rafflesArray[i];
             (isEthRaffle, nftId, raffle) = (raffleInfo.isEthRaffle, raffleInfo.nftId, raffleInfo.raffle);
-            if (raffle.ticketSalesInsurance() == 0) continue;
+            if (raffle.minTicketThreshold() == 0) continue;
 
             uint16 nbOfTicketsPurchased = initialTicketSalesInsurance - 1;
 
@@ -141,10 +141,10 @@ contract ClooverRaffleUserClaimRefundTest is IntegrationTest {
             changePrank(hacker);
             if (isEthRaffle) {
                 vm.expectRevert(Errors.NOTHING_TO_CLAIM.selector);
-                raffle.userClaimRefundInEth();
+                raffle.claimParticipantRefundInEth();
             } else {
                 vm.expectRevert(Errors.NOTHING_TO_CLAIM.selector);
-                raffle.userClaimRefund();
+                raffle.claimParticipantRefund();
             }
         }
     }

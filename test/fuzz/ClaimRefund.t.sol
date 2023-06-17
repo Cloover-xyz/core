@@ -63,12 +63,12 @@ contract ClaimRefundFuzzTest is FuzzTest {
 
         uint256 balanceParticipant1Before = erc20Mock.balanceOf(participant1);
         changePrank(participant1);
-        raffle.userClaimRefund();
+        raffle.claimParticipantRefund();
         assertEq(erc20Mock.balanceOf(participant1), balanceParticipant1Before + expectedParticipant1Refund);
 
         uint256 balanceParticipant2Before = erc20Mock.balanceOf(participant2);
         changePrank(participant2);
-        raffle.userClaimRefund();
+        raffle.claimParticipantRefund();
         assertEq(erc20Mock.balanceOf(participant2), balanceParticipant2Before + expectedParticipant2Refund);
 
         assertEq(erc20Mock.balanceOf(address(raffle)), treasuryAmount);

@@ -67,8 +67,8 @@ abstract contract ClooverRaffleFactorySetters is IClooverRaffleFactorySetters, C
     }
 
     /// @inheritdoc IClooverRaffleFactorySetters
-    function setMaxTotalSupplyAllowed(uint16 newMaxTotalSupplyAllowed) external onlyMaintainer {
-        _config.maxTotalSupplyAllowed = newMaxTotalSupplyAllowed;
+    function setMaxTicketSupplyAllowed(uint16 newMaxTotalSupplyAllowed) external onlyMaintainer {
+        _config.maxTicketSupplyAllowed = newMaxTotalSupplyAllowed;
         emit ClooverRaffleFactoryEvents.MaxTotalSupplyAllowedUpdated(newMaxTotalSupplyAllowed);
     }
 

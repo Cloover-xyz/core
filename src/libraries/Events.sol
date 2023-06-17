@@ -25,12 +25,12 @@ library ClooverRaffleEvents {
     /// @notice Emitted when the random ticket number is drawn.
     event WinningTicketDrawn(uint16 winningTicket);
 
-    /// @notice Emitted when the creator exercise his insurance.
-    event CreatorClaimedInsurance();
+    /// @notice Emitted when the creator claim prize refund.
+    event CreatorClaimedRefund();
 
     /// @notice Emitted when the user claim his refund.
     /// @param user The address of the user that claimed his refund
-    /// @param amountReceived The amount received by the user (refund + his insurance part)
+    /// @param amountReceived The amount received by the user (refund tickets cost + part of creator's insurance paid)
     event UserClaimedRefund(address indexed user, uint256 amountReceived);
 
     /// @notice Emitted when the raffle is cancelled by the creator

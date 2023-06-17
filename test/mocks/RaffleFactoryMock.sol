@@ -8,7 +8,7 @@ contract RaffleFactoryMock {
 
     EnumerableSet.AddressSet private _registeredRaffles;
 
-    function removeClooverRaffleFromRegister(address raffle) external {
+    function removeRaffleFromRegister(address raffle) external {
         _registeredRaffles.remove(raffle);
     }
 

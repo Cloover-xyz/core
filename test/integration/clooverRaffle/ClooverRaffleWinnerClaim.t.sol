@@ -26,7 +26,7 @@ contract ClooverRaffleWinnerClaimTest is IntegrationTest {
 
             vm.expectEmit(true, true, true, true);
             emit ClooverRaffleEvents.WinnerClaimed(participant);
-            raffle.winnerClaim();
+            raffle.claimPrize();
             assertEq(erc721Mock.ownerOf(nftId), participant);
         }
     }
@@ -48,7 +48,7 @@ contract ClooverRaffleWinnerClaimTest is IntegrationTest {
 
             changePrank(hacker);
             vm.expectRevert(Errors.MSG_SENDER_NOT_WINNER.selector);
-            raffle.winnerClaim();
+            raffle.claimPrize();
         }
     }
 
@@ -64,7 +64,7 @@ contract ClooverRaffleWinnerClaimTest is IntegrationTest {
 
             _forwardByTimestamp(initialTicketSalesDuration + 1);
             vm.expectRevert(Errors.TICKET_NOT_DRAWN.selector);
-            raffle.winnerClaim();
+            raffle.claimPrize();
         }
     }
 }

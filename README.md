@@ -18,12 +18,12 @@ This repository contains the smart contracts source code and markets configurati
 
 ClooverRaffle is a decentralized non-custodial NFT Raffle protocol where users can create and participate in raffle. Raffles' creators make their own NFT as winning price.
 
-- Raffle's creator can set the number of tickets, the price of each ticket and the duration of the raffle. Creator can also set a minimum amount of ticket's sales as an insurance, if the amount of ticket's sales is under the insurance's amount, the creator can claim back the NFT.
+- Raffle's creator can specify the total number of tickets, the cost of a ticket and the duration of the raffle.
 - User can purchase tickets with token defined by the raffle's creator.
-- When the raffle is over, a random winner is selected using ChainLinkVRF subscription. The winner will be able to claim the NFT and the raffle's creator to claim ticket's sales amount.
-- If creator set an insurance and the amount of ticket's sales is under the insurance's amount, user can claim back their ticket's price plus a bonus link to a part of the insurance per tickets purchased.
+- When the raffle is over, a random winner is selected using ChainLinkVRF V2. The winner will be able to claim the NFT and the raffle's creator to claim ticket's sales amount.
+- In case the creator has specified a minimum amount of ticket that need to be sold, he will have to pay a part of the expected amount raised. If the minimum amount of ticket is not reached, creator can claim back his NFT and participants can claim back their ticket's price plus a bonus link to a part of the amount the creator has paid per tickets purchased. If the minimum amount of ticket is reached the raffle can be complete and the winner can claim the NFT.
 
-TL;DR: Instead of selling your NFT for a fix price, you can create a raffle with your own condition (insurance, ticket prices, etc.) and let's user participate to win your NFT.
+TL;DR: Instead of selling your NFT for a fix price, you can create a raffle with your own condition (minium ticket , ticket prices, etc.) and let's user participate to win your NFT.
 
 ---
 
@@ -65,12 +65,12 @@ The main entry point for user to interact with the protocol. Each ClooverRaffle 
 
 ### Cloover Protocol (Sepolia)
 
-- AccessController: [0xce02489f63AA63e2316452628Bb2E457CAC54d0C](https://sepolia.etherscan.io/address/0xce02489f63AA63e2316452628Bb2E457CAC54d0C)
-- ImplementationManager: [0xEed7187bc58344BA5c36dc7bCe13177C261AF41B](https://sepolia.etherscan.io/address/0xEed7187bc58344BA5c36dc7bCe13177C261AF41B)
-- NFTWhitelist: [0xBc774c97c15a6ee7bb97ee55c6796C086F7D6079](https://sepolia.etherscan.io/address/0xBc774c97c15a6ee7bb97ee55c6796C086F7D6079)
-- TokenWhitelist: [0x89cb912D94fB41b10477042F25d55E9b7E55ac25](https://sepolia.etherscan.io/address/0x89cb912D94fB41b10477042F25d55E9b7E55ac25)
-- RandomProvider: [0x2dD9603384ee5F1EA1b3614cf0d46a040418CCdA](https://sepolia.etherscan.io/address/0x2dD9603384ee5F1EA1b3614cf0d46a040418CCdA)
-- ClooverRaffleFactory: [0xfB739b76f8925EC9543a2b75e7F5993DB28fb613](https://sepolia.etherscan.io/address/0xfB739b76f8925EC9543a2b75e7F5993DB28fb613)
+- AccessController: [0x889aFb8B59474E66DD4a4712b630578122bf3DA1](https://sepolia.etherscan.io/address/0x889aFb8B59474E66DD4a4712b630578122bf3DA1)
+- ImplementationManager: [0x8766390CeFb794461633a53c331Bf391A57Af29c](https://sepolia.etherscan.io/address/0x8766390CeFb794461633a53c331Bf391A57Af29c)
+- NFTWhitelist: [0xe39b3b0f542af3d2fae91ed8bf1890baf949dc9d](https://sepolia.etherscan.io/address/0xe39b3b0f542af3d2fae91ed8bf1890baf949dc9d)
+- TokenWhitelist: [0x79226743bb973ffe382999ef5637c543a283d61a](https://sepolia.etherscan.io/address/0x79226743bb973ffe382999ef5637c543a283d61a)
+- RandomProvider: [0x7b844ab9bb042628eba691075384a3d16deced75](https://sepolia.etherscan.io/address/0x7b844ab9bb042628eba691075384a3d16deced75)
+- ClooverRaffleFactory: [0xe13ff127eface8a3ff96ae03074e3468f42a5621](https://sepolia.etherscan.io/address/0xe13ff127eface8a3ff96ae03074e3468f42a5621)
 
 ---
 

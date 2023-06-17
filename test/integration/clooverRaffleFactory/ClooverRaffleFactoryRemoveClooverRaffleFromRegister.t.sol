@@ -32,7 +32,7 @@ contract ClooverRaffleFactoryRemoveClooverRaffleFromRegisterTest is IntegrationT
         vm.expectEmit(true, true, true, true);
         emit ClooverRaffleFactoryEvents.RemovedFromRegister(address(raffle));
 
-        factory.removeClooverRaffleFromRegister();
+        factory.removeRaffleFromRegister();
 
         assertEq(factory.getRegisteredRaffle().length, 0);
     }
@@ -40,6 +40,6 @@ contract ClooverRaffleFactoryRemoveClooverRaffleFromRegisterTest is IntegrationT
     function test_RemoveClooverRaffleFromRegister_RevertWhen_CallerNotARaffleRegistered(address caller) external {
         changePrank(caller);
         vm.expectRevert(Errors.NOT_WHITELISTED.selector);
-        factory.removeClooverRaffleFromRegister();
+        factory.removeRaffleFromRegister();
     }
 }

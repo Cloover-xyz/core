@@ -202,7 +202,7 @@ contract IntegrationTest is BaseTest {
         );
         rafflesArray.push(RaffleArrayInfo({isEthRaffle: false, nftId: _nftId, raffle: tokenRaffleWithMaxTicketAllowed}));
 
-        // raffle with insurance
+        // raffle with REFUNDABLE
         _nftId = 102;
         erc721Mock.mint(creator, _nftId);
         ClooverRaffle tokenRaffleWithInsurance = _createRaffle(
@@ -234,7 +234,7 @@ contract IntegrationTest is BaseTest {
         );
         rafflesArray.push(RaffleArrayInfo({isEthRaffle: false, nftId: _nftId, raffle: tokenRaffleWithRoyalties}));
 
-        // raffle with insurance & max ticket allowed to purchase
+        // raffle with REFUNDABLE & max ticket allowed to purchase
         _nftId = 104;
         erc721Mock.mint(creator, _nftId);
         ClooverRaffle tokenRaffleWithInsuranceAndMaxTicketToPurchase = _createRaffle(
@@ -252,7 +252,7 @@ contract IntegrationTest is BaseTest {
             RaffleArrayInfo({isEthRaffle: false, nftId: _nftId, raffle: tokenRaffleWithInsuranceAndMaxTicketToPurchase})
         );
 
-        // raffle with royalties & insurance
+        // raffle with royalties & REFUNDABLE
         _nftId = 105;
         erc721Mock.mint(creator, _nftId);
         ClooverRaffle tokenRaffleWithRoyaltiesAndInsurance = _createRaffle(
@@ -292,7 +292,7 @@ contract IntegrationTest is BaseTest {
             })
         );
 
-        // raffle with royalties & insurance & max ticket allowed to purchase
+        // raffle with royalties & REFUNDABLE & max ticket allowed to purchase
         _nftId = 107;
         erc721Mock.mint(creator, _nftId);
         ClooverRaffle tokenRaffleWithRoyaltiesAndInsuranceAndMaxTicketAllowedToPurchase = _createRaffle(
@@ -349,7 +349,7 @@ contract IntegrationTest is BaseTest {
         );
         rafflesArray.push(RaffleArrayInfo({isEthRaffle: true, nftId: _nftId, raffle: ethRaffleWithMaxTicketAllowed}));
 
-        // raffle with insurance
+        // raffle with REFUNDABLE
         _nftId = 202;
         erc721Mock.mint(creator, _nftId);
         ClooverRaffle ethRaffleWithInsurance = _createRaffle(
@@ -381,7 +381,7 @@ contract IntegrationTest is BaseTest {
         );
         rafflesArray.push(RaffleArrayInfo({isEthRaffle: true, nftId: _nftId, raffle: ethRaffleWithRoyalties}));
 
-        // raffle with insurance & max ticket allowed to purchase
+        // raffle with REFUNDABLE & max ticket allowed to purchase
         _nftId = 204;
         erc721Mock.mint(creator, _nftId);
         ClooverRaffle ethRaffleWithInsuranceAndMaxTicketToPurchase = _createRaffle(
@@ -399,7 +399,7 @@ contract IntegrationTest is BaseTest {
             RaffleArrayInfo({isEthRaffle: true, nftId: _nftId, raffle: ethRaffleWithInsuranceAndMaxTicketToPurchase})
         );
 
-        // raffle with royalties & insurance
+        // raffle with royalties & REFUNDABLE
         _nftId = 205;
         erc721Mock.mint(creator, _nftId);
         ClooverRaffle ethRaffleWithRoyaltiesAndInsurance = _createRaffle(
@@ -439,7 +439,7 @@ contract IntegrationTest is BaseTest {
             })
         );
 
-        // raffle with royalties & insurance & max ticket allowed to purchase
+        // raffle with royalties & REFUNDABLE & max ticket allowed to purchase
         _nftId = 207;
         erc721Mock.mint(creator, _nftId);
         ClooverRaffle ethRaffleWithRoyaltiesAndInsuranceAndMaxTicketAllowedToPurchase = _createRaffle(
@@ -501,9 +501,9 @@ contract IntegrationTest is BaseTest {
         uint256 nftId_,
         uint256 ticketPrice,
         uint64 ticketSalesDuration,
-        uint16 maxTotalSupply,
-        uint16 maxTicketAllowedToPurchase,
-        uint16 ticketSalesInsurance,
+        uint16 maxTicketSupply,
+        uint16 maxTicketPerWallet,
+        uint16 minTicketThreshold,
         uint16 royaltiesRate
     ) internal returns (ClooverRaffle) {
         erc721Mock.approve(address(factory), nftId_);
@@ -513,16 +513,16 @@ contract IntegrationTest is BaseTest {
             nftId_,
             ticketPrice,
             ticketSalesDuration,
-            maxTotalSupply,
-            maxTicketAllowedToPurchase,
-            ticketSalesInsurance,
+            maxTicketSupply,
+            maxTicketPerWallet,
+            minTicketThreshold,
             royaltiesRate
         );
         ClooverRaffleTypes.PermitDataParams memory permitData =
             _convertToPermitDataParams(0, 0, 0, bytes32(0), bytes32(0));
 
-        if (ticketSalesInsurance > 0) {
-            uint256 insuranceCost = ticketSalesInsurance.calculateInsuranceCost(INSURANCE_RATE, ticketPrice);
+        if (minTicketThreshold > 0) {
+            uint256 insuranceCost = minTicketThreshold.calculateInsuranceCost(INSURANCE_RATE, ticketPrice);
             if (purchaseCurrency == address(0)) {
                 return ClooverRaffle(factory.createNewRaffle{value: insuranceCost}(params, permitData));
             }
@@ -539,9 +539,9 @@ contract IntegrationTest is BaseTest {
         uint256 nftId_,
         uint256 ticketPrice,
         uint64 ticketSalesDuration,
-        uint16 maxTotalSupply,
-        uint16 maxTicketAllowedToPurchase,
-        uint16 ticketSalesInsurance,
+        uint16 maxTicketSupply,
+        uint16 maxTicketPerWallet,
+        uint16 minTicketThreshold,
         uint16 royaltiesRate
     ) internal view returns (ClooverRaffleTypes.CreateRaffleParams memory) {
         return ClooverRaffleTypes.CreateRaffleParams({
@@ -550,9 +550,9 @@ contract IntegrationTest is BaseTest {
             nftId: nftId_,
             ticketPrice: ticketPrice,
             endTicketSales: uint64(block.timestamp) + ticketSalesDuration,
-            maxTotalSupply: maxTotalSupply,
-            maxTicketAllowedToPurchase: maxTicketAllowedToPurchase,
-            ticketSalesInsurance: ticketSalesInsurance,
+            maxTicketSupply: maxTicketSupply,
+            maxTicketPerWallet: maxTicketPerWallet,
+            minTicketThreshold: minTicketThreshold,
             royaltiesRate: royaltiesRate
         });
     }

@@ -76,8 +76,8 @@ library ConfigLib {
         internal
         returns (ClooverRaffleTypes.FactoryConfigParams memory)
     {
-        uint16 maxTotalSupplyAllowed =
-            uint16(config.json.readUint(string.concat(RAFFLE_FACTORY_CONFIG_PATH, ".maxTotalSupplyAllowed")));
+        uint16 maxTicketSupplyAllowed =
+            uint16(config.json.readUint(string.concat(RAFFLE_FACTORY_CONFIG_PATH, ".maxTicketSupplyAllowed")));
         uint16 protocolFeeRate =
             uint16(config.json.readUint(string.concat(RAFFLE_FACTORY_CONFIG_PATH, ".protocolFeeRate")));
         uint16 insuranceRate = uint16(config.json.readUint(string.concat(RAFFLE_FACTORY_CONFIG_PATH, ".insuranceRate")));
@@ -87,7 +87,7 @@ library ConfigLib {
             uint16(config.json.readUint(string.concat(RAFFLE_FACTORY_CONFIG_PATH, ".maxTicketSalesDuration")));
 
         return ClooverRaffleTypes.FactoryConfigParams({
-            maxTotalSupplyAllowed: maxTotalSupplyAllowed,
+            maxTicketSupplyAllowed: maxTicketSupplyAllowed,
             protocolFeeRate: protocolFeeRate,
             insuranceRate: insuranceRate,
             minTicketSalesDuration: minTicketSalesDuration,

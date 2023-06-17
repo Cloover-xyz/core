@@ -5,19 +5,20 @@ import {ClooverRaffleTypes} from "../libraries/Types.sol";
 
 interface IClooverRaffleGetters {
     /// @notice Return the total amount of tickets sold
-    function currentSupply() external view returns (uint16);
+    function currentTicketSupply() external view returns (uint16);
 
     /// @notice Return the max amount of tickets that can be sold
-    function maxTotalSupply() external view returns (uint16);
+    function maxTicketSupply() external view returns (uint16);
 
     /// @notice Return the max amount of tickets that can be sold per participant
     /// @dev 0 means no limit
-    function maxTicketAllowedToPurchase() external view returns (uint16);
+    function maxTicketPerWallet() external view returns (uint16);
 
     /// @notice Return the address of the wallet that initiated the raffle
     function creator() external view returns (address);
 
     /// @notice Return the address of the token used to buy tickets
+    /// @dev If the raffle is in Eth mode, this value will be address(0)
     function purchaseCurrency() external view returns (address);
 
     /// @notice Return if the raffle accept only ETH
@@ -52,11 +53,12 @@ interface IClooverRaffleGetters {
     /// @notice Return the randomProvider contract address
     function randomProvider() external view returns (address);
 
-    /// @notice Return the amount of insurance paid by the creator
+    /// @notice Return the amount of REFUNDABLE paid by the creator
     function insurancePaid() external view returns (uint256);
 
-    /// @notice Return the amount of ticket paid as insurance
-    function ticketSalesInsurance() external view returns (uint16);
+    /// @notice Return the amount of ticket that is covered by the REFUNDABLE
+    /// @dev If the raffle is not in REFUNDABLE mode, this value will be 0
+    function minTicketThreshold() external view returns (uint16);
 
     /// @notice Return the royalties rate to apply on ticket sales amount to pay to the nft collection creator
     function royaltiesRate() external view returns (uint16);
@@ -87,27 +89,27 @@ interface IClooverRaffle is IClooverRaffleGetters {
     /// function must not revert to avoid multi drawn to revert and block contract in case of wrong value received
     function draw(uint256[] memory randomNumbers) external;
 
-    /// @notice Allows the creator to exerce the insurance he paid in ERC20 token for and claim back his nft
-    function creatorClaimInsurance() external;
+    /// @notice Allows the creator to exerce the REFUNDABLE he paid in ERC20 token for and claim back his nft
+    function claimCreatorRefund() external;
 
-    /// @notice Allows the creator to exerce the insurance he paid in Eth for and claim back his nft
-    function creatorClaimInsuranceInEth() external;
+    /// @notice Allows the creator to exerce the REFUNDABLE he paid in Eth for and claim back his nft
+    function claimCreatorRefundInEth() external;
 
     /// @notice Allows the creator to claim the amount link to the ticket sales in ERC20 token
-    function creatorClaimTicketSales() external;
+    function claimTicketSales() external;
 
     /// @notice Allows the creator to claim the amount link to the ticket sales in Eth
-    function creatorClaimTicketSalesInEth() external;
+    function claimTicketSalesInEth() external;
 
     /// @notice Allows the winner to claim his price
-    function winnerClaim() external;
+    function claimPrize() external;
 
-    /// @notice Allow tickets owner to claim refund if raffle is in insurance mode in ERC20 token
-    function userClaimRefund() external;
+    /// @notice Allow tickets owner to claim refund if raffle is in REFUNDABLE mode in ERC20 token
+    function claimParticipantRefund() external;
 
-    /// @notice Allow tickets owner to claim refund if raffle is in insurance mode in Eth
-    function userClaimRefundInEth() external;
+    /// @notice Allow tickets owner to claim refund if raffle is in REFUNDABLE mode in Eth
+    function claimParticipantRefundInEth() external;
 
     /// @notice Allow the creator to cancel the raffle if no ticket has been sold
-    function cancelRaffle() external;
+    function cancel() external;
 }

@@ -9,9 +9,9 @@ contract CreateRaffleFuzzTest is FuzzTest {
         bool hasRoyalties,
         uint256 ticketPrice,
         uint64 ticketSalesDuration,
-        uint16 maxTotalSupply,
-        uint16 maxTicketAllowedToPurchase,
-        uint16 ticketSalesInsurance,
+        uint16 maxTicketSupply,
+        uint16 maxTicketPerWallet,
+        uint16 minTicketThreshold,
         uint16 royaltiesRate
     ) external {
         raffle = _createFuzzRaffle(
@@ -20,9 +20,9 @@ contract CreateRaffleFuzzTest is FuzzTest {
             hasRoyalties,
             ticketPrice,
             ticketSalesDuration,
-            maxTotalSupply,
-            maxTicketAllowedToPurchase,
-            ticketSalesInsurance,
+            maxTicketSupply,
+            maxTicketPerWallet,
+            minTicketThreshold,
             royaltiesRate
         );
         assertFalse(raffle.isEthRaffle());
@@ -33,9 +33,9 @@ contract CreateRaffleFuzzTest is FuzzTest {
         bool hasRoyalties,
         uint256 ticketPrice,
         uint64 ticketSalesDuration,
-        uint16 maxTotalSupply,
-        uint16 maxTicketAllowedToPurchase,
-        uint16 ticketSalesInsurance,
+        uint16 maxTicketSupply,
+        uint16 maxTicketPerWallet,
+        uint16 minTicketThreshold,
         uint16 royaltiesRate
     ) external {
         raffle = _createFuzzRaffle(
@@ -44,9 +44,9 @@ contract CreateRaffleFuzzTest is FuzzTest {
             hasRoyalties,
             ticketPrice,
             ticketSalesDuration,
-            maxTotalSupply,
-            maxTicketAllowedToPurchase,
-            ticketSalesInsurance,
+            maxTicketSupply,
+            maxTicketPerWallet,
+            minTicketThreshold,
             royaltiesRate
         );
         assertTrue(raffle.isEthRaffle());

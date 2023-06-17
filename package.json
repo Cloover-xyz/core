@@ -13,7 +13,13 @@
   ],
   "scripts": {
     "remap": "forge remappings",
-    "postinstall": "husky install"
+    "postinstall": "husky install",
+    "deploy:AccessController": "forge script script/00_AccessController.s.sol --rpc-url sepolia --broadcast --verify --optimize",
+    "deploy:ImplementationManager": "forge script script/01_ImplementationManager.s.sol --rpc-url sepolia --broadcast --verify --optimize",
+    "deploy:NFTWhitelist": "forge script script/02_NFTWhitelist.s.sol --rpc-url sepolia --broadcast --verify --optimize",
+    "deploy:TokenWhitelist": "forge script script/03_TokenWhitelist.s.sol --rpc-url sepolia --broadcast --verify --optimize",
+    "deploy:RandomProvider": "forge script script/04_RandomProvider.s.sol --rpc-url sepolia --broadcast --verify --optimize",
+    "deploy:ClooverRaffleFactory": "forge script script/05_ClooverRaffleFactory.s.sol --rpc-url sepolia --broadcast --verify --optimize"
   },
   "dependencies": {
     "@commitlint/cli": "^17.6.3",
