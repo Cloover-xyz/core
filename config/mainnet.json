@@ -1,5 +1,6 @@
 {
   "rpcAlias": "mainnet",
+  "isTestnet": false,
   "addressMaintainer": "0xA74aAea4667B1eb37c1475217590424720CAEA47",
   "inplementationManager": "0x0000000000000000000000000000000000000000",
   "accessController": "0x0000000000000000000000000000000000000000",

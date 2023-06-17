@@ -19,6 +19,7 @@ library ConfigLib {
     string internal constant ADDRESSES_ACCESSCONTROLLER_PATH = "$.accessController";
     string internal constant CHAINLINK_VRF_DATA_PATH = "$.chainLinkVRFData";
     string internal constant RAFFLE_FACTORY_CONFIG_PATH = "$.raffleFactoryConfig";
+    string internal constant IS_TESTNET_PATH = "$.isTestnet";
 
     function getAddress(Config storage config, string memory key) internal returns (address) {
         return config.json.readAddress(string.concat("$.", key));
@@ -33,6 +34,10 @@ library ConfigLib {
         for (uint256 i; i < keys.length; ++i) {
             addresses[i] = getAddress(config, keys[i]);
         }
+    }
+
+    function getIsTestnet(Config storage config) internal returns (bool) {
+        return config.json.readBool(IS_TESTNET_PATH);
     }
 
     function getRpcAlias(Config storage config) internal returns (string memory) {

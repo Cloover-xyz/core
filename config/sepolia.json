@@ -1,5 +1,6 @@
 {
   "rpcAlias": "sepolia",
+  "isTestnet": true,
   "addressMaintainer": "0xA74aAea4667B1eb37c1475217590424720CAEA47",
   "accessController": "0x889afb8b59474e66dd4a4712b630578122bf3da1",
   "inplementationManager": "0x8cba63fd2fd3163385fdf1ae309ed4cf7b8d144d",

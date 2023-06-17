@@ -9,4 +9,12 @@ contract ERC721Mock is ERC721 {
     function mint(address to, uint256 tokenId) public {
         _mint(to, tokenId);
     }
+
+    function burn(uint256 tokenId) public {
+        _burn(tokenId);
+    }
+
+    function _baseURI() internal pure override returns (string memory) {
+        return "ipfs://QmeSjSinHpPnmXmspMjwiXyN6zS4E9zccariGR3jxcaWtq/";
+    }
 }
