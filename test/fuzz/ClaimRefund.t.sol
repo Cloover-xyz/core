@@ -32,14 +32,26 @@ contract ClaimRefundFuzzTest is FuzzTest {
             ticketSaleInsurance,
             0
         );
-
+        vm.assume(address(raffle) != participant1 && address(raffle) != participant2);
+        assertEq(erc20Mock.balanceOf(address(raffle)), raffle.insurancePaid());
         nbOfTicketPurchasedByParticipant1 =
             uint16(_boundAmountNotZeroUnderOf(nbOfTicketPurchasedByParticipant1, (ticketSaleInsurance / 2) - 1));
         _purchaseExactAmountOfTickets(raffle, participant1, nbOfTicketPurchasedByParticipant1);
 
+        assertEq(
+            erc20Mock.balanceOf(address(raffle)),
+            raffle.insurancePaid() + (nbOfTicketPurchasedByParticipant1 * initialTicketPrice)
+        );
+
         nbOfTicketPurchasedByParticipant2 =
             uint16(_boundAmountNotZeroUnderOf(nbOfTicketPurchasedByParticipant2, (ticketSaleInsurance / 2) - 1));
         _purchaseExactAmountOfTickets(raffle, participant2, nbOfTicketPurchasedByParticipant2);
+
+        assertEq(
+            erc20Mock.balanceOf(address(raffle)),
+            raffle.insurancePaid() + (nbOfTicketPurchasedByParticipant1 * initialTicketPrice)
+                + (nbOfTicketPurchasedByParticipant2 * initialTicketPrice)
+        );
 
         _forwardByTimestamp(initialTicketSalesDuration + 1);
 
