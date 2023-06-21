@@ -19,7 +19,7 @@ contract ClooverRaffleCreatorClaimInsuranceTest is IntegrationTest {
             (isEthRaffle, nftId, raffle) = (raffleInfo.isEthRaffle, raffleInfo.nftId, raffleInfo.raffle);
             if (raffle.minTicketThreshold() == 0) continue;
 
-            uint16 nbOfTicketsPurchased = initialTicketSalesInsurance - 1;
+            uint16 nbOfTicketsPurchased = initialMinTicketThreshold - 1;
 
             _purchaseExactAmountOfTickets(raffle, participant, nbOfTicketsPurchased);
 
@@ -64,7 +64,7 @@ contract ClooverRaffleCreatorClaimInsuranceTest is IntegrationTest {
             (isEthRaffle, nftId, raffle) = (raffleInfo.isEthRaffle, raffleInfo.nftId, raffleInfo.raffle);
             if (raffle.minTicketThreshold() == 0) continue;
 
-            _purchaseExactAmountOfTickets(raffle, participant, initialTicketSalesInsurance - 1);
+            _purchaseExactAmountOfTickets(raffle, participant, initialMinTicketThreshold - 1);
 
             _forwardByTimestamp(initialTicketSalesDuration + 1);
 
@@ -89,7 +89,7 @@ contract ClooverRaffleCreatorClaimInsuranceTest is IntegrationTest {
             (isEthRaffle, nftId, raffle) = (raffleInfo.isEthRaffle, raffleInfo.nftId, raffleInfo.raffle);
             if (raffle.minTicketThreshold() == 0) continue;
 
-            _purchaseExactAmountOfTickets(raffle, participant, initialTicketSalesInsurance - 1);
+            _purchaseExactAmountOfTickets(raffle, participant, initialMinTicketThreshold - 1);
 
             _forwardByTimestamp(initialTicketSalesDuration + 1);
 
@@ -113,7 +113,7 @@ contract ClooverRaffleCreatorClaimInsuranceTest is IntegrationTest {
             (isEthRaffle, nftId, raffle) = (raffleInfo.isEthRaffle, raffleInfo.nftId, raffleInfo.raffle);
             if (raffle.minTicketThreshold() != 0) continue;
 
-            _purchaseExactAmountOfTickets(raffle, participant, initialTicketSalesInsurance - 1);
+            _purchaseExactAmountOfTickets(raffle, participant, initialMinTicketThreshold - 1);
 
             _forwardByTimestamp(initialTicketSalesDuration + 1);
 
@@ -135,7 +135,7 @@ contract ClooverRaffleCreatorClaimInsuranceTest is IntegrationTest {
             (isEthRaffle, nftId, raffle) = (raffleInfo.isEthRaffle, raffleInfo.nftId, raffleInfo.raffle);
             if (raffle.minTicketThreshold() == 0) continue;
 
-            _purchaseExactAmountOfTickets(raffle, participant, initialTicketSalesInsurance - 1);
+            _purchaseExactAmountOfTickets(raffle, participant, initialMinTicketThreshold - 1);
 
             _forwardByTimestamp(initialTicketSalesDuration + 1);
             changePrank(hacker);
@@ -181,7 +181,7 @@ contract ClooverRaffleCreatorClaimInsuranceTest is IntegrationTest {
             _forwardByTimestamp(initialTicketSalesDuration + 1);
 
             changePrank(creator);
-            vm.expectRevert(Errors.SALES_EXCEED_INSURANCE_LIMIT.selector);
+            vm.expectRevert(Errors.SALES_EXCEED_MIN_THRESHOLD_LIMIT.selector);
             if (isEthRaffle) {
                 raffle.claimCreatorRefundInEth();
             } else {

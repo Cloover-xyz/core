@@ -59,7 +59,7 @@ contract ClooverRaffleFactory is IClooverRaffleFactory, ClooverRaffleFactoryGett
     //----------------------------------------
 
     /// @inheritdoc IClooverRaffleFactory
-    function createNewRaffle(
+    function createRaffle(
         ClooverRaffleTypes.CreateRaffleParams calldata params,
         ClooverRaffleTypes.PermitDataParams calldata permitData
     ) external payable override whenNotPaused returns (address newRaffle) {

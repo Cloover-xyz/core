@@ -20,14 +20,14 @@ contract ClooverRaffleUserClaimRefundTest is IntegrationTest {
             (isEthRaffle, nftId, raffle) = (raffleInfo.isEthRaffle, raffleInfo.nftId, raffleInfo.raffle);
             if (raffle.minTicketThreshold() == 0) continue;
 
-            uint16 nbOfTicketsPurchased = initialTicketSalesInsurance - 1;
+            uint16 nbOfTicketsPurchased = initialMinTicketThreshold - 1;
 
             _purchaseExactAmountOfTickets(raffle, participant, nbOfTicketsPurchased);
 
             _forwardByTimestamp(initialTicketSalesDuration + 1);
 
             uint256 totalSalesAmount = raffle.ticketPrice() * nbOfTicketsPurchased;
-            (uint256 treasuryAmount, uint256 amountPerTicket) = initialTicketSalesInsurance.splitInsuranceAmount(
+            (uint256 treasuryAmount, uint256 amountPerTicket) = initialMinTicketThreshold.splitInsuranceAmount(
                 INSURANCE_RATE, PROTOCOL_FEE_RATE, raffle.currentTicketSupply(), raffle.ticketPrice()
             );
             uint256 expectParticipantRefund = amountPerTicket * nbOfTicketsPurchased + totalSalesAmount;
@@ -59,7 +59,7 @@ contract ClooverRaffleUserClaimRefundTest is IntegrationTest {
             (isEthRaffle, nftId, raffle) = (raffleInfo.isEthRaffle, raffleInfo.nftId, raffleInfo.raffle);
             if (raffle.minTicketThreshold() == 0) continue;
 
-            uint16 nbOfTicketsPurchased = initialTicketSalesInsurance - 1;
+            uint16 nbOfTicketsPurchased = initialMinTicketThreshold - 1;
 
             _purchaseExactAmountOfTickets(raffle, participant, nbOfTicketsPurchased);
 
@@ -83,13 +83,13 @@ contract ClooverRaffleUserClaimRefundTest is IntegrationTest {
             (isEthRaffle, nftId, raffle) = (raffleInfo.isEthRaffle, raffleInfo.nftId, raffleInfo.raffle);
             if (raffle.minTicketThreshold() == 0) continue;
 
-            uint16 nbOfTicketsPurchased = initialTicketSalesInsurance;
+            uint16 nbOfTicketsPurchased = initialMinTicketThreshold;
 
             _purchaseExactAmountOfTickets(raffle, participant, nbOfTicketsPurchased);
 
             _forwardByTimestamp(initialTicketSalesDuration + 1);
 
-            vm.expectRevert(Errors.SALES_EXCEED_INSURANCE_LIMIT.selector);
+            vm.expectRevert(Errors.SALES_EXCEED_MIN_THRESHOLD_LIMIT.selector);
             if (isEthRaffle) {
                 raffle.claimParticipantRefundInEth();
             } else {
@@ -106,7 +106,7 @@ contract ClooverRaffleUserClaimRefundTest is IntegrationTest {
             (isEthRaffle, nftId, raffle) = (raffleInfo.isEthRaffle, raffleInfo.nftId, raffleInfo.raffle);
             if (raffle.minTicketThreshold() == 0) continue;
 
-            uint16 nbOfTicketsPurchased = initialTicketSalesInsurance - 1;
+            uint16 nbOfTicketsPurchased = initialMinTicketThreshold - 1;
 
             _purchaseExactAmountOfTickets(raffle, participant, nbOfTicketsPurchased);
 
@@ -133,7 +133,7 @@ contract ClooverRaffleUserClaimRefundTest is IntegrationTest {
             (isEthRaffle, nftId, raffle) = (raffleInfo.isEthRaffle, raffleInfo.nftId, raffleInfo.raffle);
             if (raffle.minTicketThreshold() == 0) continue;
 
-            uint16 nbOfTicketsPurchased = initialTicketSalesInsurance - 1;
+            uint16 nbOfTicketsPurchased = initialMinTicketThreshold - 1;
 
             _purchaseExactAmountOfTickets(raffle, participant, nbOfTicketsPurchased);
 

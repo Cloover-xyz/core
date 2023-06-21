@@ -69,8 +69,8 @@ contract IntegrationTest is BaseTest {
     uint256 initialTicketPrice = 1e18;
     uint64 initialTicketSalesDuration = 1 days;
     uint16 initialMaxTotalSupply = 100;
-    uint16 initialMaxTicketAllowedToPurchase = 10;
-    uint16 initialTicketSalesInsurance = 5;
+    uint16 initialMaxTicketPerWallet = 10;
+    uint16 initialMinTicketThreshold = 5;
     uint16 initialRoyaltiesRate = 100; // 1%
 
     uint256 nftId = 1;
@@ -196,7 +196,7 @@ contract IntegrationTest is BaseTest {
             initialTicketPrice,
             initialTicketSalesDuration,
             initialMaxTotalSupply,
-            initialMaxTicketAllowedToPurchase,
+            initialMaxTicketPerWallet,
             0,
             0
         );
@@ -213,7 +213,7 @@ contract IntegrationTest is BaseTest {
             initialTicketSalesDuration,
             initialMaxTotalSupply,
             0,
-            initialTicketSalesInsurance,
+            initialMinTicketThreshold,
             0
         );
         rafflesArray.push(RaffleArrayInfo({isEthRaffle: false, nftId: _nftId, raffle: tokenRaffleWithInsurance}));
@@ -244,8 +244,8 @@ contract IntegrationTest is BaseTest {
             initialTicketPrice,
             initialTicketSalesDuration,
             initialMaxTotalSupply,
-            initialMaxTicketAllowedToPurchase,
-            initialTicketSalesInsurance,
+            initialMaxTicketPerWallet,
+            initialMinTicketThreshold,
             0
         );
         rafflesArray.push(
@@ -263,7 +263,7 @@ contract IntegrationTest is BaseTest {
             initialTicketSalesDuration,
             initialMaxTotalSupply,
             0,
-            initialTicketSalesInsurance,
+            initialMinTicketThreshold,
             initialRoyaltiesRate
         );
         rafflesArray.push(
@@ -280,7 +280,7 @@ contract IntegrationTest is BaseTest {
             initialTicketPrice,
             initialTicketSalesDuration,
             initialMaxTotalSupply,
-            initialMaxTicketAllowedToPurchase,
+            initialMaxTicketPerWallet,
             0,
             initialRoyaltiesRate
         );
@@ -302,8 +302,8 @@ contract IntegrationTest is BaseTest {
             initialTicketPrice,
             initialTicketSalesDuration,
             initialMaxTotalSupply,
-            initialMaxTicketAllowedToPurchase,
-            initialTicketSalesInsurance,
+            initialMaxTicketPerWallet,
+            initialMinTicketThreshold,
             initialRoyaltiesRate
         );
         rafflesArray.push(
@@ -343,7 +343,7 @@ contract IntegrationTest is BaseTest {
             initialTicketPrice,
             initialTicketSalesDuration,
             initialMaxTotalSupply,
-            initialMaxTicketAllowedToPurchase,
+            initialMaxTicketPerWallet,
             0,
             0
         );
@@ -360,7 +360,7 @@ contract IntegrationTest is BaseTest {
             initialTicketSalesDuration,
             initialMaxTotalSupply,
             0,
-            initialTicketSalesInsurance,
+            initialMinTicketThreshold,
             0
         );
         rafflesArray.push(RaffleArrayInfo({isEthRaffle: true, nftId: _nftId, raffle: ethRaffleWithInsurance}));
@@ -391,8 +391,8 @@ contract IntegrationTest is BaseTest {
             initialTicketPrice,
             initialTicketSalesDuration,
             initialMaxTotalSupply,
-            initialMaxTicketAllowedToPurchase,
-            initialTicketSalesInsurance,
+            initialMaxTicketPerWallet,
+            initialMinTicketThreshold,
             0
         );
         rafflesArray.push(
@@ -410,7 +410,7 @@ contract IntegrationTest is BaseTest {
             initialTicketSalesDuration,
             initialMaxTotalSupply,
             0,
-            initialTicketSalesInsurance,
+            initialMinTicketThreshold,
             initialRoyaltiesRate
         );
         rafflesArray.push(
@@ -427,7 +427,7 @@ contract IntegrationTest is BaseTest {
             initialTicketPrice,
             initialTicketSalesDuration,
             initialMaxTotalSupply,
-            initialMaxTicketAllowedToPurchase,
+            initialMaxTicketPerWallet,
             0,
             initialRoyaltiesRate
         );
@@ -449,8 +449,8 @@ contract IntegrationTest is BaseTest {
             initialTicketPrice,
             initialTicketSalesDuration,
             initialMaxTotalSupply,
-            initialMaxTicketAllowedToPurchase,
-            initialTicketSalesInsurance,
+            initialMaxTicketPerWallet,
+            initialMinTicketThreshold,
             initialRoyaltiesRate
         );
         rafflesArray.push(
@@ -524,13 +524,13 @@ contract IntegrationTest is BaseTest {
         if (minTicketThreshold > 0) {
             uint256 insuranceCost = minTicketThreshold.calculateInsuranceCost(INSURANCE_RATE, ticketPrice);
             if (purchaseCurrency == address(0)) {
-                return ClooverRaffle(factory.createNewRaffle{value: insuranceCost}(params, permitData));
+                return ClooverRaffle(factory.createRaffle{value: insuranceCost}(params, permitData));
             }
             _setERC20Balances(purchaseCurrency, creator, insuranceCost);
             erc20Mock.approve(address(factory), insuranceCost);
         }
 
-        return ClooverRaffle(factory.createNewRaffle(params, permitData));
+        return ClooverRaffle(factory.createRaffle(params, permitData));
     }
 
     function _convertToClooverRaffleParams(

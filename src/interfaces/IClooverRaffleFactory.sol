@@ -63,10 +63,10 @@ interface IClooverRaffleFactorySetters {
 interface IClooverRaffleFactory is IClooverRaffleFactoryGetters, IClooverRaffleFactorySetters {
     /// @notice Deploy a new raffle contract
     /// @dev must transfer the nft to the contract before initialize()
-    function createNewRaffle(
+    function createRaffle(
         ClooverRaffleTypes.CreateRaffleParams memory params,
         ClooverRaffleTypes.PermitDataParams calldata permitData
-    ) external payable returns (address newClooverRaffle);
+    ) external payable returns (address newRaffle);
 
     /// @notice remove msg.sender from the list of registered raffles
     /// @dev can only be called by the raffle contract itself

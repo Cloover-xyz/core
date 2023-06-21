@@ -96,7 +96,7 @@ abstract contract ClooverRaffleInternal is ClooverRaffleStorage {
         if (currentTicketSupply == 0) revert Errors.NOTHING_TO_CLAIM();
 
         if (currentTicketSupply >= minTicketThreshold) {
-            revert Errors.SALES_EXCEED_INSURANCE_LIMIT();
+            revert Errors.SALES_EXCEED_MIN_THRESHOLD_LIMIT();
         }
 
         _lifeCycleData.status = ClooverRaffleTypes.Status.REFUNDABLE;
@@ -111,7 +111,7 @@ abstract contract ClooverRaffleInternal is ClooverRaffleStorage {
 
     function _calculateUserRefundAmount() internal returns (uint256 totalRefundAmount) {
         if (_lifeCycleData.currentTicketSupply >= _config.minTicketThreshold) {
-            revert Errors.SALES_EXCEED_INSURANCE_LIMIT();
+            revert Errors.SALES_EXCEED_MIN_THRESHOLD_LIMIT();
         }
 
         ClooverRaffleTypes.ParticipantInfo storage participantInfo = _participantInfoMap[msg.sender];
