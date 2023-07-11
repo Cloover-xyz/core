@@ -20,18 +20,18 @@ abstract contract ClooverRaffleGetters is IClooverRaffleGetters, IERC721Receiver
     //----------------------------------------
 
     /// @inheritdoc IClooverRaffleGetters
-    function maxTotalSupply() external view override returns (uint16) {
-        return _config.maxTotalSupply;
+    function maxTicketSupply() external view override returns (uint16) {
+        return _config.maxTicketSupply;
     }
 
     /// @inheritdoc IClooverRaffleGetters
-    function currentSupply() external view override returns (uint16) {
-        return _lifeCycleData.currentSupply;
+    function currentTicketSupply() external view override returns (uint16) {
+        return _lifeCycleData.currentTicketSupply;
     }
 
     /// @inheritdoc IClooverRaffleGetters
-    function maxTicketAllowedToPurchase() external view override returns (uint16) {
-        return _config.maxTicketAllowedToPurchase;
+    function maxTicketPerWallet() external view override returns (uint16) {
+        return _config.maxTicketPerWallet;
     }
 
     /// @inheritdoc IClooverRaffleGetters
@@ -75,24 +75,25 @@ abstract contract ClooverRaffleGetters is IClooverRaffleGetters, IERC721Receiver
     }
 
     /// @inheritdoc IClooverRaffleGetters
-    function balanceOf(address user) external view override returns (uint16[] memory) {
+    function getParticipantTicketsNumber(address user) external view override returns (uint16[] memory) {
         ClooverRaffleTypes.ParticipantInfo memory participantInfo = _participantInfoMap[user];
         if (participantInfo.nbOfTicketsPurchased == 0) return new uint16[](0);
 
         ClooverRaffleTypes.PurchasedEntries[] memory entries = _purchasedEntries;
-
         uint16[] memory userTickets = new uint16[](participantInfo.nbOfTicketsPurchased);
         uint16 entriesLength = uint16(participantInfo.purchasedEntriesIndexes.length);
+        uint16 startIndex;
         for (uint16 i; i < entriesLength;) {
             uint16 entryIndex = participantInfo.purchasedEntriesIndexes[i];
             uint16 nbOfTicketsPurchased = entries[entryIndex].nbOfTickets;
             uint16 startNumber = entries[entryIndex].currentTicketsSold - nbOfTicketsPurchased;
             for (uint16 j; j < nbOfTicketsPurchased;) {
-                userTickets[i + j] = startNumber + j + 1;
+                userTickets[startIndex + j] = startNumber + j + 1;
                 unchecked {
                     ++j;
                 }
             }
+            startIndex += nbOfTicketsPurchased;
             unchecked {
                 ++i;
             }
@@ -102,7 +103,7 @@ abstract contract ClooverRaffleGetters is IClooverRaffleGetters, IERC721Receiver
 
     /// @inheritdoc IClooverRaffleGetters
     function ownerOf(uint16 id) external view override returns (address) {
-        if (id > _lifeCycleData.currentSupply || id == 0) return address(0);
+        if (id > _lifeCycleData.currentTicketSupply || id == 0) return address(0);
 
         uint16 index = uint16(findUpperBound(_purchasedEntries, id));
         return _purchasedEntries[index].owner;
@@ -126,8 +127,8 @@ abstract contract ClooverRaffleGetters is IClooverRaffleGetters, IERC721Receiver
     }
 
     /// @inheritdoc IClooverRaffleGetters
-    function ticketSalesInsurance() external view override returns (uint16) {
-        return _config.ticketSalesInsurance;
+    function minTicketThreshold() external view override returns (uint16) {
+        return _config.minTicketThreshold;
     }
 
     /// @inheritdoc IClooverRaffleGetters

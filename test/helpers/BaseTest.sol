@@ -15,7 +15,7 @@ import {Test} from "@forge-std/Test.sol";
 contract BaseTest is Test {
     uint256 internal constant BLOCK_TIME = 12;
 
-    uint256 internal constant MAX_AMOUNT = 10e18 ether;
+    uint256 internal constant MAX_AMOUNT = 10e18;
 
     /// @dev Rolls & warps the given number of blocks forward the blockchain.
     function _forward(uint256 blocks) internal {
@@ -29,7 +29,13 @@ contract BaseTest is Test {
         vm.roll(block.number + timestamp / BLOCK_TIME);
     }
 
+    function _setBlockTimestamp(uint64 timestamp) internal {
+        vm.warp(timestamp);
+        vm.roll(block.number + timestamp / BLOCK_TIME);
+    }
+
     /// @dev Bounds the fuzzing input to a realistic number of blocks.
+
     function _boundBlocks(uint256 blocks) internal view returns (uint256) {
         return bound(blocks, 1, type(uint24).max);
     }
@@ -48,9 +54,9 @@ contract BaseTest is Test {
         return bound(input, 1, max);
     }
 
-    /// @dev Bounds the fuzzing input to a number between min defined to max uint256.
-    function _boundAmountAboveOf(uint256 input, uint256 min) internal view virtual returns (uint256) {
-        return bound(input, min, MAX_AMOUNT);
+    /// @dev Bounds the fuzzing input to a number between min defined to max uint16.
+    function _boundUint16AmountAboveOf(uint16 input, uint16 min) internal view virtual returns (uint16) {
+        return uint16(bound(input, min, type(uint16).max));
     }
 
     /// @dev Bounds the fuzzing input to a number between 0 to max defined.
@@ -71,6 +77,11 @@ contract BaseTest is Test {
     /// @dev Bounds the fuzzing input to a realistic rate under max defined.
     function _boundPercentageUnderOf(uint16 rate, uint16 max) internal view returns (uint16) {
         return uint16(bound(rate, 0, max));
+    }
+
+    /// @dev Bounds the fuzzing input to a realistic rate under max defined.
+    function _boundPercentageNotZeroUnderOf(uint16 rate, uint16 max) internal view returns (uint16) {
+        return uint16(bound(rate, 1, max));
     }
 
     /// @dev Bounds the fuzzing input to a none realistic rate.

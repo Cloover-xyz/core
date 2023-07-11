@@ -8,63 +8,62 @@ contract ClooverRaffleFactoryCreateRaffleTest is IntegrationTest {
 
     function setUp() public virtual override {
         super.setUp();
-
-        erc721Mock = _mockERC721(collectionCreator);
-        erc20Mock = _mockERC20(18);
-
-        sigUtils = new SigUtils(erc20Mock.DOMAIN_SEPARATOR());
+        _deployClooverRaffleFactory();
 
         changePrank(creator);
-        _mintERC721(erc721Mock, creator, nftId);
+        erc721Mock.mint(creator, nftId);
         erc721Mock.approve(address(factory), nftId);
     }
 
-    function test_CreateNewRaffle_NotEthRaffle_WithoutInsurance(
-        uint256 ticketPrice,
-        uint64 ticketSalesDuration,
-        uint16 maxTotalSupply,
-        uint16 maxTicketAllowedToPurchase,
-        uint16 royaltiesRate
-    ) external {
-        (ticketPrice, ticketSalesDuration, maxTotalSupply) =
-            _boundCommonCreateRaffleParams(ticketPrice, ticketSalesDuration, maxTotalSupply);
-        royaltiesRate = uint16(_boundAmountUnderOf(royaltiesRate, PercentageMath.PERCENTAGE_FACTOR - PROTOCOL_FEE_RATE));
-
+    function test_CreateRaffle_TokenRaffle() external {
         ClooverRaffleTypes.CreateRaffleParams memory params = _convertToClooverRaffleParams(
             address(erc20Mock),
             address(erc721Mock),
             nftId,
-            ticketPrice,
-            ticketSalesDuration,
-            maxTotalSupply,
-            maxTicketAllowedToPurchase,
+            initialTicketPrice,
+            initialTicketSalesDuration,
+            initialMaxTotalSupply,
             0,
-            royaltiesRate
+            0,
+            0
         );
         ClooverRaffleTypes.PermitDataParams memory permitData =
             _convertToPermitDataParams(0, 0, 0, bytes32(0), bytes32(0));
-        ClooverRaffle newRaffle = ClooverRaffle(factory.createNewRaffle(params, permitData));
+        ClooverRaffle newRaffle = ClooverRaffle(factory.createRaffle(params, permitData));
         assertFalse(newRaffle.isEthRaffle());
         assertEq(newRaffle.insurancePaid(), 0);
+        assertEq(erc20Mock.balanceOf(address(newRaffle)), 0);
         assertEq(newRaffle.creator(), creator);
+        assertEq(newRaffle.maxTicketPerWallet(), 0);
+        assertEq(newRaffle.royaltiesRate(), 0);
     }
 
-    function test_CreateNewRaffle_NotEthRaffle_WithInsurance(
-        uint256 ticketPrice,
-        uint64 ticketSalesDuration,
-        uint16 maxTotalSupply,
-        uint16 maxTicketAllowedToPurchase,
-        uint16 ticketSalesInsurance,
-        uint16 royaltiesRate
-    ) external {
-        (ticketPrice, ticketSalesDuration, maxTotalSupply) =
-            _boundCommonCreateRaffleParams(ticketPrice, ticketSalesDuration, maxTotalSupply);
-        ticketSalesInsurance = uint16(bound(ticketSalesInsurance, 1, maxTotalSupply));
-        royaltiesRate = uint16(_boundAmountUnderOf(royaltiesRate, PercentageMath.PERCENTAGE_FACTOR - PROTOCOL_FEE_RATE));
+    function test_CreateRaffle_TokenRaffle_WithMaxTokenAllowedToPurchase() external {
+        ClooverRaffleTypes.CreateRaffleParams memory params = _convertToClooverRaffleParams(
+            address(erc20Mock),
+            address(erc721Mock),
+            nftId,
+            initialTicketPrice,
+            initialTicketSalesDuration,
+            initialMaxTotalSupply,
+            initialMaxTicketPerWallet,
+            0,
+            0
+        );
+        ClooverRaffleTypes.PermitDataParams memory permitData =
+            _convertToPermitDataParams(0, 0, 0, bytes32(0), bytes32(0));
+        ClooverRaffle newRaffle = ClooverRaffle(factory.createRaffle(params, permitData));
+        assertFalse(newRaffle.isEthRaffle());
+        assertEq(newRaffle.insurancePaid(), 0);
+        assertEq(erc20Mock.balanceOf(address(newRaffle)), 0);
+        assertEq(newRaffle.creator(), creator);
+        assertEq(newRaffle.maxTicketPerWallet(), initialMaxTicketPerWallet);
+        assertEq(newRaffle.royaltiesRate(), 0);
+    }
 
-        ticketSalesInsurance = uint16(bound(ticketSalesInsurance, 1, maxTotalSupply));
+    function test_CreateRaffle_TokenRaffle_WithInsurance() external {
         uint256 insuranceCost =
-            ticketSalesInsurance.calculateInsuranceCost(uint16(factory.insuranceRate()), ticketPrice);
+            initialMinTicketThreshold.calculateInsuranceCost(uint16(factory.insuranceRate()), initialTicketPrice);
 
         _mintERC20(erc20Mock, creator, insuranceCost);
         erc20Mock.approve(address(factory), insuranceCost);
@@ -75,44 +74,30 @@ contract ClooverRaffleFactoryCreateRaffleTest is IntegrationTest {
             address(erc20Mock),
             address(erc721Mock),
             nftId,
-            ticketPrice,
-            ticketSalesDuration,
-            maxTotalSupply,
-            maxTicketAllowedToPurchase,
-            ticketSalesInsurance,
-            royaltiesRate
+            initialTicketPrice,
+            initialTicketSalesDuration,
+            initialMaxTotalSupply,
+            0,
+            initialMinTicketThreshold,
+            0
         );
 
-        ClooverRaffle newRaffle = ClooverRaffle(factory.createNewRaffle(params, permitData));
+        ClooverRaffle newRaffle = ClooverRaffle(factory.createRaffle(params, permitData));
         assertFalse(newRaffle.isEthRaffle());
         assertEq(newRaffle.insurancePaid(), insuranceCost);
         assertEq(erc20Mock.balanceOf(address(newRaffle)), insuranceCost);
         assertEq(newRaffle.creator(), creator);
+        assertEq(newRaffle.maxTicketPerWallet(), 0);
+        assertEq(newRaffle.royaltiesRate(), 0);
     }
 
-    function test_CreateNewRaffle_NotEthRaffle_WithInsuranceWithPermit(
-        uint256 ticketPrice,
-        uint64 ticketSalesDuration,
-        uint16 maxTotalSupply,
-        uint16 maxTicketAllowedToPurchase,
-        uint16 ticketSalesInsurance,
-        uint16 royaltiesRate
-    ) external {
-        uint256 creatorPrivateKey = 0xA11ce;
-        address creatorPublicKey = vm.addr(creatorPrivateKey);
+    function test_CreateRaffle_TokenRaffle_WithInsuranceWithPermit() external {
+        uint256 creatorPrivateKey = 5;
 
-        (ticketPrice, ticketSalesDuration, maxTotalSupply) =
-            _boundCommonCreateRaffleParams(ticketPrice, ticketSalesDuration, maxTotalSupply);
-        ticketSalesInsurance = uint16(bound(ticketSalesInsurance, 1, maxTotalSupply));
-        royaltiesRate = uint16(_boundAmountUnderOf(royaltiesRate, PercentageMath.PERCENTAGE_FACTOR - PROTOCOL_FEE_RATE));
-
-        ticketSalesInsurance = uint16(bound(ticketSalesInsurance, 1, maxTotalSupply));
         uint256 insuranceCost =
-            ticketSalesInsurance.calculateInsuranceCost(uint16(factory.insuranceRate()), ticketPrice);
+            initialMinTicketThreshold.calculateInsuranceCost(uint16(factory.insuranceRate()), initialTicketPrice);
 
-        uint256 _nftId = 11;
-        _mintERC721(erc721Mock, creatorPublicKey, _nftId);
-        _mintERC20(erc20Mock, creatorPublicKey, insuranceCost);
+        _mintERC20(erc20Mock, creator, insuranceCost);
 
         ClooverRaffleTypes.PermitDataParams memory permitData =
             _signPermitData(creatorPrivateKey, address(factory), insuranceCost);
@@ -120,331 +105,591 @@ contract ClooverRaffleFactoryCreateRaffleTest is IntegrationTest {
         ClooverRaffleTypes.CreateRaffleParams memory params = _convertToClooverRaffleParams(
             address(erc20Mock),
             address(erc721Mock),
-            _nftId,
-            ticketPrice,
-            ticketSalesDuration,
-            maxTotalSupply,
-            maxTicketAllowedToPurchase,
-            ticketSalesInsurance,
-            royaltiesRate
+            nftId,
+            initialTicketPrice,
+            initialTicketSalesDuration,
+            initialMaxTotalSupply,
+            0,
+            initialMinTicketThreshold,
+            0
         );
 
-        changePrank(creatorPublicKey);
-        erc721Mock.approve(address(factory), _nftId);
-        ClooverRaffle newRaffle = ClooverRaffle(factory.createNewRaffle(params, permitData));
+        changePrank(creator);
+        ClooverRaffle newRaffle = ClooverRaffle(factory.createRaffle(params, permitData));
         assertFalse(newRaffle.isEthRaffle());
         assertEq(newRaffle.insurancePaid(), insuranceCost);
         assertEq(erc20Mock.balanceOf(address(newRaffle)), insuranceCost);
-        assertEq(newRaffle.creator(), creatorPublicKey);
+        assertEq(newRaffle.creator(), creator);
+        assertEq(newRaffle.maxTicketPerWallet(), 0);
+        assertEq(newRaffle.royaltiesRate(), 0);
     }
 
-    function test_CreateNewRaffle_isEthRaffle_WithoutInsurance(
-        uint256 ticketPrice,
-        uint64 ticketSalesDuration,
-        uint16 maxTotalSupply,
-        uint16 maxTicketAllowedToPurchase,
-        uint16 royaltiesRate
-    ) external {
-        (ticketPrice, ticketSalesDuration, maxTotalSupply) =
-            _boundCommonCreateRaffleParams(ticketPrice, ticketSalesDuration, maxTotalSupply);
-        royaltiesRate = uint16(_boundAmountUnderOf(royaltiesRate, PercentageMath.PERCENTAGE_FACTOR - PROTOCOL_FEE_RATE));
+    function test_CreateRaffle_TokenRaffle_WithRoyalties() external {
+        ClooverRaffleTypes.CreateRaffleParams memory params = _convertToClooverRaffleParams(
+            address(erc20Mock),
+            address(erc721Mock),
+            nftId,
+            initialTicketPrice,
+            initialTicketSalesDuration,
+            initialMaxTotalSupply,
+            0,
+            0,
+            initialRoyaltiesRate
+        );
+        ClooverRaffleTypes.PermitDataParams memory permitData =
+            _convertToPermitDataParams(0, 0, 0, bytes32(0), bytes32(0));
+        ClooverRaffle newRaffle = ClooverRaffle(factory.createRaffle(params, permitData));
+        assertFalse(newRaffle.isEthRaffle());
+        assertEq(newRaffle.insurancePaid(), 0);
+        assertEq(erc20Mock.balanceOf(address(newRaffle)), 0);
+        assertEq(newRaffle.creator(), creator);
+        assertEq(newRaffle.maxTicketPerWallet(), 0);
+        assertEq(newRaffle.royaltiesRate(), initialRoyaltiesRate);
+    }
 
+    function test_CreateRaffle_TokenRaffle_WithMaxTokenAllowedToPurchase_And_Insurance() external {
+        uint256 insuranceCost =
+            initialMinTicketThreshold.calculateInsuranceCost(uint16(factory.insuranceRate()), initialTicketPrice);
+
+        _mintERC20(erc20Mock, creator, insuranceCost);
+        erc20Mock.approve(address(factory), insuranceCost);
+        ClooverRaffleTypes.CreateRaffleParams memory params = _convertToClooverRaffleParams(
+            address(erc20Mock),
+            address(erc721Mock),
+            nftId,
+            initialTicketPrice,
+            initialTicketSalesDuration,
+            initialMaxTotalSupply,
+            initialMaxTicketPerWallet,
+            initialMinTicketThreshold,
+            0
+        );
+        ClooverRaffleTypes.PermitDataParams memory permitData =
+            _convertToPermitDataParams(0, 0, 0, bytes32(0), bytes32(0));
+        ClooverRaffle newRaffle = ClooverRaffle(factory.createRaffle(params, permitData));
+        assertFalse(newRaffle.isEthRaffle());
+        assertEq(newRaffle.insurancePaid(), insuranceCost);
+        assertEq(erc20Mock.balanceOf(address(newRaffle)), insuranceCost);
+        assertEq(newRaffle.creator(), creator);
+        assertEq(newRaffle.maxTicketPerWallet(), initialMaxTicketPerWallet);
+        assertEq(newRaffle.royaltiesRate(), 0);
+    }
+
+    function test_CreateRaffle_TokenRaffle_WithMaxTokenAllowedToPurchase_And_Royalties() external {
+        ClooverRaffleTypes.CreateRaffleParams memory params = _convertToClooverRaffleParams(
+            address(erc20Mock),
+            address(erc721Mock),
+            nftId,
+            initialTicketPrice,
+            initialTicketSalesDuration,
+            initialMaxTotalSupply,
+            initialMaxTicketPerWallet,
+            0,
+            initialRoyaltiesRate
+        );
+        ClooverRaffleTypes.PermitDataParams memory permitData =
+            _convertToPermitDataParams(0, 0, 0, bytes32(0), bytes32(0));
+        ClooverRaffle newRaffle = ClooverRaffle(factory.createRaffle(params, permitData));
+        assertFalse(newRaffle.isEthRaffle());
+        assertEq(newRaffle.insurancePaid(), 0);
+        assertEq(erc20Mock.balanceOf(address(newRaffle)), 0);
+        assertEq(newRaffle.creator(), creator);
+        assertEq(newRaffle.maxTicketPerWallet(), initialMaxTicketPerWallet);
+        assertEq(newRaffle.royaltiesRate(), initialRoyaltiesRate);
+    }
+
+    function test_CreateRaffle_TokenRaffle_WithInsurance_And_Royalties() external {
+        uint256 insuranceCost =
+            initialMinTicketThreshold.calculateInsuranceCost(uint16(factory.insuranceRate()), initialTicketPrice);
+
+        _mintERC20(erc20Mock, creator, insuranceCost);
+        erc20Mock.approve(address(factory), insuranceCost);
+        ClooverRaffleTypes.CreateRaffleParams memory params = _convertToClooverRaffleParams(
+            address(erc20Mock),
+            address(erc721Mock),
+            nftId,
+            initialTicketPrice,
+            initialTicketSalesDuration,
+            initialMaxTotalSupply,
+            0,
+            initialMinTicketThreshold,
+            initialRoyaltiesRate
+        );
+        ClooverRaffleTypes.PermitDataParams memory permitData =
+            _convertToPermitDataParams(0, 0, 0, bytes32(0), bytes32(0));
+        ClooverRaffle newRaffle = ClooverRaffle(factory.createRaffle(params, permitData));
+        assertFalse(newRaffle.isEthRaffle());
+        assertEq(newRaffle.insurancePaid(), insuranceCost);
+        assertEq(erc20Mock.balanceOf(address(newRaffle)), insuranceCost);
+        assertEq(newRaffle.creator(), creator);
+        assertEq(newRaffle.maxTicketPerWallet(), 0);
+        assertEq(newRaffle.royaltiesRate(), initialRoyaltiesRate);
+    }
+
+    function test_CreateRaffle_TokenRaffle_WithMaxTokenAllowedToPurchase_And_Insurance_And_Royalties() external {
+        uint256 insuranceCost =
+            initialMinTicketThreshold.calculateInsuranceCost(uint16(factory.insuranceRate()), initialTicketPrice);
+
+        _mintERC20(erc20Mock, creator, insuranceCost);
+        erc20Mock.approve(address(factory), insuranceCost);
+        ClooverRaffleTypes.CreateRaffleParams memory params = _convertToClooverRaffleParams(
+            address(erc20Mock),
+            address(erc721Mock),
+            nftId,
+            initialTicketPrice,
+            initialTicketSalesDuration,
+            initialMaxTotalSupply,
+            initialMaxTicketPerWallet,
+            initialMinTicketThreshold,
+            initialRoyaltiesRate
+        );
+        ClooverRaffleTypes.PermitDataParams memory permitData =
+            _convertToPermitDataParams(0, 0, 0, bytes32(0), bytes32(0));
+        ClooverRaffle newRaffle = ClooverRaffle(factory.createRaffle(params, permitData));
+        assertFalse(newRaffle.isEthRaffle());
+        assertEq(newRaffle.insurancePaid(), insuranceCost);
+        assertEq(erc20Mock.balanceOf(address(newRaffle)), insuranceCost);
+        assertEq(newRaffle.creator(), creator);
+        assertEq(newRaffle.maxTicketPerWallet(), initialMaxTicketPerWallet);
+        assertEq(newRaffle.royaltiesRate(), initialRoyaltiesRate);
+    }
+
+    function test_CreateRaffle_TokenRaffle_RevertWhen_CreatorFundsDoesntCoverInsuranceCost() external {
+        uint256 insuranceCost =
+            initialMinTicketThreshold.calculateInsuranceCost(uint16(factory.insuranceRate()), initialTicketPrice);
+
+        ClooverRaffleTypes.PermitDataParams memory permitData =
+            _convertToPermitDataParams(0, 0, 0, bytes32(0), bytes32(0));
+        ClooverRaffleTypes.CreateRaffleParams memory params = _convertToClooverRaffleParams(
+            address(erc20Mock),
+            address(erc721Mock),
+            nftId,
+            initialTicketPrice,
+            initialTicketSalesDuration,
+            initialMaxTotalSupply,
+            0,
+            initialMinTicketThreshold,
+            0
+        );
+
+        vm.expectRevert();
+        ClooverRaffle(factory.createRaffle(params, permitData));
+
+        uint256 creatorPrivateKey = 5;
+        permitData = _signPermitData(creatorPrivateKey, address(factory), insuranceCost);
+        vm.expectRevert();
+        ClooverRaffle(factory.createRaffle(params, permitData));
+    }
+
+    function test_CreateRaffle_EthRaffle() external {
         ClooverRaffleTypes.CreateRaffleParams memory params = _convertToClooverRaffleParams(
             address(0),
             address(erc721Mock),
             nftId,
-            ticketPrice,
-            ticketSalesDuration,
-            maxTotalSupply,
-            maxTicketAllowedToPurchase,
+            initialTicketPrice,
+            initialTicketSalesDuration,
+            initialMaxTotalSupply,
             0,
-            royaltiesRate
+            0,
+            0
         );
         ClooverRaffleTypes.PermitDataParams memory permitData =
             _convertToPermitDataParams(0, 0, 0, bytes32(0), bytes32(0));
-        ClooverRaffle newRaffle = ClooverRaffle(factory.createNewRaffle(params, permitData));
+        ClooverRaffle newRaffle = ClooverRaffle(factory.createRaffle(params, permitData));
         assertTrue(newRaffle.isEthRaffle());
         assertEq(newRaffle.insurancePaid(), 0);
+        assertEq(address(newRaffle).balance, 0);
         assertEq(newRaffle.creator(), creator);
+        assertEq(newRaffle.maxTicketPerWallet(), 0);
+        assertEq(newRaffle.royaltiesRate(), 0);
     }
 
-    function test_CreateNewRaffle_isEthRaffle_WithInsurance(
-        uint256 ticketPrice,
-        uint64 ticketSalesDuration,
-        uint16 maxTotalSupply,
-        uint16 maxTicketAllowedToPurchase,
-        uint16 ticketSalesInsurance,
-        uint16 royaltiesRate
-    ) external {
-        (ticketPrice, ticketSalesDuration, maxTotalSupply) =
-            _boundCommonCreateRaffleParams(ticketPrice, ticketSalesDuration, maxTotalSupply);
-        ticketSalesInsurance = uint16(bound(ticketSalesInsurance, 1, maxTotalSupply));
-        royaltiesRate = uint16(_boundAmountUnderOf(royaltiesRate, PercentageMath.PERCENTAGE_FACTOR - PROTOCOL_FEE_RATE));
-
-        uint256 insuranceCost =
-            ticketSalesInsurance.calculateInsuranceCost(uint16(factory.insuranceRate()), ticketPrice);
-
+    function test_CreateRaffle_EthRaffle_WithMaxTokenAllowedToPurchase() external {
         ClooverRaffleTypes.CreateRaffleParams memory params = _convertToClooverRaffleParams(
             address(0),
             address(erc721Mock),
             nftId,
-            ticketPrice,
-            ticketSalesDuration,
-            maxTotalSupply,
-            maxTicketAllowedToPurchase,
-            ticketSalesInsurance,
-            royaltiesRate
+            initialTicketPrice,
+            initialTicketSalesDuration,
+            initialMaxTotalSupply,
+            initialMaxTicketPerWallet,
+            0,
+            0
         );
         ClooverRaffleTypes.PermitDataParams memory permitData =
             _convertToPermitDataParams(0, 0, 0, bytes32(0), bytes32(0));
-        ClooverRaffle newRaffle = ClooverRaffle(factory.createNewRaffle{value: insuranceCost}(params, permitData));
+        ClooverRaffle newRaffle = ClooverRaffle(factory.createRaffle(params, permitData));
+        assertTrue(newRaffle.isEthRaffle());
+        assertEq(newRaffle.insurancePaid(), 0);
+        assertEq(address(newRaffle).balance, 0);
+        assertEq(newRaffle.creator(), creator);
+        assertEq(newRaffle.maxTicketPerWallet(), initialMaxTicketPerWallet);
+        assertEq(newRaffle.royaltiesRate(), 0);
+    }
+
+    function test_CreateRaffle_EthRaffle_WithInsurance() external {
+        uint256 insuranceCost =
+            initialMinTicketThreshold.calculateInsuranceCost(uint16(factory.insuranceRate()), initialTicketPrice);
+
+        ClooverRaffleTypes.PermitDataParams memory permitData =
+            _convertToPermitDataParams(0, 0, 0, bytes32(0), bytes32(0));
+        ClooverRaffleTypes.CreateRaffleParams memory params = _convertToClooverRaffleParams(
+            address(0),
+            address(erc721Mock),
+            nftId,
+            initialTicketPrice,
+            initialTicketSalesDuration,
+            initialMaxTotalSupply,
+            0,
+            initialMinTicketThreshold,
+            0
+        );
+
+        ClooverRaffle newRaffle = ClooverRaffle(factory.createRaffle{value: insuranceCost}(params, permitData));
         assertTrue(newRaffle.isEthRaffle());
         assertEq(newRaffle.insurancePaid(), insuranceCost);
         assertEq(address(newRaffle).balance, insuranceCost);
         assertEq(newRaffle.creator(), creator);
+        assertEq(newRaffle.maxTicketPerWallet(), 0);
+        assertEq(newRaffle.royaltiesRate(), 0);
     }
 
-    function test_CreateNewRaffle_RevertWhen_IsEthRaffleAndHasMsgValueUnderRequired(
-        uint256 ticketPrice,
-        uint64 ticketSalesDuration,
-        uint16 maxTotalSupply,
-        uint16 maxTicketAllowedToPurchase,
-        uint16 ticketSalesInsurance,
-        uint16 royaltiesRate
-    ) external {
-        (ticketPrice, ticketSalesDuration, maxTotalSupply) =
-            _boundCommonCreateRaffleParams(ticketPrice, ticketSalesDuration, maxTotalSupply);
-        ticketSalesInsurance = uint16(bound(ticketSalesInsurance, 1, maxTotalSupply));
-        royaltiesRate = uint16(_boundAmountUnderOf(royaltiesRate, PercentageMath.PERCENTAGE_FACTOR - PROTOCOL_FEE_RATE));
-
-        uint256 insuranceCost =
-            ticketSalesInsurance.calculateInsuranceCost(uint16(factory.insuranceRate()), ticketPrice);
-        insuranceCost = _boundAmountUnderOf(insuranceCost, insuranceCost - 1);
+    function test_CreateRaffle_EthRaffle_WithRoyalties() external {
         ClooverRaffleTypes.CreateRaffleParams memory params = _convertToClooverRaffleParams(
             address(0),
             address(erc721Mock),
             nftId,
-            ticketPrice,
-            ticketSalesDuration,
-            maxTotalSupply,
-            maxTicketAllowedToPurchase,
-            ticketSalesInsurance,
-            royaltiesRate
+            initialTicketPrice,
+            initialTicketSalesDuration,
+            initialMaxTotalSupply,
+            0,
+            0,
+            initialRoyaltiesRate
         );
         ClooverRaffleTypes.PermitDataParams memory permitData =
             _convertToPermitDataParams(0, 0, 0, bytes32(0), bytes32(0));
-        vm.expectRevert(Errors.INSURANCE_AMOUNT.selector);
-        ClooverRaffle(factory.createNewRaffle{value: insuranceCost}(params, permitData));
+        ClooverRaffle newRaffle = ClooverRaffle(factory.createRaffle(params, permitData));
+        assertTrue(newRaffle.isEthRaffle());
+        assertEq(newRaffle.insurancePaid(), 0);
+        assertEq(address(newRaffle).balance, 0);
+        assertEq(newRaffle.creator(), creator);
+        assertEq(newRaffle.maxTicketPerWallet(), 0);
+        assertEq(newRaffle.royaltiesRate(), initialRoyaltiesRate);
     }
 
-    function test_CreateNewRaffle_RevertWhen_IsEthRaffleAndHasMsgValueAboveRequired(
-        uint256 ticketPrice,
-        uint64 ticketSalesDuration,
-        uint16 maxTotalSupply,
-        uint16 maxTicketAllowedToPurchase,
-        uint16 ticketSalesInsurance,
-        uint16 royaltiesRate
-    ) external {
-        (ticketPrice, ticketSalesDuration, maxTotalSupply) =
-            _boundCommonCreateRaffleParams(ticketPrice, ticketSalesDuration, maxTotalSupply);
-        ticketSalesInsurance = uint16(bound(ticketSalesInsurance, 1, maxTotalSupply));
-        royaltiesRate = uint16(_boundAmountUnderOf(royaltiesRate, PercentageMath.PERCENTAGE_FACTOR - PROTOCOL_FEE_RATE));
-
+    function test_CreateRaffle_EthRaffle_WithMaxTokenAllowedToPurchase_And_Insurance() external {
         uint256 insuranceCost =
-            ticketSalesInsurance.calculateInsuranceCost(uint16(factory.insuranceRate()), ticketPrice);
-        insuranceCost = bound(insuranceCost, insuranceCost + 1, INITIAL_BALANCE);
+            initialMinTicketThreshold.calculateInsuranceCost(uint16(factory.insuranceRate()), initialTicketPrice);
+
         ClooverRaffleTypes.CreateRaffleParams memory params = _convertToClooverRaffleParams(
             address(0),
             address(erc721Mock),
             nftId,
-            ticketPrice,
-            ticketSalesDuration,
-            maxTotalSupply,
-            maxTicketAllowedToPurchase,
-            ticketSalesInsurance,
-            royaltiesRate
+            initialTicketPrice,
+            initialTicketSalesDuration,
+            initialMaxTotalSupply,
+            initialMaxTicketPerWallet,
+            initialMinTicketThreshold,
+            0
         );
         ClooverRaffleTypes.PermitDataParams memory permitData =
             _convertToPermitDataParams(0, 0, 0, bytes32(0), bytes32(0));
-        vm.expectRevert(Errors.INSURANCE_AMOUNT.selector);
-        ClooverRaffle(factory.createNewRaffle{value: insuranceCost}(params, permitData));
+        ClooverRaffle newRaffle = ClooverRaffle(factory.createRaffle{value: insuranceCost}(params, permitData));
+        assertTrue(newRaffle.isEthRaffle());
+        assertEq(newRaffle.insurancePaid(), insuranceCost);
+        assertEq(address(newRaffle).balance, insuranceCost);
+        assertEq(newRaffle.creator(), creator);
+        assertEq(newRaffle.maxTicketPerWallet(), initialMaxTicketPerWallet);
+        assertEq(newRaffle.royaltiesRate(), 0);
     }
 
-    function test_CreateRaffle_RevertWhen_NFTNotWhitelisted(address nftCollection) external {
-        vm.assume(nftCollection != address(erc721Mock));
-        ClooverRaffleTypes.CreateRaffleParams memory params =
-            _convertToClooverRaffleParams(address(erc20Mock), nftCollection, nftId, 1e18, 1 days, 100, 1, 0, 0);
+    function test_CreateRaffle_EthRaffle_WithMaxTokenAllowedToPurchase_And_Royalties() external {
+        ClooverRaffleTypes.CreateRaffleParams memory params = _convertToClooverRaffleParams(
+            address(0),
+            address(erc721Mock),
+            nftId,
+            initialTicketPrice,
+            initialTicketSalesDuration,
+            initialMaxTotalSupply,
+            initialMaxTicketPerWallet,
+            0,
+            initialRoyaltiesRate
+        );
+        ClooverRaffleTypes.PermitDataParams memory permitData =
+            _convertToPermitDataParams(0, 0, 0, bytes32(0), bytes32(0));
+        ClooverRaffle newRaffle = ClooverRaffle(factory.createRaffle(params, permitData));
+        assertTrue(newRaffle.isEthRaffle());
+        assertEq(newRaffle.insurancePaid(), 0);
+        assertEq(address(newRaffle).balance, 0);
+        assertEq(newRaffle.creator(), creator);
+        assertEq(newRaffle.maxTicketPerWallet(), initialMaxTicketPerWallet);
+        assertEq(newRaffle.royaltiesRate(), initialRoyaltiesRate);
+    }
+
+    function test_CreateRaffle_EthRaffle_WithInsurance_And_Royalties() external {
+        uint256 insuranceCost =
+            initialMinTicketThreshold.calculateInsuranceCost(uint16(factory.insuranceRate()), initialTicketPrice);
+
+        ClooverRaffleTypes.CreateRaffleParams memory params = _convertToClooverRaffleParams(
+            address(0),
+            address(erc721Mock),
+            nftId,
+            initialTicketPrice,
+            initialTicketSalesDuration,
+            initialMaxTotalSupply,
+            0,
+            initialMinTicketThreshold,
+            initialRoyaltiesRate
+        );
+        ClooverRaffleTypes.PermitDataParams memory permitData =
+            _convertToPermitDataParams(0, 0, 0, bytes32(0), bytes32(0));
+        ClooverRaffle newRaffle = ClooverRaffle(factory.createRaffle{value: insuranceCost}(params, permitData));
+        assertTrue(newRaffle.isEthRaffle());
+        assertEq(newRaffle.insurancePaid(), insuranceCost);
+        assertEq(address(newRaffle).balance, insuranceCost);
+        assertEq(newRaffle.creator(), creator);
+        assertEq(newRaffle.maxTicketPerWallet(), 0);
+        assertEq(newRaffle.royaltiesRate(), initialRoyaltiesRate);
+    }
+
+    function test_CreateRaffle_EthRaffle_WithMaxTokenAllowedToPurchase_And_Insurance_And_Royalties() external {
+        uint256 insuranceCost =
+            initialMinTicketThreshold.calculateInsuranceCost(uint16(factory.insuranceRate()), initialTicketPrice);
+
+        ClooverRaffleTypes.CreateRaffleParams memory params = _convertToClooverRaffleParams(
+            address(0),
+            address(erc721Mock),
+            nftId,
+            initialTicketPrice,
+            initialTicketSalesDuration,
+            initialMaxTotalSupply,
+            initialMaxTicketPerWallet,
+            initialMinTicketThreshold,
+            initialRoyaltiesRate
+        );
+        ClooverRaffleTypes.PermitDataParams memory permitData =
+            _convertToPermitDataParams(0, 0, 0, bytes32(0), bytes32(0));
+        ClooverRaffle newRaffle = ClooverRaffle(factory.createRaffle{value: insuranceCost}(params, permitData));
+        assertTrue(newRaffle.isEthRaffle());
+        assertEq(newRaffle.insurancePaid(), insuranceCost);
+        assertEq(address(newRaffle).balance, insuranceCost);
+        assertEq(newRaffle.creator(), creator);
+        assertEq(newRaffle.maxTicketPerWallet(), initialMaxTicketPerWallet);
+        assertEq(newRaffle.royaltiesRate(), initialRoyaltiesRate);
+    }
+
+    function test_CreateRaffle_EthRaffle_RevertWhen_ValueSendNotEqualToInsuranceCost() external {
+        uint256 insuranceCost =
+            initialMinTicketThreshold.calculateInsuranceCost(uint16(factory.insuranceRate()), initialTicketPrice);
+
+        ClooverRaffleTypes.PermitDataParams memory permitData =
+            _convertToPermitDataParams(0, 0, 0, bytes32(0), bytes32(0));
+        ClooverRaffleTypes.CreateRaffleParams memory params = _convertToClooverRaffleParams(
+            address(0),
+            address(erc721Mock),
+            nftId,
+            initialTicketPrice,
+            initialTicketSalesDuration,
+            initialMaxTotalSupply,
+            0,
+            initialMinTicketThreshold,
+            0
+        );
+
+        vm.expectRevert(Errors.INSURANCE_AMOUNT.selector);
+        ClooverRaffle(factory.createRaffle{value: insuranceCost - 1}(params, permitData));
+
+        vm.expectRevert(Errors.INSURANCE_AMOUNT.selector);
+        ClooverRaffle(factory.createRaffle{value: insuranceCost + 1}(params, permitData));
+    }
+
+    function test_CreateRaffle_RevertWhen_NFTNotWhitelisted() external {
+        address notWhiteListedNFTCollection = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
+        ClooverRaffleTypes.CreateRaffleParams memory params = _convertToClooverRaffleParams(
+            address(erc20Mock),
+            address(notWhiteListedNFTCollection),
+            nftId,
+            initialTicketPrice,
+            initialTicketSalesDuration,
+            initialMaxTotalSupply,
+            0,
+            0,
+            0
+        );
         ClooverRaffleTypes.PermitDataParams memory permitData =
             _convertToPermitDataParams(0, 0, 0, bytes32(0), bytes32(0));
         vm.expectRevert(Errors.COLLECTION_NOT_WHITELISTED.selector);
-        factory.createNewRaffle(params, permitData);
+        factory.createRaffle(params, permitData);
     }
 
-    function test_CreateRaffle_RevertWhen_IsNotEthRaffleAndHasMsgValue(uint256 value) external {
-        value = _boundEthAmount(value);
-        ClooverRaffleTypes.CreateRaffleParams memory params =
-            _convertToClooverRaffleParams(address(erc20Mock), address(erc721Mock), nftId, 1e18, 1 days, 100, 1, 0, 0);
+    function test_CreateRaffle_TokenRaffle_RevertWhen_HasMsgValue() external {
+        ClooverRaffleTypes.CreateRaffleParams memory params = _convertToClooverRaffleParams(
+            address(erc20Mock),
+            address(erc721Mock),
+            nftId,
+            initialTicketPrice,
+            initialTicketSalesDuration,
+            initialMaxTotalSupply,
+            0,
+            0,
+            0
+        );
         ClooverRaffleTypes.PermitDataParams memory permitData =
             _convertToPermitDataParams(0, 0, 0, bytes32(0), bytes32(0));
         vm.expectRevert(Errors.NOT_ETH_RAFFLE.selector);
-        factory.createNewRaffle{value: value}(params, permitData);
+        factory.createRaffle{value: 1}(params, permitData);
     }
 
-    function test_CreateRaffle_RevertWhen_TokenNotWhitelisted(address token) external {
-        vm.assume(token != address(erc20Mock));
-        ClooverRaffleTypes.CreateRaffleParams memory params =
-            _convertToClooverRaffleParams(token, address(erc721Mock), nftId, 1e18, 1 days, 100, 1, 0, 0);
+    function test_CreateRaffle_TokenRaffle_RevertWhen_TokenNotWhitelisted() external {
+        address notWhiteListedToken = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
+
+        ClooverRaffleTypes.CreateRaffleParams memory params = _convertToClooverRaffleParams(
+            notWhiteListedToken,
+            address(erc721Mock),
+            nftId,
+            initialTicketPrice,
+            initialTicketSalesDuration,
+            initialMaxTotalSupply,
+            0,
+            0,
+            0
+        );
         ClooverRaffleTypes.PermitDataParams memory permitData =
             _convertToPermitDataParams(0, 0, 0, bytes32(0), bytes32(0));
         vm.expectRevert(Errors.TOKEN_NOT_WHITELISTED.selector);
-        factory.createNewRaffle(params, permitData);
+        factory.createRaffle(params, permitData);
     }
 
-    function test_CreateRaffle_RevertWhen_TicketPriceIsZero(uint256 ticketPrice) external {
-        ticketPrice = _boundAmountUnderOf(ticketPrice, MIN_TICKET_PRICE - 1);
+    function test_CreateRaffle_RevertWhen_TicketPriceIsUnderMininumPrice() external {
         ClooverRaffleTypes.CreateRaffleParams memory params = _convertToClooverRaffleParams(
-            address(erc20Mock), address(erc721Mock), nftId, ticketPrice, 1 days, 100, 1, 0, 0
+            address(erc20Mock),
+            address(erc721Mock),
+            nftId,
+            MIN_TICKET_PRICE - 1,
+            initialTicketSalesDuration,
+            initialMaxTotalSupply,
+            0,
+            0,
+            0
         );
         ClooverRaffleTypes.PermitDataParams memory permitData =
             _convertToPermitDataParams(0, 0, 0, bytes32(0), bytes32(0));
         vm.expectRevert(Errors.WRONG_AMOUNT.selector);
-        factory.createNewRaffle(params, permitData);
+        factory.createRaffle(params, permitData);
     }
 
     function test_CreateRaffle_RevertWhen_MaxTicketSupplyIsZero() external {
-        ClooverRaffleTypes.CreateRaffleParams memory params =
-            _convertToClooverRaffleParams(address(erc20Mock), address(erc721Mock), nftId, 1e18, 1 days, 0, 1, 0, 0);
+        ClooverRaffleTypes.CreateRaffleParams memory params = _convertToClooverRaffleParams(
+            address(erc20Mock), address(erc721Mock), nftId, initialTicketPrice, initialTicketSalesDuration, 0, 0, 0, 0
+        );
         ClooverRaffleTypes.PermitDataParams memory permitData =
             _convertToPermitDataParams(0, 0, 0, bytes32(0), bytes32(0));
         vm.expectRevert(Errors.CANT_BE_ZERO.selector);
-        factory.createNewRaffle(params, permitData);
+        factory.createRaffle(params, permitData);
     }
 
-    function test_CreateRaffle_RevertWhen_MaxTicketSupplyHigherThenMaxTotalSupplyAllowed(uint256 ticketSupply)
-        external
-    {
-        ticketSupply = _boundAmountAboveOf(ticketSupply, factory.maxTotalSupplyAllowed() + 1);
-        ClooverRaffleTypes.CreateRaffleParams memory params = _convertToClooverRaffleParams(
-            address(erc20Mock), address(erc721Mock), nftId, 1e18, 1 days, MAX_TICKET_SUPPLY + 1, 1, 0, 0
-        );
-        ClooverRaffleTypes.PermitDataParams memory permitData =
-            _convertToPermitDataParams(0, 0, 0, bytes32(0), bytes32(0));
-        vm.expectRevert(Errors.EXCEED_MAX_VALUE_ALLOWED.selector);
-        factory.createNewRaffle(params, permitData);
-    }
-
-    function test_CreateRaffle_RevertWhen_SaleDurationLowerThanMinTicketSalesDuration(uint64 duration) external {
-        duration = _boundDurationUnderOf(duration, uint64(factory.minTicketSalesDuration()));
-        ClooverRaffleTypes.CreateRaffleParams memory params =
-            _convertToClooverRaffleParams(address(erc20Mock), address(erc721Mock), nftId, 1e18, duration, 100, 1, 0, 0);
-        ClooverRaffleTypes.PermitDataParams memory permitData =
-            _convertToPermitDataParams(0, 0, 0, bytes32(0), bytes32(0));
-        vm.expectRevert(Errors.OUT_OF_RANGE.selector);
-        factory.createNewRaffle(params, permitData);
-    }
-
-    function test_CreateRaffle_RevertWhen_SaleDurationHigherThanMaxTicketSalesDuration(uint64 duration) external {
-        duration = _boundDurationAboveOf(duration, uint64(factory.maxTicketSalesDuration()) + 1);
-        ClooverRaffleTypes.CreateRaffleParams memory params =
-            _convertToClooverRaffleParams(address(erc20Mock), address(erc721Mock), nftId, 1e18, duration, 100, 1, 0, 0);
-        ClooverRaffleTypes.PermitDataParams memory permitData =
-            _convertToPermitDataParams(0, 0, 0, bytes32(0), bytes32(0));
-        vm.expectRevert(Errors.OUT_OF_RANGE.selector);
-        factory.createNewRaffle(params, permitData);
-    }
-
-    function test_CreateRaffle_RevertWhen_RoyaltiesRateMakeTotalFeesHigherThanPercentageFactory(uint16 royaltiesRate)
-        external
-    {
-        uint16 prototocolFeeRate = uint16(factory.protocolFeeRate());
-        vm.assume(royaltiesRate <= type(uint16).max - prototocolFeeRate);
-
-        royaltiesRate = _boundPercentageExceed(royaltiesRate + prototocolFeeRate) - prototocolFeeRate;
-        ClooverRaffleTypes.CreateRaffleParams memory params = _convertToClooverRaffleParams(
-            address(erc20Mock), address(erc721Mock), nftId, 1e18, 1 days, 100, 1, 0, royaltiesRate
-        );
-        ClooverRaffleTypes.PermitDataParams memory permitData =
-            _convertToPermitDataParams(0, 0, 0, bytes32(0), bytes32(0));
-        vm.expectRevert(Errors.EXCEED_MAX_PERCENTAGE.selector);
-        factory.createNewRaffle(params, permitData);
-    }
-
-    function test_CreateNewRaffle_RevertWhen_PermitAmountLessThanInsurance(
-        uint256 ticketPrice,
-        uint64 ticketSalesDuration,
-        uint16 maxTotalSupply,
-        uint16 maxTicketAllowedToPurchase,
-        uint16 ticketSalesInsurance,
-        uint16 royaltiesRate,
-        uint256 privateKey
-    ) external {
-        privateKey = bound(privateKey, 1, type(uint160).max);
-        address creator = vm.addr(privateKey);
-
-        (ticketPrice, ticketSalesDuration, maxTotalSupply) =
-            _boundCommonCreateRaffleParams(ticketPrice, ticketSalesDuration, maxTotalSupply);
-        ticketSalesInsurance = uint16(bound(ticketSalesInsurance, 1, maxTotalSupply));
-        royaltiesRate = uint16(_boundAmountUnderOf(royaltiesRate, PercentageMath.PERCENTAGE_FACTOR - PROTOCOL_FEE_RATE));
-
-        ticketSalesInsurance = uint16(bound(ticketSalesInsurance, 1, maxTotalSupply));
-        uint256 insuranceCost =
-            ticketSalesInsurance.calculateInsuranceCost(uint16(factory.insuranceRate()), ticketPrice);
-        insuranceCost = _boundAmountUnderOf(insuranceCost, insuranceCost - 1);
-        uint256 _nftId = 11;
-        _mintERC721(erc721Mock, creator, _nftId);
-        _mintERC20(erc20Mock, creator, insuranceCost);
-
-        ClooverRaffleTypes.PermitDataParams memory permitData =
-            _signPermitData(privateKey, address(factory), insuranceCost);
-
-        ClooverRaffleTypes.CreateRaffleParams memory params = _convertToClooverRaffleParams(
-            address(erc20Mock),
-            address(erc721Mock),
-            _nftId,
-            ticketPrice,
-            ticketSalesDuration,
-            maxTotalSupply,
-            maxTicketAllowedToPurchase,
-            ticketSalesInsurance,
-            royaltiesRate
-        );
-
-        changePrank(creator);
-        erc721Mock.approve(address(factory), _nftId);
-        vm.expectRevert(Errors.INSURANCE_AMOUNT.selector);
-        ClooverRaffle(factory.createNewRaffle(params, permitData));
-    }
-
-    function test_CreateNewRaffle_RevertWhen_ContractIsPause(
-        uint256 ticketPrice,
-        uint64 ticketSalesDuration,
-        uint16 maxTotalSupply,
-        uint16 maxTicketAllowedToPurchase,
-        uint16 royaltiesRate
-    ) external {
-        changePrank(maintainer);
-        factory.pause();
-
-        changePrank(creator);
-
-        (ticketPrice, ticketSalesDuration, maxTotalSupply) =
-            _boundCommonCreateRaffleParams(ticketPrice, ticketSalesDuration, maxTotalSupply);
-        royaltiesRate = uint16(_boundAmountUnderOf(royaltiesRate, PercentageMath.PERCENTAGE_FACTOR - PROTOCOL_FEE_RATE));
-
+    function test_CreateRaffle_RevertWhen_MaxTicketSupplyHigherThenMaxTotalSupplyAllowed() external {
         ClooverRaffleTypes.CreateRaffleParams memory params = _convertToClooverRaffleParams(
             address(erc20Mock),
             address(erc721Mock),
             nftId,
-            ticketPrice,
-            ticketSalesDuration,
-            maxTotalSupply,
-            maxTicketAllowedToPurchase,
+            initialTicketPrice,
+            initialTicketSalesDuration,
+            MAX_TICKET_SUPPLY + 1,
             0,
-            royaltiesRate
+            0,
+            0
         );
         ClooverRaffleTypes.PermitDataParams memory permitData =
             _convertToPermitDataParams(0, 0, 0, bytes32(0), bytes32(0));
+        vm.expectRevert(Errors.EXCEED_MAX_VALUE_ALLOWED.selector);
+        factory.createRaffle(params, permitData);
+    }
+
+    function test_CreateRaffle_RevertWhen_MaxTicketSupplyLowerThenTwo() external {
+        ClooverRaffleTypes.CreateRaffleParams memory params = _convertToClooverRaffleParams(
+            address(erc20Mock), address(erc721Mock), nftId, initialTicketPrice, initialTicketSalesDuration, 1, 0, 0, 0
+        );
+        ClooverRaffleTypes.PermitDataParams memory permitData =
+            _convertToPermitDataParams(0, 0, 0, bytes32(0), bytes32(0));
+        vm.expectRevert(Errors.BELOW_MIN_VALUE_ALLOWED.selector);
+        factory.createRaffle(params, permitData);
+    }
+
+    function test_CreateRaffle_RevertWhen_SaleDurationLowerThanMinTicketSalesDuration() external {
+        ClooverRaffleTypes.CreateRaffleParams memory params = _convertToClooverRaffleParams(
+            address(erc20Mock),
+            address(erc721Mock),
+            nftId,
+            initialTicketPrice,
+            MIN_SALE_DURATION - 1,
+            initialMaxTotalSupply,
+            0,
+            0,
+            0
+        );
+        ClooverRaffleTypes.PermitDataParams memory permitData =
+            _convertToPermitDataParams(0, 0, 0, bytes32(0), bytes32(0));
+        vm.expectRevert(Errors.OUT_OF_RANGE.selector);
+        factory.createRaffle(params, permitData);
+    }
+
+    function test_CreateRaffle_RevertWhen_SaleDurationHigherThanMaxTicketSalesDuration() external {
+        ClooverRaffleTypes.CreateRaffleParams memory params = _convertToClooverRaffleParams(
+            address(erc20Mock),
+            address(erc721Mock),
+            nftId,
+            initialTicketPrice,
+            MAX_SALE_DURATION + 1,
+            initialMaxTotalSupply,
+            0,
+            0,
+            0
+        );
+        ClooverRaffleTypes.PermitDataParams memory permitData =
+            _convertToPermitDataParams(0, 0, 0, bytes32(0), bytes32(0));
+        vm.expectRevert(Errors.OUT_OF_RANGE.selector);
+        factory.createRaffle(params, permitData);
+    }
+
+    function test_CreateRaffle_RevertWhen_RoyaltiesRateMakeTotalFeesExceedMaxPercentage() external {
+        ClooverRaffleTypes.CreateRaffleParams memory params = _convertToClooverRaffleParams(
+            address(erc20Mock),
+            address(erc721Mock),
+            nftId,
+            initialTicketPrice,
+            initialTicketSalesDuration,
+            initialMaxTotalSupply,
+            0,
+            0,
+            uint16(PercentageMath.PERCENTAGE_FACTOR - PROTOCOL_FEE_RATE + 1)
+        );
+        ClooverRaffleTypes.PermitDataParams memory permitData =
+            _convertToPermitDataParams(0, 0, 0, bytes32(0), bytes32(0));
+        vm.expectRevert(Errors.EXCEED_MAX_PERCENTAGE.selector);
+        factory.createRaffle(params, permitData);
+    }
+
+    function test_CreateRaffle_RevertWhen_ContractIsPause() external {
+        changePrank(maintainer);
+        factory.pause();
+
+        changePrank(creator);
+        ClooverRaffleTypes.CreateRaffleParams memory params = _convertToClooverRaffleParams(
+            address(erc20Mock),
+            address(erc721Mock),
+            nftId,
+            initialTicketPrice,
+            initialTicketSalesDuration,
+            initialMaxTotalSupply,
+            0,
+            0,
+            0
+        );
+        ClooverRaffleTypes.PermitDataParams memory permitData =
+            _convertToPermitDataParams(0, 0, 0, bytes32(0), bytes32(0));
+
         vm.expectRevert();
-        ClooverRaffle(factory.createNewRaffle(params, permitData));
+        ClooverRaffle(factory.createRaffle(params, permitData));
     }
 }

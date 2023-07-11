@@ -15,7 +15,7 @@ contract ImplementationManager is IImplementationManager {
     // Storage
     //----------------------------------------
 
-    mapping(bytes32 => address) public _interfacesImplemented;
+    mapping(bytes32 => address) _interfacesImplemented;
 
     //----------------------------------------
     // Events

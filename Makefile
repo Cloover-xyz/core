@@ -6,7 +6,7 @@ NETWORK ?= mainnet
 
 install:
 	pnpm install
-	foundryup
+	foundryup --legacy
 	forge install
 
 contracts:
@@ -37,5 +37,3 @@ lcov-html:
 
 gas-report:
 	forge test --gas-report
-
-.PHONY: contracts test coverage

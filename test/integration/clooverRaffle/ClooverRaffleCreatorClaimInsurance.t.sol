@@ -11,155 +11,182 @@ contract ClooverRaffleCreatorClaimInsuranceTest is IntegrationTest {
         changePrank(creator);
     }
 
-    function test_CreatorClaimInsurance(bool isEthRaffle) external {
-        uint64 ticketSalesDuration;
-        (raffle, ticketSalesDuration) = _createRandomRaffle(isEthRaffle, true, false);
+    function test_CreatorClaimInsurance() external {
+        for (uint256 i; i < rafflesArray.length; i++) {
+            _setBlockTimestamp(blockTimestamp);
 
-        changePrank(participant);
-        uint16 max = raffle.ticketSalesInsurance();
-        (uint256 ticketPurchased) = _purchaseRandomAmountOfTickets(raffle, participant, max - 1);
+            RaffleArrayInfo memory raffleInfo = rafflesArray[i];
+            (isEthRaffle, nftId, raffle) = (raffleInfo.isEthRaffle, raffleInfo.nftId, raffleInfo.raffle);
+            if (raffle.minTicketThreshold() == 0) continue;
 
-        changePrank(creator);
-        _forwardByTimestamp(ticketSalesDuration + 1);
+            uint16 nbOfTicketsPurchased = initialMinTicketThreshold - 1;
 
-        uint256 totalSalesAmount = raffle.ticketPrice() * ticketPurchased;
-        uint256 insurancePaid = raffle.insurancePaid();
+            _purchaseExactAmountOfTickets(raffle, participant, nbOfTicketsPurchased);
 
-        uint256 treasuryAmount = insurancePaid.percentMul(PROTOCOL_FEE_RATE);
+            _forwardByTimestamp(initialTicketSalesDuration + 1);
 
-        uint256 creatorBalanceBefore = address(creator).balance;
-        uint256 expectedBalanceLeftOnContract = insurancePaid - treasuryAmount + totalSalesAmount;
+            uint256 totalSalesAmount = raffle.ticketPrice() * nbOfTicketsPurchased;
+            uint256 insurancePaid = raffle.insurancePaid();
+            uint256 treasuryAmount = insurancePaid.percentMul(PROTOCOL_FEE_RATE);
+            uint256 expectedBalanceLeftOnContract = insurancePaid - treasuryAmount + totalSalesAmount;
 
-        if (isEthRaffle) {
-            vm.expectEmit(true, true, true, true);
-            emit ClooverRaffleEvents.CreatorClaimedInsurance();
-            raffle.creatorClaimInsuranceInEth();
-            assertEq(address(raffle).balance, expectedBalanceLeftOnContract);
-            assertEq(address(treasury).balance, treasuryAmount);
-            assertEq(address(creator).balance, creatorBalanceBefore);
-        } else {
-            creatorBalanceBefore = erc20Mock.balanceOf(creator);
-            uint256 treasuryBalanceBefore = erc20Mock.balanceOf(treasury);
-            vm.expectEmit(true, true, true, true);
-            emit ClooverRaffleEvents.CreatorClaimedInsurance();
-            raffle.creatorClaimInsurance();
-            assertEq(erc20Mock.balanceOf(address(raffle)), expectedBalanceLeftOnContract);
-            assertEq(erc20Mock.balanceOf(treasury), treasuryBalanceBefore + treasuryAmount);
-            assertEq(erc20Mock.balanceOf(address(creator)), creatorBalanceBefore);
-        }
+            uint256 creatorBalanceBefore = address(creator).balance;
+            uint256 treasuryBalanceBefore = address(treasury).balance;
 
-        assertEq(erc721Mock.ownerOf(nftId), creator);
-    }
+            changePrank(creator);
+            if (isEthRaffle) {
+                vm.expectEmit(true, true, true, true);
+                emit ClooverRaffleEvents.CreatorClaimedRefund();
+                raffle.claimCreatorRefundInEth();
+                assertEq(address(raffle).balance, expectedBalanceLeftOnContract);
+                assertEq(address(treasury).balance, treasuryBalanceBefore + treasuryAmount);
+                assertEq(address(creator).balance, creatorBalanceBefore);
+            } else {
+                creatorBalanceBefore = erc20Mock.balanceOf(creator);
+                treasuryBalanceBefore = erc20Mock.balanceOf(treasury);
 
-    function test_CreatorClaimInsurance_RevertWhen_AlreadyClaimed(bool isEthRaffle) external {
-        uint64 ticketSalesDuration;
-        (raffle, ticketSalesDuration) = _createRandomRaffle(isEthRaffle, true, false);
-
-        changePrank(participant);
-        uint16 max = raffle.ticketSalesInsurance();
-        _purchaseRandomAmountOfTickets(raffle, participant, max - 1);
-
-        changePrank(creator);
-        _forwardByTimestamp(ticketSalesDuration + 1);
-
-        if (isEthRaffle) {
-            raffle.creatorClaimInsuranceInEth();
-            vm.expectRevert();
-            raffle.creatorClaimInsuranceInEth();
-        } else {
-            raffle.creatorClaimInsurance();
-            vm.expectRevert();
-            raffle.creatorClaimInsurance();
+                vm.expectEmit(true, true, true, true);
+                emit ClooverRaffleEvents.CreatorClaimedRefund();
+                raffle.claimCreatorRefund();
+                assertEq(erc20Mock.balanceOf(address(raffle)), expectedBalanceLeftOnContract);
+                assertEq(erc20Mock.balanceOf(treasury), treasuryBalanceBefore + treasuryAmount);
+                assertEq(erc20Mock.balanceOf(address(creator)), creatorBalanceBefore);
+            }
+            assertEq(erc721Mock.ownerOf(nftId), creator);
         }
     }
 
-    function test_CreatorClaimInsurance_RevertWhen_NotCorrectTypeOfRaffle(bool isEthRaffle) external {
-        uint64 ticketSalesDuration;
-        (raffle, ticketSalesDuration) = _createRandomRaffle(isEthRaffle, true, false);
+    function test_CreatorClaimInsurance_TokenRaffle_RevertWhen_AlreadyClaimed() external {
+        for (uint256 i; i < rafflesArray.length; i++) {
+            _setBlockTimestamp(blockTimestamp);
 
-        changePrank(participant);
-        uint16 max = raffle.ticketSalesInsurance();
-        _purchaseRandomAmountOfTickets(raffle, participant, max - 1);
+            RaffleArrayInfo memory raffleInfo = rafflesArray[i];
+            (isEthRaffle, nftId, raffle) = (raffleInfo.isEthRaffle, raffleInfo.nftId, raffleInfo.raffle);
+            if (raffle.minTicketThreshold() == 0) continue;
 
-        changePrank(creator);
-        _forwardByTimestamp(ticketSalesDuration + 1);
-        if (isEthRaffle) {
-            vm.expectRevert(Errors.IS_ETH_RAFFLE.selector);
-            raffle.creatorClaimInsurance();
-        } else {
-            vm.expectRevert(Errors.NOT_ETH_RAFFLE.selector);
-            raffle.creatorClaimInsuranceInEth();
+            _purchaseExactAmountOfTickets(raffle, participant, initialMinTicketThreshold - 1);
+
+            _forwardByTimestamp(initialTicketSalesDuration + 1);
+
+            changePrank(creator);
+            if (isEthRaffle) {
+                raffle.claimCreatorRefundInEth();
+                vm.expectRevert();
+                raffle.claimCreatorRefundInEth();
+            } else {
+                raffle.claimCreatorRefund();
+                vm.expectRevert();
+                raffle.claimCreatorRefund();
+            }
         }
     }
 
-    function test_CreatorClaimInsurance_RevertWhen_CreatorDidNotTookInsurance(bool isEthRaffle) external {
-        uint64 ticketSalesDuration;
-        (raffle, ticketSalesDuration) = _createRandomRaffle(isEthRaffle, false, false);
+    function test_CreatorClaimInsurance_TokenRaffle_RevertWhen_NotCorrectTypeOfRaffle() external {
+        for (uint256 i; i < rafflesArray.length; i++) {
+            _setBlockTimestamp(blockTimestamp);
 
-        changePrank(participant);
-        uint16 max = raffle.maxTotalSupply();
-        _purchaseRandomAmountOfTickets(raffle, participant, max);
+            RaffleArrayInfo memory raffleInfo = rafflesArray[i];
+            (isEthRaffle, nftId, raffle) = (raffleInfo.isEthRaffle, raffleInfo.nftId, raffleInfo.raffle);
+            if (raffle.minTicketThreshold() == 0) continue;
 
-        changePrank(creator);
-        _forwardByTimestamp(ticketSalesDuration + 1);
-        vm.expectRevert(Errors.NO_INSURANCE_TAKEN.selector);
-        if (isEthRaffle) {
-            raffle.creatorClaimInsuranceInEth();
-        } else {
-            raffle.creatorClaimInsurance();
+            _purchaseExactAmountOfTickets(raffle, participant, initialMinTicketThreshold - 1);
+
+            _forwardByTimestamp(initialTicketSalesDuration + 1);
+
+            changePrank(creator);
+
+            if (isEthRaffle) {
+                vm.expectRevert(Errors.IS_ETH_RAFFLE.selector);
+                raffle.claimCreatorRefund();
+            } else {
+                vm.expectRevert(Errors.NOT_ETH_RAFFLE.selector);
+                raffle.claimCreatorRefundInEth();
+            }
         }
     }
 
-    function test_CreatorClaimInsurance_RevertWhen_NotCreatorCalling(bool isEthRaffle) external {
-        uint64 ticketSalesDuration;
-        (raffle, ticketSalesDuration) = _createRandomRaffle(isEthRaffle, true, false);
+    function test_CreatorClaimInsurance_TokenRaffle_RevertWhen_CreatorDidNotTookInsurance() external {
+        for (uint256 i; i < rafflesArray.length; i++) {
+            _setBlockTimestamp(blockTimestamp);
 
-        changePrank(participant);
-        uint16 max = raffle.ticketSalesInsurance();
-        _purchaseRandomAmountOfTickets(raffle, participant, max - 1);
+            RaffleArrayInfo memory raffleInfo = rafflesArray[i];
+            (isEthRaffle, nftId, raffle) = (raffleInfo.isEthRaffle, raffleInfo.nftId, raffleInfo.raffle);
+            if (raffle.minTicketThreshold() != 0) continue;
 
-        _forwardByTimestamp(ticketSalesDuration + 1);
+            _purchaseExactAmountOfTickets(raffle, participant, initialMinTicketThreshold - 1);
 
-        vm.expectRevert(Errors.NOT_CREATOR.selector);
-        if (isEthRaffle) {
-            raffle.creatorClaimInsuranceInEth();
-        } else {
-            raffle.creatorClaimInsurance();
+            _forwardByTimestamp(initialTicketSalesDuration + 1);
+
+            changePrank(creator);
+            vm.expectRevert(Errors.NO_INSURANCE_TAKEN.selector);
+            if (isEthRaffle) {
+                raffle.claimCreatorRefundInEth();
+            } else {
+                raffle.claimCreatorRefund();
+            }
         }
     }
 
-    function test_CreatorClaimInsurance_RevertWhen_NoTicketHaveBeenSold(bool isEthRaffle) external {
-        uint64 ticketSalesDuration;
-        (raffle, ticketSalesDuration) = _createRandomRaffle(isEthRaffle, true, false);
+    function test_CreatorClaimInsurance_TokenRaffle_RevertWhen_NotCreatorCalling() external {
+        for (uint256 i; i < rafflesArray.length; i++) {
+            _setBlockTimestamp(blockTimestamp);
 
-        _forwardByTimestamp(ticketSalesDuration + 1);
+            RaffleArrayInfo memory raffleInfo = rafflesArray[i];
+            (isEthRaffle, nftId, raffle) = (raffleInfo.isEthRaffle, raffleInfo.nftId, raffleInfo.raffle);
+            if (raffle.minTicketThreshold() == 0) continue;
 
-        vm.expectRevert(Errors.NOTHING_TO_CLAIM.selector);
-        if (isEthRaffle) {
-            raffle.creatorClaimInsuranceInEth();
-        } else {
-            raffle.creatorClaimInsurance();
+            _purchaseExactAmountOfTickets(raffle, participant, initialMinTicketThreshold - 1);
+
+            _forwardByTimestamp(initialTicketSalesDuration + 1);
+            changePrank(hacker);
+            vm.expectRevert(Errors.NOT_CREATOR.selector);
+            if (isEthRaffle) {
+                raffle.claimCreatorRefundInEth();
+            } else {
+                raffle.claimCreatorRefund();
+            }
         }
     }
 
-    function test_CreatorClaimInsurance_RevertWhen_TicketSalesAreEqualOrHigherThanInsurance(bool isEthRaffle)
-        external
-    {
-        uint64 ticketSalesDuration;
-        (raffle, ticketSalesDuration) = _createRandomRaffle(isEthRaffle, true, false);
+    function test_CreatorClaimInsurance_TokenRaffle_RevertWhen_NoTicketHaveBeenSold() external {
+        for (uint256 i; i < rafflesArray.length; i++) {
+            _setBlockTimestamp(blockTimestamp);
 
-        changePrank(participant);
+            RaffleArrayInfo memory raffleInfo = rafflesArray[i];
+            (isEthRaffle, nftId, raffle) = (raffleInfo.isEthRaffle, raffleInfo.nftId, raffleInfo.raffle);
+            if (raffle.minTicketThreshold() == 0) continue;
 
-        _purchaseExactAmountOfTickets(raffle, participant, raffle.ticketSalesInsurance());
+            _forwardByTimestamp(initialTicketSalesDuration + 1);
 
-        changePrank(creator);
-        _forwardByTimestamp(ticketSalesDuration + 1);
+            changePrank(creator);
+            vm.expectRevert(Errors.NOTHING_TO_CLAIM.selector);
+            if (isEthRaffle) {
+                raffle.claimCreatorRefundInEth();
+            } else {
+                raffle.claimCreatorRefund();
+            }
+        }
+    }
 
-        vm.expectRevert(Errors.SALES_EXCEED_INSURANCE_LIMIT.selector);
-        if (isEthRaffle) {
-            raffle.creatorClaimInsuranceInEth();
-        } else {
-            raffle.creatorClaimInsurance();
+    function test_CreatorClaimInsurance_RevertWhen_TicketSalesAreEqualOrHigherThanInsurance() external {
+        for (uint256 i; i < rafflesArray.length; i++) {
+            _setBlockTimestamp(blockTimestamp);
+            RaffleArrayInfo memory raffleInfo = rafflesArray[i];
+            (isEthRaffle, nftId, raffle) = (raffleInfo.isEthRaffle, raffleInfo.nftId, raffleInfo.raffle);
+            if (raffle.minTicketThreshold() == 0) continue;
+
+            changePrank(participant);
+            _purchaseExactAmountOfTickets(raffle, participant, raffle.minTicketThreshold());
+
+            _forwardByTimestamp(initialTicketSalesDuration + 1);
+
+            changePrank(creator);
+            vm.expectRevert(Errors.SALES_EXCEED_MIN_THRESHOLD_LIMIT.selector);
+            if (isEthRaffle) {
+                raffle.claimCreatorRefundInEth();
+            } else {
+                raffle.claimCreatorRefund();
+            }
         }
     }
 }

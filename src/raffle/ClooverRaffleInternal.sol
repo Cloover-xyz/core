@@ -43,21 +43,21 @@ abstract contract ClooverRaffleInternal is ClooverRaffleStorage {
     function _purchaseTickets(uint16 nbOfTickets) internal {
         if (nbOfTickets == 0) revert Errors.CANT_BE_ZERO();
 
-        uint16 maxTicketAllowedToPurchase = _config.maxTicketAllowedToPurchase;
+        uint16 maxTicketPerWallet = _config.maxTicketPerWallet;
         if (
-            maxTicketAllowedToPurchase > 0
-                && _participantInfoMap[msg.sender].nbOfTicketsPurchased + nbOfTickets > maxTicketAllowedToPurchase
+            maxTicketPerWallet > 0
+                && _participantInfoMap[msg.sender].nbOfTicketsPurchased + nbOfTickets > maxTicketPerWallet
         ) {
             revert Errors.EXCEED_MAX_TICKET_ALLOWED_TO_PURCHASE();
         }
 
-        uint16 currentSupply = _lifeCycleData.currentSupply;
-        if (currentSupply + nbOfTickets > _config.maxTotalSupply) {
+        uint16 currentTicketSupply = _lifeCycleData.currentTicketSupply;
+        if (currentTicketSupply + nbOfTickets > _config.maxTicketSupply) {
             revert Errors.TICKET_SUPPLY_OVERFLOW();
         }
 
         uint16 purchasedEntriesIndex = uint16(_purchasedEntries.length);
-        uint16 currentTicketsSold = _lifeCycleData.currentSupply + nbOfTickets;
+        uint16 currentTicketsSold = _lifeCycleData.currentTicketSupply + nbOfTickets;
 
         _purchasedEntries.push(
             ClooverRaffleTypes.PurchasedEntries({
@@ -70,9 +70,9 @@ abstract contract ClooverRaffleInternal is ClooverRaffleStorage {
         _participantInfoMap[msg.sender].nbOfTicketsPurchased += nbOfTickets;
         _participantInfoMap[msg.sender].purchasedEntriesIndexes.push(purchasedEntriesIndex);
 
-        _lifeCycleData.currentSupply = currentTicketsSold;
+        _lifeCycleData.currentTicketSupply = currentTicketsSold;
 
-        emit ClooverRaffleEvents.TicketsPurchased(msg.sender, currentSupply, nbOfTickets);
+        emit ClooverRaffleEvents.TicketsPurchased(msg.sender, currentTicketSupply, nbOfTickets);
     }
 
     /// @notice calculate the amount to transfer to the creator, protocol and royalties
@@ -88,21 +88,21 @@ abstract contract ClooverRaffleInternal is ClooverRaffleStorage {
         creatorAmount = ticketSalesAmount - protocolFeesAmount - royaltiesAmount + insuranceCost;
     }
 
-    /// @notice check raffle can be in insurance mode and return the amount to transfer to the treasury and its address
+    /// @notice check raffle can be in REFUNDABLE mode and return the amount to transfer to the treasury and its address
     function _handleCreatorInsurance() internal returns (uint256 treasuryAmountToTransfer, address treasuryAddress) {
-        uint16 ticketSalesInsurance = _config.ticketSalesInsurance;
-        if (ticketSalesInsurance == 0) revert Errors.NO_INSURANCE_TAKEN();
-        uint16 currentSupply = _lifeCycleData.currentSupply;
-        if (currentSupply == 0) revert Errors.NOTHING_TO_CLAIM();
+        uint16 minTicketThreshold = _config.minTicketThreshold;
+        if (minTicketThreshold == 0) revert Errors.NO_INSURANCE_TAKEN();
+        uint16 currentTicketSupply = _lifeCycleData.currentTicketSupply;
+        if (currentTicketSupply == 0) revert Errors.NOTHING_TO_CLAIM();
 
-        if (currentSupply >= ticketSalesInsurance) {
-            revert Errors.SALES_EXCEED_INSURANCE_LIMIT();
+        if (currentTicketSupply >= minTicketThreshold) {
+            revert Errors.SALES_EXCEED_MIN_THRESHOLD_LIMIT();
         }
 
-        _lifeCycleData.status = ClooverRaffleTypes.Status.INSURANCE;
+        _lifeCycleData.status = ClooverRaffleTypes.Status.REFUNDABLE;
 
-        (treasuryAmountToTransfer,) = ticketSalesInsurance.splitInsuranceAmount(
-            _config.insuranceRate, _config.protocolFeeRate, currentSupply, _config.ticketPrice
+        (treasuryAmountToTransfer,) = minTicketThreshold.splitInsuranceAmount(
+            _config.insuranceRate, _config.protocolFeeRate, currentTicketSupply, _config.ticketPrice
         );
         treasuryAddress = IImplementationManager(_config.implementationManager).getImplementationAddress(
             ImplementationInterfaceNames.Treasury
@@ -110,11 +110,13 @@ abstract contract ClooverRaffleInternal is ClooverRaffleStorage {
     }
 
     function _calculateUserRefundAmount() internal returns (uint256 totalRefundAmount) {
-        if (_lifeCycleData.currentSupply >= _config.ticketSalesInsurance) revert Errors.SALES_EXCEED_INSURANCE_LIMIT();
+        if (_lifeCycleData.currentTicketSupply >= _config.minTicketThreshold) {
+            revert Errors.SALES_EXCEED_MIN_THRESHOLD_LIMIT();
+        }
 
-        ClooverRaffleTypes.ParticipantInfo memory participantInfo = _participantInfoMap[msg.sender];
+        ClooverRaffleTypes.ParticipantInfo storage participantInfo = _participantInfoMap[msg.sender];
         if (participantInfo.hasClaimedRefund) revert Errors.ALREADY_CLAIMED();
-        _participantInfoMap[msg.sender].hasClaimedRefund = true;
+        participantInfo.hasClaimedRefund = true;
 
         uint256 nbOfTicketPurchased = participantInfo.nbOfTicketsPurchased;
         if (nbOfTicketPurchased == 0) revert Errors.NOTHING_TO_CLAIM();
@@ -123,22 +125,22 @@ abstract contract ClooverRaffleInternal is ClooverRaffleStorage {
             _calculateTicketsCost(nbOfTicketPurchased) + _calculateUserInsurancePart(nbOfTicketPurchased);
     }
 
-    /// @notice calculate the amount of insurance assign to the user
+    /// @notice calculate the amount of REFUNDABLE assign to the user
     function _calculateUserInsurancePart(uint256 nbOfTicketPurchased)
         internal
         view
         returns (uint256 userAmountToReceive)
     {
-        (, uint256 amountPerTicket) = _config.ticketSalesInsurance.splitInsuranceAmount(
-            _config.insuranceRate, _config.protocolFeeRate, _lifeCycleData.currentSupply, _config.ticketPrice
+        (, uint256 amountPerTicket) = _config.minTicketThreshold.splitInsuranceAmount(
+            _config.insuranceRate, _config.protocolFeeRate, _lifeCycleData.currentTicketSupply, _config.ticketPrice
         );
         userAmountToReceive = amountPerTicket * nbOfTicketPurchased;
     }
 
-    /// @notice calculate the amount of insurance paid by the creator
+    /// @notice calculate the amount of REFUNDABLE paid by the creator
     function _calculateInsuranceCost() internal view returns (uint256 insuranceCost) {
-        if (_config.ticketSalesInsurance == 0) return insuranceCost;
-        insuranceCost = _config.ticketSalesInsurance.calculateInsuranceCost(_config.insuranceRate, _config.ticketPrice);
+        if (_config.minTicketThreshold == 0) return insuranceCost;
+        insuranceCost = _config.minTicketThreshold.calculateInsuranceCost(_config.insuranceRate, _config.ticketPrice);
     }
 
     /// @notice calculate the total price that must be paid regarding the amount of tickets to buy

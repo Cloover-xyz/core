@@ -20,13 +20,13 @@ library InsuranceLib {
 
     /// @notice calculate the part of insurance asign to each ticket and the protocol
     function splitInsuranceAmount(
-        uint16 ticketSalesInsurance,
+        uint16 minTicketThreshold,
         uint16 insuranceRate,
         uint16 procolFeeRate,
         uint16 ticketSupply,
         uint256 ticketPrice
     ) internal pure returns (uint256 protocolFeeAmount, uint256 amountPerTicket) {
-        uint256 insuranceAmount = calculateInsuranceCost(ticketSalesInsurance, insuranceRate, ticketPrice);
+        uint256 insuranceAmount = calculateInsuranceCost(minTicketThreshold, insuranceRate, ticketPrice);
         amountPerTicket = (insuranceAmount - insuranceAmount.percentMul(procolFeeRate)) / ticketSupply;
         protocolFeeAmount = insuranceAmount - amountPerTicket * ticketSupply;
     }

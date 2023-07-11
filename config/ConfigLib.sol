@@ -19,6 +19,7 @@ library ConfigLib {
     string internal constant ADDRESSES_ACCESSCONTROLLER_PATH = "$.accessController";
     string internal constant CHAINLINK_VRF_DATA_PATH = "$.chainLinkVRFData";
     string internal constant RAFFLE_FACTORY_CONFIG_PATH = "$.raffleFactoryConfig";
+    string internal constant IS_TESTNET_PATH = "$.isTestnet";
 
     function getAddress(Config storage config, string memory key) internal returns (address) {
         return config.json.readAddress(string.concat("$.", key));
@@ -33,6 +34,10 @@ library ConfigLib {
         for (uint256 i; i < keys.length; ++i) {
             addresses[i] = getAddress(config, keys[i]);
         }
+    }
+
+    function getIsTestnet(Config storage config) internal returns (bool) {
+        return config.json.readBool(IS_TESTNET_PATH);
     }
 
     function getRpcAlias(Config storage config) internal returns (string memory) {
@@ -76,18 +81,18 @@ library ConfigLib {
         internal
         returns (ClooverRaffleTypes.FactoryConfigParams memory)
     {
-        uint16 maxTotalSupplyAllowed =
-            uint16(config.json.readUint(string.concat(RAFFLE_FACTORY_CONFIG_PATH, ".maxTotalSupplyAllowed")));
+        uint16 maxTicketSupplyAllowed =
+            uint16(config.json.readUint(string.concat(RAFFLE_FACTORY_CONFIG_PATH, ".maxTicketSupplyAllowed")));
         uint16 protocolFeeRate =
             uint16(config.json.readUint(string.concat(RAFFLE_FACTORY_CONFIG_PATH, ".protocolFeeRate")));
         uint16 insuranceRate = uint16(config.json.readUint(string.concat(RAFFLE_FACTORY_CONFIG_PATH, ".insuranceRate")));
-        uint16 minTicketSalesDuration =
-            uint16(config.json.readUint(string.concat(RAFFLE_FACTORY_CONFIG_PATH, ".minTicketSalesDuration")));
-        uint16 maxTicketSalesDuration =
-            uint16(config.json.readUint(string.concat(RAFFLE_FACTORY_CONFIG_PATH, ".maxTicketSalesDuration")));
+        uint64 minTicketSalesDuration =
+            uint64(config.json.readUint(string.concat(RAFFLE_FACTORY_CONFIG_PATH, ".minTicketSalesDuration")));
+        uint64 maxTicketSalesDuration =
+            uint64(config.json.readUint(string.concat(RAFFLE_FACTORY_CONFIG_PATH, ".maxTicketSalesDuration")));
 
         return ClooverRaffleTypes.FactoryConfigParams({
-            maxTotalSupplyAllowed: maxTotalSupplyAllowed,
+            maxTicketSupplyAllowed: maxTicketSupplyAllowed,
             protocolFeeRate: protocolFeeRate,
             insuranceRate: insuranceRate,
             minTicketSalesDuration: minTicketSalesDuration,

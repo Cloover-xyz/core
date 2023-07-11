@@ -8,16 +8,9 @@ on:
         required: false
         default: 256
         type: number
-    secrets:
-      CODECOV_TOKEN:
-        required: false
 
 env:
   FOUNDRY_PROFILE: ci
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
 
 jobs:
   build:
@@ -41,9 +34,9 @@ jobs:
             cache
             out
           key: forge-${{ github.ref_name }}
-  test:
+  gas-diff:
     needs: build
-    name: tests
+    name: gas-diff
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -52,7 +45,7 @@ jobs:
 
       - uses: ./.github/actions/install
 
-      - name: Run tests
+      - name: Run gas report
         run: forge test --gas-report > gasreport.ansi
         env:
           FOUNDRY_FUZZ_RUNS: ${{ inputs.fuzz-runs }}

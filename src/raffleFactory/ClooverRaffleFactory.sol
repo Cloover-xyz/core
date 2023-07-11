@@ -42,9 +42,9 @@ contract ClooverRaffleFactory is IClooverRaffleFactory, ClooverRaffleFactoryGett
         if (data.protocolFeeRate > PercentageMath.PERCENTAGE_FACTOR) revert Errors.EXCEED_MAX_PERCENTAGE();
         if (data.insuranceRate > PercentageMath.PERCENTAGE_FACTOR) revert Errors.EXCEED_MAX_PERCENTAGE();
         if (data.minTicketSalesDuration >= data.maxTicketSalesDuration) revert Errors.WRONG_DURATION_LIMITS();
-        if (data.maxTotalSupplyAllowed == 0) revert Errors.CANT_BE_ZERO();
+        if (data.maxTicketSupplyAllowed == 0) revert Errors.CANT_BE_ZERO();
         _config = ClooverRaffleTypes.FactoryConfig({
-            maxTotalSupplyAllowed: data.maxTotalSupplyAllowed,
+            maxTicketSupplyAllowed: data.maxTicketSupplyAllowed,
             protocolFeeRate: data.protocolFeeRate,
             insuranceRate: data.insuranceRate,
             minTicketSalesDuration: data.minTicketSalesDuration,
@@ -59,7 +59,7 @@ contract ClooverRaffleFactory is IClooverRaffleFactory, ClooverRaffleFactoryGett
     //----------------------------------------
 
     /// @inheritdoc IClooverRaffleFactory
-    function createNewRaffle(
+    function createRaffle(
         ClooverRaffleTypes.CreateRaffleParams calldata params,
         ClooverRaffleTypes.PermitDataParams calldata permitData
     ) external payable override whenNotPaused returns (address newRaffle) {
@@ -67,9 +67,9 @@ contract ClooverRaffleFactory is IClooverRaffleFactory, ClooverRaffleFactoryGett
         newRaffle = address(_raffleImplementation.clone());
         _registeredRaffles.add(newRaffle);
 
-        if (params.ticketSalesInsurance > 0) {
+        if (params.minTicketThreshold > 0) {
             uint256 insuranceCost =
-                params.ticketSalesInsurance.calculateInsuranceCost(_config.insuranceRate, params.ticketPrice);
+                params.minTicketThreshold.calculateInsuranceCost(_config.insuranceRate, params.ticketPrice);
             if (params.purchaseCurrency == address(0)) {
                 if (msg.value != insuranceCost) revert Errors.INSURANCE_AMOUNT();
             } else {
@@ -98,7 +98,7 @@ contract ClooverRaffleFactory is IClooverRaffleFactory, ClooverRaffleFactoryGett
     }
 
     /// @inheritdoc IClooverRaffleFactory
-    function removeClooverRaffleFromRegister() external override {
+    function removeRaffleFromRegister() external override {
         if (!_registeredRaffles.remove(msg.sender)) revert Errors.NOT_WHITELISTED();
         emit ClooverRaffleFactoryEvents.RemovedFromRegister(msg.sender);
     }
@@ -119,10 +119,10 @@ contract ClooverRaffleFactory is IClooverRaffleFactory, ClooverRaffleFactoryGett
             nftContract: params.nftContract,
             nftId: params.nftId,
             ticketPrice: params.ticketPrice,
-            ticketSalesDuration: params.ticketSalesDuration,
-            maxTotalSupply: params.maxTotalSupply,
-            maxTicketAllowedToPurchase: params.maxTicketAllowedToPurchase,
-            ticketSalesInsurance: params.ticketSalesInsurance,
+            endTicketSales: params.endTicketSales,
+            maxTicketSupply: params.maxTicketSupply,
+            maxTicketPerWallet: params.maxTicketPerWallet,
+            minTicketThreshold: params.minTicketThreshold,
             protocolFeeRate: _config.protocolFeeRate,
             insuranceRate: _config.insuranceRate,
             royaltiesRate: params.royaltiesRate,
@@ -148,13 +148,11 @@ contract ClooverRaffleFactory is IClooverRaffleFactory, ClooverRaffleFactoryGett
 
         if (params.ticketPrice < MIN_TICKET_PRICE) revert Errors.WRONG_AMOUNT();
 
-        if (params.maxTotalSupply == 0) revert Errors.CANT_BE_ZERO();
-        if (params.maxTotalSupply > _config.maxTotalSupplyAllowed) revert Errors.EXCEED_MAX_VALUE_ALLOWED();
-
-        if (
-            params.ticketSalesDuration < _config.minTicketSalesDuration
-                || params.ticketSalesDuration > _config.maxTicketSalesDuration
-        ) {
+        if (params.maxTicketSupply == 0) revert Errors.CANT_BE_ZERO();
+        if (params.maxTicketSupply > _config.maxTicketSupplyAllowed) revert Errors.EXCEED_MAX_VALUE_ALLOWED();
+        if (params.maxTicketSupply < 2) revert Errors.BELOW_MIN_VALUE_ALLOWED();
+        uint64 saleDuration = params.endTicketSales - uint64(block.timestamp);
+        if (saleDuration < _config.minTicketSalesDuration || saleDuration > _config.maxTicketSalesDuration) {
             revert Errors.OUT_OF_RANGE();
         }
 

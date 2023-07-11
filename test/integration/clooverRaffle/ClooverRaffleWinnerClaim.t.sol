@@ -9,61 +9,62 @@ contract ClooverRaffleWinnerClaimTest is IntegrationTest {
         changePrank(creator);
     }
 
-    function test_WinnerClaim(bool isEthRaffle, bool hasInsurance) external {
-        uint64 ticketSalesDuration;
-        (raffle, ticketSalesDuration) = _createRandomRaffle(isEthRaffle, hasInsurance, false);
+    function test_WinnerClaim() external {
+        for (uint256 i; i < rafflesArray.length; i++) {
+            _setBlockTimestamp(blockTimestamp);
+            RaffleArrayInfo memory raffleInfo = rafflesArray[i];
+            (isEthRaffle, nftId, raffle) = (raffleInfo.isEthRaffle, raffleInfo.nftId, raffleInfo.raffle);
 
-        changePrank(participant);
-        uint16 min = raffle.ticketSalesInsurance();
-        uint16 max = raffle.maxTotalSupply();
-        _purchaseRandomAmountOfTicketsBetween(raffle, participant, min, max);
+            changePrank(participant);
+            uint16 nbOfTicketsPurchased = 5;
+            _purchaseExactAmountOfTickets(raffle, participant, nbOfTicketsPurchased);
 
-        _forwardByTimestamp(ticketSalesDuration + 1);
+            _forwardByTimestamp(initialTicketSalesDuration + 1);
 
-        raffle.draw();
-        _generateRandomNumbersFromRandomProvider(address(raffle), false);
+            raffle.draw();
+            _generateRandomNumbersFromRandomProvider(address(raffle), false);
 
-        vm.expectEmit(true, true, true, true);
-        emit ClooverRaffleEvents.WinnerClaimed(participant);
-        raffle.winnerClaim();
-
-        assertEq(erc721Mock.ownerOf(nftId), participant);
+            vm.expectEmit(true, true, true, true);
+            emit ClooverRaffleEvents.WinnerClaimed(participant);
+            raffle.claimPrize();
+            assertEq(erc721Mock.ownerOf(nftId), participant);
+        }
     }
 
-    function test_WinnerClaim_RevertWhen_NotWinnerCalling(bool isEthRaffle, bool hasInsurance, address caller)
-        external
-    {
-        vm.assume(participant != caller);
-        uint64 ticketSalesDuration;
-        (raffle, ticketSalesDuration) = _createRandomRaffle(isEthRaffle, hasInsurance, false);
+    function test_WinnerClaim_RevertWhen_NotWinnerCalling() external {
+        for (uint256 i; i < rafflesArray.length; i++) {
+            _setBlockTimestamp(blockTimestamp);
+            RaffleArrayInfo memory raffleInfo = rafflesArray[i];
+            (isEthRaffle, nftId, raffle) = (raffleInfo.isEthRaffle, raffleInfo.nftId, raffleInfo.raffle);
 
-        changePrank(participant);
-        uint16 min = raffle.ticketSalesInsurance();
-        uint16 max = raffle.maxTotalSupply();
-        _purchaseRandomAmountOfTicketsBetween(raffle, participant, min, max);
+            changePrank(participant);
+            uint16 nbOfTicketsPurchased = 5;
+            _purchaseExactAmountOfTickets(raffle, participant, nbOfTicketsPurchased);
 
-        _forwardByTimestamp(ticketSalesDuration + 1);
+            _forwardByTimestamp(initialTicketSalesDuration + 1);
 
-        raffle.draw();
-        _generateRandomNumbersFromRandomProvider(address(raffle), false);
+            raffle.draw();
+            _generateRandomNumbersFromRandomProvider(address(raffle), false);
 
-        changePrank(caller);
-        vm.expectRevert(Errors.MSG_SENDER_NOT_WINNER.selector);
-        raffle.winnerClaim();
+            changePrank(hacker);
+            vm.expectRevert(Errors.MSG_SENDER_NOT_WINNER.selector);
+            raffle.claimPrize();
+        }
     }
 
-    function test_WinnerClaim_RevertWhen_DrawnHasNotBeDone(bool isEthRaffle, bool hasInsurance) external {
-        uint64 ticketSalesDuration;
-        (raffle, ticketSalesDuration) = _createRandomRaffle(isEthRaffle, hasInsurance, false);
+    function test_WinnerClaim_RevertWhen_DrawnHasNotBeDone() external {
+        for (uint256 i; i < rafflesArray.length; i++) {
+            _setBlockTimestamp(blockTimestamp);
+            RaffleArrayInfo memory raffleInfo = rafflesArray[i];
+            (isEthRaffle, nftId, raffle) = (raffleInfo.isEthRaffle, raffleInfo.nftId, raffleInfo.raffle);
 
-        changePrank(participant);
-        uint16 min = raffle.ticketSalesInsurance();
-        uint16 max = raffle.maxTotalSupply();
-        _purchaseRandomAmountOfTicketsBetween(raffle, participant, min, max);
+            changePrank(participant);
+            uint16 nbOfTicketsPurchased = 5;
+            _purchaseExactAmountOfTickets(raffle, participant, nbOfTicketsPurchased);
 
-        _forwardByTimestamp(ticketSalesDuration + 1);
-
-        vm.expectRevert(Errors.TICKET_NOT_DRAWN.selector);
-        raffle.winnerClaim();
+            _forwardByTimestamp(initialTicketSalesDuration + 1);
+            vm.expectRevert(Errors.TICKET_NOT_DRAWN.selector);
+            raffle.claimPrize();
+        }
     }
 }

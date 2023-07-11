@@ -35,8 +35,8 @@ abstract contract ClooverRaffleFactoryGetters is IClooverRaffleFactoryGetters, C
     }
 
     /// @inheritdoc IClooverRaffleFactoryGetters
-    function maxTotalSupplyAllowed() external view override returns (uint256) {
-        return _config.maxTotalSupplyAllowed;
+    function maxTicketSupplyAllowed() external view override returns (uint256) {
+        return _config.maxTicketSupplyAllowed;
     }
 
     /// @inheritdoc IClooverRaffleFactoryGetters
