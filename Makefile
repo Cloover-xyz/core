@@ -6,7 +6,7 @@ NETWORK ?= mainnet
 
 install:
 	pnpm install
-	foundryup
+	foundryup --legacy
 	forge install
 
 contracts:

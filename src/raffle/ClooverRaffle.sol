@@ -125,7 +125,7 @@ contract ClooverRaffle is IClooverRaffle, Initializable, ClooverRaffleGetters {
 
     /// @inheritdoc IClooverRaffle
     function draw() external override ticketSalesOver {
-        if (uint256(_lifeCycleData.status) >= uint256(ClooverRaffleTypes.Status.DRAWNING)) {
+        if (uint256(_lifeCycleData.status) >= uint256(ClooverRaffleTypes.Status.DRAWING)) {
             revert Errors.DRAW_NOT_POSSIBLE();
         }
         uint16 _currentSupply = _lifeCycleData.currentTicketSupply;
@@ -134,7 +134,7 @@ contract ClooverRaffle is IClooverRaffle, Initializable, ClooverRaffleGetters {
         } else if (_currentSupply < _config.minTicketThreshold) {
             _lifeCycleData.status = ClooverRaffleTypes.Status.REFUNDABLE;
         } else {
-            _lifeCycleData.status = ClooverRaffleTypes.Status.DRAWNING;
+            _lifeCycleData.status = ClooverRaffleTypes.Status.DRAWING;
             IRandomProvider(
                 IImplementationManager(_config.implementationManager).getImplementationAddress(
                     ImplementationInterfaceNames.RandomProvider

@@ -80,19 +80,20 @@ abstract contract ClooverRaffleGetters is IClooverRaffleGetters, IERC721Receiver
         if (participantInfo.nbOfTicketsPurchased == 0) return new uint16[](0);
 
         ClooverRaffleTypes.PurchasedEntries[] memory entries = _purchasedEntries;
-
         uint16[] memory userTickets = new uint16[](participantInfo.nbOfTicketsPurchased);
         uint16 entriesLength = uint16(participantInfo.purchasedEntriesIndexes.length);
+        uint16 startIndex;
         for (uint16 i; i < entriesLength;) {
             uint16 entryIndex = participantInfo.purchasedEntriesIndexes[i];
             uint16 nbOfTicketsPurchased = entries[entryIndex].nbOfTickets;
             uint16 startNumber = entries[entryIndex].currentTicketsSold - nbOfTicketsPurchased;
             for (uint16 j; j < nbOfTicketsPurchased;) {
-                userTickets[i + j] = startNumber + j + 1;
+                userTickets[startIndex + j] = startNumber + j + 1;
                 unchecked {
                     ++j;
                 }
             }
+            startIndex += nbOfTicketsPurchased;
             unchecked {
                 ++i;
             }

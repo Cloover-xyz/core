@@ -9,7 +9,7 @@ library ClooverRaffleTypes {
     /// @notice Enumeration of the different status of the raffle
     enum Status {
         OPEN,
-        DRAWNING,
+        DRAWING,
         DRAWN,
         REFUNDABLE,
         CANCELLED

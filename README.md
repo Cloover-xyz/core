@@ -69,7 +69,7 @@ The main entry point for user to interact with the protocol. Each ClooverRaffle 
 - ImplementationManager: [0x8cba63fd2fd3163385fdf1ae309ed4cf7b8d144d](https://sepolia.etherscan.io/address/0x8cba63fd2fd3163385fdf1ae309ed4cf7b8d144d)
 - NFTWhitelist: [0xcaccc829ff7415f5830b499ccf07e12a72024176](https://sepolia.etherscan.io/address/0xcaccc829ff7415f5830b499ccf07e12a72024176)
 - TokenWhitelist: [0xa44080a32b04755e71a8b5eca367c1430aa5530c](https://sepolia.etherscan.io/address/0xa44080a32b04755e71a8b5eca367c1430aa5530c)
-- RandomProvider: [0xff0313635aaa920928bf42e13d69805829b35142](https://sepolia.etherscan.io/address/0xff0313635aaa920928bf42e13d69805829b35142)
+- RandomProvider: [0x22A4AaaF543C55b914cf48AE6A75e38D8F13A3d8](https://sepolia.etherscan.io/address/0x22A4AaaF543C55b914cf48AE6A75e38D8F13A3d8)
 - ClooverRaffleFactory: [0x5fc9f180DEE73270D7251CB3C261f4AF518271c6](https://sepolia.etherscan.io/address/0x5fc9f180DEE73270D7251CB3C261f4AF518271c6)
 - MockERC20: [0x0fa5de3c90a63f6b22aa6f2b2fc29f147216ed02](https://sepolia.etherscan.io/address/0x0fa5de3c90a63f6b22aa6f2b2fc29f147216ed02)
 - MockERC721: [0xbc553b7acd7dfd21d7d82f592971ea5508b1a90c](https://sepolia.etherscan.io/address/0xbc553b7acd7dfd21d7d82f592971ea5508b1a90c)

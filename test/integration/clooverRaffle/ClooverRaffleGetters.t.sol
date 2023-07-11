@@ -159,6 +159,26 @@ contract ClooverRaffleGettersTest is IntegrationTest {
         }
     }
 
+    function test_BalanceOf_WithMultiPurchased() external {
+        for (uint16 i; i < rafflesArray.length; i++) {
+            _setBlockTimestamp(blockTimestamp);
+            RaffleArrayInfo memory raffleInfo = rafflesArray[i];
+            (isEthRaffle, nftId, raffle) = (raffleInfo.isEthRaffle, raffleInfo.nftId, raffleInfo.raffle);
+
+            changePrank(participant);
+            uint16 firstNbOfTicketsPurchased = 4;
+            _purchaseExactAmountOfTickets(raffle, participant, firstNbOfTicketsPurchased);
+            uint16 secondNbOfTicketsPurchased = 5;
+            _purchaseExactAmountOfTickets(raffle, participant, secondNbOfTicketsPurchased);
+            uint16 totalNbOfTicketsPurchased = firstNbOfTicketsPurchased + secondNbOfTicketsPurchased;
+            uint16[] memory tickets = raffle.getParticipantTicketsNumber(participant);
+            assertEq(tickets.length, totalNbOfTicketsPurchased);
+            for (uint16 j = 0; j < totalNbOfTicketsPurchased; j++) {
+                assertEq(tickets[j], j + 1);
+            }
+        }
+    }
+
     function test_OwnerOf() external {
         for (uint16 i; i < rafflesArray.length; i++) {
             _setBlockTimestamp(blockTimestamp);

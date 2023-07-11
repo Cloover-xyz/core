@@ -18,7 +18,7 @@ library Errors {
     error SALES_ALREADY_STARTED(); // 'At least one ticket has already been sold'
     error RAFFLE_CLOSE(); // 'Current timestamps greater or equal than the close time'
     error RAFFLE_STILL_OPEN(); // 'Current timestamps lesser or equal than the close time'
-    error DRAW_NOT_POSSIBLE(); // 'Raffle is status forwards than DRAWNING'
+    error DRAW_NOT_POSSIBLE(); // 'Raffle is status forwards than DRAWING'
     error TICKET_SUPPLY_OVERFLOW(); // 'Maximum amount of ticket sold for the raffle has been reached'
     error WRONG_MSG_VALUE(); // 'msg.value not valid'
     error WRONG_AMOUNT(); // 'msg.value not valid'

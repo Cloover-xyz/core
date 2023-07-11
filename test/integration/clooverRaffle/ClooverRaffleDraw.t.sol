@@ -21,7 +21,7 @@ contract ClooverRaffleDrawTest is IntegrationTest {
 
             _forwardByTimestamp(initialTicketSalesDuration + 1);
             vm.expectEmit(true, true, true, true);
-            emit ClooverRaffleEvents.RaffleStatus(ClooverRaffleTypes.Status.DRAWNING);
+            emit ClooverRaffleEvents.RaffleStatus(ClooverRaffleTypes.Status.DRAWING);
             raffle.draw();
 
             vm.expectEmit(true, true, true, false);
@@ -105,9 +105,9 @@ contract ClooverRaffleDrawTest is IntegrationTest {
             _forwardByTimestamp(initialTicketSalesDuration + 1);
 
             vm.expectEmit(true, true, true, true);
-            emit ClooverRaffleEvents.RaffleStatus(ClooverRaffleTypes.Status.DRAWNING);
+            emit ClooverRaffleEvents.RaffleStatus(ClooverRaffleTypes.Status.DRAWING);
             raffle.draw();
-            assertTrue(raffle.raffleStatus() == ClooverRaffleTypes.Status.DRAWNING);
+            assertTrue(raffle.raffleStatus() == ClooverRaffleTypes.Status.DRAWING);
         }
     }
 

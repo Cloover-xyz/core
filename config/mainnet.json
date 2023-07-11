@@ -2,8 +2,8 @@
   "rpcAlias": "mainnet",
   "isTestnet": false,
   "addressMaintainer": "0xA74aAea4667B1eb37c1475217590424720CAEA47",
-  "inplementationManager": "0x0000000000000000000000000000000000000000",
   "accessController": "0x0000000000000000000000000000000000000000",
+  "inplementationManager": "0x0000000000000000000000000000000000000000",
   "chainLinkVRFData": {
     "vrfCoordinator": "0x271682DEB8C4E0901D1a1550aD2e64D568E69909",
     "keyHash": "0xff8dedfbfa60af186cf3c830acbc32c05aae823045ae5ea7da1e45fbfaba4f92",
