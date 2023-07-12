@@ -6,13 +6,19 @@ import "test/helpers/IntegrationTest.sol";
 contract ClooverRaffleFactoryCreateRaffleTest is IntegrationTest {
     using InsuranceLib for uint16;
 
+    ERC721Mock erc721MockWithOutCreator;
+
     function setUp() public virtual override {
         super.setUp();
         _deployClooverRaffleFactory();
+        erc721MockWithOutCreator = _mockERC721(address(0));
 
         changePrank(creator);
         erc721Mock.mint(creator, nftId);
         erc721Mock.approve(address(factory), nftId);
+
+        erc721MockWithOutCreator.mint(creator, nftId);
+        erc721MockWithOutCreator.approve(address(factory), nftId);
     }
 
     function test_CreateRaffle_TokenRaffle() external {
@@ -254,7 +260,7 @@ contract ClooverRaffleFactoryCreateRaffleTest is IntegrationTest {
         assertEq(newRaffle.royaltiesRate(), initialRoyaltiesRate);
     }
 
-    function test_CreateRaffle_TokenRaffle_RevertWhen_CreatorFundsDoesntCoverInsuranceCost() external {
+    function test_CreateRaffle_TokenRaffle_RevertWhen_CreatorFundsDoesNotCoverInsuranceCost() external {
         uint256 insuranceCost =
             initialMinTicketThreshold.calculateInsuranceCost(uint16(factory.insuranceRate()), initialTicketPrice);
 
@@ -519,6 +525,25 @@ contract ClooverRaffleFactoryCreateRaffleTest is IntegrationTest {
         ClooverRaffleTypes.PermitDataParams memory permitData =
             _convertToPermitDataParams(0, 0, 0, bytes32(0), bytes32(0));
         vm.expectRevert(Errors.COLLECTION_NOT_WHITELISTED.selector);
+        factory.createRaffle(params, permitData);
+    }
+
+    function test_CreateRaffle_RevertWhen_RoyaltiesDefinedButNoCreator() external {
+        ClooverRaffleTypes.CreateRaffleParams memory params = _convertToClooverRaffleParams(
+            address(0),
+            address(erc721MockWithOutCreator),
+            nftId,
+            initialTicketPrice,
+            initialTicketSalesDuration,
+            initialMaxTotalSupply,
+            0,
+            0,
+            initialRoyaltiesRate
+        );
+        ClooverRaffleTypes.PermitDataParams memory permitData =
+            _convertToPermitDataParams(0, 0, 0, bytes32(0), bytes32(0));
+
+        vm.expectRevert(Errors.ROYALTIES_NOT_POSSIBLE.selector);
         factory.createRaffle(params, permitData);
     }
 

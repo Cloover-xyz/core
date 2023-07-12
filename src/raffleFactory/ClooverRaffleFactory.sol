@@ -156,8 +156,13 @@ contract ClooverRaffleFactory is IClooverRaffleFactory, ClooverRaffleFactoryGett
             revert Errors.OUT_OF_RANGE();
         }
 
-        if (_config.protocolFeeRate + params.royaltiesRate > PercentageMath.PERCENTAGE_FACTOR) {
-            revert Errors.EXCEED_MAX_PERCENTAGE();
+        if (params.royaltiesRate > 0) {
+            if (nftWhitelist.getCollectionRoyaltiesRecipient(address(params.nftContract)) == address(0)) {
+                revert Errors.ROYALTIES_NOT_POSSIBLE();
+            }
+            if (_config.protocolFeeRate + params.royaltiesRate > PercentageMath.PERCENTAGE_FACTOR) {
+                revert Errors.EXCEED_MAX_PERCENTAGE();
+            }
         }
     }
 }

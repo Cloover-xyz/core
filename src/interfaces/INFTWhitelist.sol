@@ -15,7 +15,7 @@ interface INFTWhitelist {
     function getWhitelist() external view returns (address[] memory);
 
     /// @notice Return creator address for a specific nft collection
-    function getCollectionCreator(address nftCollection) external view returns (address creator);
+    function getCollectionRoyaltiesRecipient(address nftCollection) external view returns (address creator);
 
     /// @notice Return the implementationManager contract address
     function implementationManager() external view returns (address);

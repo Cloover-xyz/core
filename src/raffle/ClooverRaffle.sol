@@ -180,7 +180,7 @@ contract ClooverRaffle is IClooverRaffle, Initializable, ClooverRaffleGetters {
             purchaseCurrency.safeTransfer(
                 INFTWhitelist(
                     _implementationManager.getImplementationAddress(ImplementationInterfaceNames.NFTWhitelist)
-                ).getCollectionCreator(address(_config.nftContract)),
+                ).getCollectionRoyaltiesRecipient(address(_config.nftContract)),
                 royaltiesAmount
             );
         }
@@ -206,7 +206,7 @@ contract ClooverRaffle is IClooverRaffle, Initializable, ClooverRaffleGetters {
             SafeTransferLib.safeTransferETH(
                 INFTWhitelist(
                     _implementationManager.getImplementationAddress(ImplementationInterfaceNames.NFTWhitelist)
-                ).getCollectionCreator(address(_config.nftContract)),
+                ).getCollectionRoyaltiesRecipient(address(_config.nftContract)),
                 royaltiesAmount
             );
         }
