@@ -1,0 +1,21 @@
+{
+  "rpcAlias": "polygon",
+  "isTestnet": false,
+  "addressMaintainer": "0x6273393d54d7133b5b24500f7bd85152b3bd5d71",
+  "accessController": "0x6e06cb63cb84199fba9a3e32df56196d66282639",
+  "inplementationManager": "0x59b920dc831fc7906d60b5dfa1d343a1ea3a96a6",
+  "chainLinkVRFData": {
+    "vrfCoordinator": "0xAE975071Be8F8eE67addBC1A82488F1C24858067",
+    "keyHash": "0xcc294a196eeeb44da2888d17c0625cc88d70d9760a69d58d853ba6581a9ab0cd",
+    "callbackGasLimit": 100000,
+    "requestConfirmations": 5,
+    "subscriptionId": 867
+  },
+  "raffleFactoryConfig": {
+    "maxTicketSupplyAllowed": 10000,
+    "protocolFeeRate": 300,
+    "insuranceRate": 500,
+    "minTicketSalesDuration": 86400,
+    "maxTicketSalesDuration": 2419200
+  }
+}

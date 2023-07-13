@@ -30,7 +30,7 @@ contract NFTWhitelist is INFTWhitelist {
     // Events
     //----------------------------------------
 
-    event AddedToWhitelist(address indexed addedNftCollection, address indexed creator);
+    event AddedToWhitelist(address indexed addedNftCollection, address indexed royaltiesRecipent);
     event RemovedFromWhitelist(address indexed removedNftCollection);
 
     //----------------------------------------
@@ -58,10 +58,10 @@ contract NFTWhitelist is INFTWhitelist {
     //----------------------------------------
 
     /// @inheritdoc INFTWhitelist
-    function addToWhitelist(address newNftCollection, address creator) external override onlyMaintainer {
+    function addToWhitelist(address newNftCollection, address royaltiesRecipent) external override onlyMaintainer {
         if (!_nftCollections.add(newNftCollection)) revert Errors.ALREADY_WHITELISTED();
-        _royaltiesRecipent[newNftCollection] = creator;
-        emit AddedToWhitelist(newNftCollection, creator);
+        _royaltiesRecipent[newNftCollection] = royaltiesRecipent;
+        emit AddedToWhitelist(newNftCollection, royaltiesRecipent);
     }
 
     /// @inheritdoc INFTWhitelist
