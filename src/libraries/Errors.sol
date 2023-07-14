@@ -29,6 +29,7 @@ library Errors {
     error NOT_REGISTERED_RAFFLE(); // 'Caller is not a raffle contract registered'
     error NOT_RANDOM_PROVIDER_CONTRACT(); // 'Caller is not the random provider contract'
     error COLLECTION_NOT_WHITELISTED(); //'NFT collection not whitelisted'
+    error ROYALTIES_NOT_POSSIBLE(); //'NFT collection creator '
     error TOKEN_NOT_WHITELISTED(); //'Token not whitelisted'
     error IS_ETH_RAFFLE(); //'Ticket can only be purchase with native token (ETH)'
     error NOT_ETH_RAFFLE(); //'Ticket can only be purchase with ERC20 token'

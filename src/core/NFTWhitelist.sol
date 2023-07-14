@@ -24,13 +24,13 @@ contract NFTWhitelist is INFTWhitelist {
 
     address private _implementationManager;
 
-    mapping(address => address) private _collectionToCreator;
+    mapping(address => address) private _royaltiesRecipent;
 
     //----------------------------------------
     // Events
     //----------------------------------------
 
-    event AddedToWhitelist(address indexed addedNftCollection, address indexed creator);
+    event AddedToWhitelist(address indexed addedNftCollection, address indexed royaltiesRecipent);
     event RemovedFromWhitelist(address indexed removedNftCollection);
 
     //----------------------------------------
@@ -58,16 +58,16 @@ contract NFTWhitelist is INFTWhitelist {
     //----------------------------------------
 
     /// @inheritdoc INFTWhitelist
-    function addToWhitelist(address newNftCollection, address creator) external override onlyMaintainer {
+    function addToWhitelist(address newNftCollection, address royaltiesRecipent) external override onlyMaintainer {
         if (!_nftCollections.add(newNftCollection)) revert Errors.ALREADY_WHITELISTED();
-        _collectionToCreator[newNftCollection] = creator;
-        emit AddedToWhitelist(newNftCollection, creator);
+        _royaltiesRecipent[newNftCollection] = royaltiesRecipent;
+        emit AddedToWhitelist(newNftCollection, royaltiesRecipent);
     }
 
     /// @inheritdoc INFTWhitelist
     function removeFromWhitelist(address nftCollectionToRemove) external override onlyMaintainer {
         if (!_nftCollections.remove(nftCollectionToRemove)) revert Errors.NOT_WHITELISTED();
-        delete _collectionToCreator[nftCollectionToRemove];
+        delete _royaltiesRecipent[nftCollectionToRemove];
         emit RemovedFromWhitelist(nftCollectionToRemove);
     }
 
@@ -87,8 +87,8 @@ contract NFTWhitelist is INFTWhitelist {
     }
 
     /// @inheritdoc INFTWhitelist
-    function getCollectionCreator(address nftCollection) external view override returns (address creator) {
-        return _collectionToCreator[nftCollection];
+    function getCollectionRoyaltiesRecipient(address nftCollection) external view override returns (address creator) {
+        return _royaltiesRecipent[nftCollection];
     }
 
     /// @inheritdoc INFTWhitelist

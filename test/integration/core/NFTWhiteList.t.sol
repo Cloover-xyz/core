@@ -34,7 +34,7 @@ contract NFTWhitelistTest is IntegrationTest {
 
         nftWhitelist.addToWhitelist(erc721Contract, newCollectionCreator);
         assertTrue(nftWhitelist.isWhitelisted(erc721Contract));
-        assertEq(nftWhitelist.getCollectionCreator(erc721Contract), newCollectionCreator);
+        assertEq(nftWhitelist.getCollectionRoyaltiesRecipient(erc721Contract), newCollectionCreator);
     }
 
     function test_AddToWhitelist_RevertWhen_CollectionAlreadyWhitelisted() external {
@@ -56,7 +56,7 @@ contract NFTWhitelistTest is IntegrationTest {
         emit RemovedFromWhitelist(erc721Contract);
         nftWhitelist.removeFromWhitelist(erc721Contract);
         assertFalse(nftWhitelist.isWhitelisted(erc721Contract));
-        assertEq(nftWhitelist.getCollectionCreator(erc721Contract), address(0));
+        assertEq(nftWhitelist.getCollectionRoyaltiesRecipient(erc721Contract), address(0));
     }
 
     function test_RemoveFromWhitelist_RevertWhen_CollectionNotWhitelisted() external {

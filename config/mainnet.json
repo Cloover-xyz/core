@@ -1,7 +1,7 @@
 {
   "rpcAlias": "mainnet",
   "isTestnet": false,
-  "addressMaintainer": "0xA74aAea4667B1eb37c1475217590424720CAEA47",
+  "addressMaintainer": "0x0000000000000000000000000000000000000000",
   "accessController": "0x0000000000000000000000000000000000000000",
   "inplementationManager": "0x0000000000000000000000000000000000000000",
   "chainLinkVRFData": {
@@ -13,7 +13,7 @@
   },
   "raffleFactoryConfig": {
     "maxTicketSupplyAllowed": 10000,
-    "protocolFeeRate": 250,
+    "protocolFeeRate": 300,
     "insuranceRate": 500,
     "minTicketSalesDuration": 86400,
     "maxTicketSalesDuration": 2419200
